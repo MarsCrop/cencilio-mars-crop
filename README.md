@@ -11,5 +11,5 @@
 
 ### ¿Cómo utilizarlo?
 
-  ### CDN: https://cdn.jsdelivr.net/gh/MarsCrop/cencilio@main/cencilio.js
+  ### * CDN: https://cdn.jsdelivr.net/gh/MarsCrop/cencilio@main/cencilio.js
   * Se puede cargar como módulo de un tag script de html sin tener que importar directamente :)
