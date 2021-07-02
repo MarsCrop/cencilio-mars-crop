@@ -364,91 +364,6 @@ div.scrollmenu a:hover {
 					<button type='button' id='contact' name='contact' class='contact' style='background: transparent;height: 52px;width: 52px;border-width: 0px;margin-top: 12px;margin-left: 816px;'></button>				
    				<hr style='margin-top: -64px;/* background-color: #ebe6f3; */background-color: #737275f5;border-width: 0px;height: 8px;/* margin-bottom: 3%; */width: 16%;margin-left: 19px;position: absolute;' class='perfil_hr'></hr>
 				</div>		
-			<div id='contactForm' name='contactForm' class='contactForm' style='background-color: rgb(180, 178, 183);box-shadow: rgb(210, 191, 241) 0px 2px 8px 5px;position: absolute;z-index: 4;width: 90%;margin-top: 40px;margin-left: 0px;display: none;'>
-				<div id='header_xlsx' style='max-height: 144px;'>
-					<strong style='font-family: Gotham Black;margin-left: -192px;font-size: 24px;position: absolute;margin-top: 2px;'>
-						Nombre de archivo Excel.xlsx
-					</strong>
-					<input id='sheet_select' placeholder='Nombre de hoja' style='max-height: 144px;width: 136px;margin-top: 16px;margin-left: 16px;border-radius: 2px;'/>
-					<div id='sheets_span' style='max-height: 144px;'>
-						<span style='max-height: 144px;'>
-							Total: 
-						</span>
-						<label id='total_sheets' style='max-height: 144px;'>
-							0
-						</label>
-						<span style='max-height: 144px;'>
-							| Con errores: 
-						</span>
-						<label id='total_sheets' style='max-height: 144px;'>
-							0
-						</label>
-						<button type='button' id='contact' name='id' class='notifications' style='background: blue;height: 36px;width: 122px;border-width: 0px;margin-top: 11px;margin-left: 320px;border-radius: 16px;padding: 8px;margin-top: -33px;position: absolute;'>
-							<img src='info.png' style='height: 16px;width: 16px;margin-left: -32px;margin-top: -68px;'>
-							<label style='height: 26px;width: 26px;margin-left: 8px;font-size: 8px;'>
-								CARGAR DATOS
-							</label>
-						</button>
-					</div>
-				</div>
-				<div id='options_xlsx' style='max-height: 144px;'>
-					<div id='sheets_span' style='max-height: 144px;'>
-						<span style='max-height: 144px;margin-top: 0px;margin-left: -432px;position: absolute;'>
-							Instrucciones: 
-						</span>
-						<label id='total_sheets' style='max-height: 144px;width: 40%;margin-left: -346px;/* position: absolute; */'>
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.</span>
-						</label>
-						<input id='show_errors' type='checkbox' style='width: 24px;height: 24px;margin-left: 700px;margin-top: -32px;'/>
-						<span id='total_sheets' style='max-height: 144px;margin-left: 126px;margin-top: -22px;position: absolute;'>
-							Mostrar filas con errores
-						</span>
-						<input id='show_edits' type='checkbox' style='width: 24px;height: 24px;margin-left: 920px;margin-top: -24px;'/>
-						<span id='total_sheets' style='max-height: 144px;margin-left: 344px;margin-top: -22px;position: absolute;'>
-							Mostrar filas editadas
-						</span>
-					</div>
-				</div>
-				<table>
-        			<thead>
-          			<span>Editar objeto seleccionado</span>
-        			</thead>
-        			<tbody id='sheets_rows'>
-        				<tr>
-        					<td>
-								<input id='select_all' type='checkbox' style='width: 24px;height: 24px;margin-left: 32px;margin-bottom: 16px;margin-right: 16px;'/>
-							</td>
-        					<td>							
-								<span style='max-height: 144px;font-size: 16px;margin-right: 16px;margin-top: -16px;position: absolute;margin-left: 34px;'>
-									Columna 1
-								</span>
-							</td>
-        					<td>							
-								<span style='max-height: 144px;font-size: 16px;margin-right: 16px;margin-top: -16px;position: absolute;margin-left: 178px;'>
-									Columna 2
-								</span>
-							</td>
-        					<td>							
-								<span style='max-height: 144px;font-size: 16px;margin-right: 16px;margin-top: -16px;position: absolute;margin-left: 338px;'>
-									Columna 3
-								</span>
-							</td>
-        					<td>							
-								<span style='max-height: 144px;font-size: 16px;margin-right: 16px;margin-top: -16px;position: absolute;margin-left: 534px;'>
-									Columna 4
-								</span>
-							</td>
-        					<td>							
-								<span style='max-height: 144px;font-size: 16px;margin-right: 16px;margin-top: -16px;position: absolute;margin-left: 722px;'>
-									Columna 5	
-								</span>
-							</td>							
-						</tr>																
-        			</tbody>
-				</table>
-				<div id='mensajes' style='overflow-y: scroll; overflow-x: hidden; max-height: 144px;'>
-				</div>
-			</div>
 			<div id='contactForm2' name='contactForm2' class='contactForm' style='background-color: #8a52e7; box-shadow: 0px 2px 8px 5px #8a52e7; position: absolute; display: none; z-index: 4;'>
 					<span style='max-height: 144px;'>
 						Datos cargados exitosamente
@@ -474,17 +389,21 @@ div.scrollmenu a:hover {
 				Raw response header
 			</label>
 			<hr></hr>
-			<label id='js_data' style='background: transparent;height: 52px;width: 52px;border-width: 0px;margin-top: 12px;margin-left: 816px;'>
+			<label id='js_data' style='background: #00000070;height: 226px;width: 270px;border-width: 0px;margin-top: -247px;position: absolute;border-radius: 8px;margin-left: 2px;font-size: 12px;padding: 38px;'>
 			</label>
 		</div> 			
-		<div class='progress_bar' id='progress_bar' name='progress_bar' style='display: none; margin-top: 60px;background-color: #8e3535;height: 40px;width: 400px;margin-left: 483px;border-radius: 12px;position: absolute;'>
-			<label style='font-size: 18px;margin-left: 40px;margin-top: 7px;'>
+		<div class='progress_bar' id='progress_bar' name='progress_bar' style='display: block;margin-top: 60px;background-color: rgb(142, 53, 53);height: 40px;width: 400px;margin-left: 483px;border-radius: 12px;position: absolute;'>
+			<label class='pmsg' id='pmsg' name='pmsg' style='font-size: 18px;margin-left: 24px;margin-top: 4px;'>
 				Uploading
 			</label>
-			<div class='percent' id='percent' name='percent' style='font-size: 20px;margin-left: 192px;margin-top: -31px;'>
-				0%
+			<div class='percent' id='percent' name='percent' style='font-size: 20px;margin-left: 160px;margin-top: -32px;width: 55%;border-radius: 4px;height: 80%;'>
+				<label id='p%' name='p%' class='p%' style='width: 100%;margin-left: 16px;'>
+					0%
+				</label>	
 			</div>
 		</div> 
+		<script src='https://oss.sheetjs.com/sheetjs/shim.js'></script>
+		<script src='https://oss.sheetjs.com/sheetjs/xlsx.full.min.js'></script>
 		<div id='cencilio-importer'></div>
 		<script type='module' src='http://localhost:1989/cencilio.js'>
 		</script>
@@ -493,11 +412,40 @@ div.scrollmenu a:hover {
   				var options = {
     				apiKey: '6c6fc060b8be905fbf81537fe19b161c',
     				fields:[
-            		{ label: 'Paqueteria', key: 'carrier' },
-            		{ label: 'Precio de guía', key: 'label_price' },
-            		{ label: 'Fecha creación', key: 'creation_date' },
-            		{ label: 'Nombre de cliente', key: 'customer_name' }
+            		{ label: 'Activos', key: 'acciones',
+              			validators:[
+                			{
+                  			validate: 'required',
+                  			error: 'El valor de los activos no puede quedar vacío'
+                			}
+              			]},
+            		{ label: 'Nombre de accionista', key: 'accionista' ,
+              			validators:[
+                			{
+                  			validate: 'unique',
+                  			error: 'El nombre no puede pertenecer a otro que produce activos'
+                			}
+              			]},
+            		{ label: 'Edad', key: 'edad' },
+            		{ label: 'Profesion', key: 'profesion',
+              			validators:[
+                			{
+                  			validate: 'regex_match',
+                  			regex: '^\\d{1,10}$',
+                  			error: 'La profesion no se ejerce para producir los activos'
+                			}
+              			]},
+            		{ label: 'Carrera universitaria', key: 'carrera' },
           		],
+    				theme: {
+        				global: {
+              			backgroundColor: '#212327',
+              			textColor: '#c2c3c3',
+              			primaryTextColor: '#c2c3c3',
+              			primaryButtonColor: '#c2c3c3',
+              			errorColor: '#c2c3c3'
+            		}
+    				},          		
     				height: 200,
     				width: 300,
   				};
