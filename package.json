@@ -1,0 +1,20 @@
+{
+  "name": "cencilio",
+  "version": "1.0.0",
+  "description": "A library used for rendering excel files and help parsing data with a graphical user interface in it",
+  "type": "module",
+  "main": "cencilio.js",
+  "scripts": {
+    "start": "node cencilio.js"
+  },
+  "keywords": [],
+  "author": "Marcelo N. Tuller",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "xlsx": "^0.17.0",
+    "shim": "*"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0"
+  }
+}
