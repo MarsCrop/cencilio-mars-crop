@@ -19,8 +19,8 @@
 ### ¿Cómo usar el modulo con NodeJS?
 
   * Abrir una terminal e ingresar estos comandos para instalacion del paquete:
-      npm install
-      npm run dev
+      * *npm install
+      * *npm run dev
 
 ### ¿Cómo se usa?
 
