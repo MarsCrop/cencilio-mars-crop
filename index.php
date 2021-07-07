@@ -363,52 +363,16 @@ div.scrollmenu a:hover {
 					<img src='lista.png' style='height: 36px;width: 36px;margin-top: 16px;margin-left: 40px;'>
 					<button type='button' id='contact' name='contact' class='contact' style='background: transparent;height: 52px;width: 52px;border-width: 0px;margin-top: 12px;margin-left: 816px;'></button>				
    				<hr style='margin-top: -64px;/* background-color: #ebe6f3; */background-color: #737275f5;border-width: 0px;height: 8px;/* margin-bottom: 3%; */width: 16%;margin-left: 19px;position: absolute;' class='perfil_hr'></hr>
-				</div>		
-			<div id='contactForm2' name='contactForm2' class='contactForm' style='background-color: #8a52e7; box-shadow: 0px 2px 8px 5px #8a52e7; position: absolute; display: none; z-index: 4;'>
-					<span style='max-height: 144px;'>
-						Datos cargados exitosamente
-					</span>
-					<button type='button' id='contact' name='id' class='notifications' style='background: blue;height: 52px;width: 52px;border-width: 0px;margin-top: 11px;margin-left: 16px;'>
-						<img src='close.png'>
-						</img>
-					</button>
-					<hr style='max-height: 144px;'></hr>
-					<div id='sheets_span' style='max-height: 144px;'>
-						<span style='max-height: 144px;'>
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-						</span>
-						<button type='button' id='contact' name='id' class='notifications' style='background: blue;height: 52px;width: 52px;border-width: 0px;margin-top: 11px;margin-left: 16px;'>
-							ACEPTAR
-						</button>
-					</div>
-				</div>
-			</div>
+				</div>	
+			<!--TAGS FROM MODULE-->
 		</div>	
-		<div class='umenu_videos' style='/* display:flex; */justify-content:center;margin-left: 0px;width: 273px;margin-top: 8px;height: 42px;background-color: #b05cc5b8;border-radius: 4px;margin-left: 8px;box-shadow: rgb(231 82 220 / 44%) 0px 2px 8px 5px;'>
-			<label style='background: transparent;height: 240px;width: 208px;border-width: 0px;margin-top: 10px;margin-left: 56px;'>
-				Raw response header
-			</label>
-			<hr></hr>
-			<label id='js_data' style='background: #00000070;height: 226px;width: 270px;border-width: 0px;margin-top: -247px;position: absolute;border-radius: 8px;margin-left: 2px;font-size: 12px;padding: 38px;'>
-			</label>
-		</div> 			
-		<div class='progress_bar' id='progress_bar' name='progress_bar' style='display: block;margin-top: 60px;background-color: rgb(142, 53, 53);height: 40px;width: 400px;margin-left: 483px;border-radius: 12px;position: absolute;'>
-			<label class='pmsg' id='pmsg' name='pmsg' style='font-size: 18px;margin-left: 24px;margin-top: 4px;'>
-				Uploading
-			</label>
-			<div class='percent' id='percent' name='percent' style='font-size: 20px;margin-left: 160px;margin-top: -32px;width: 55%;border-radius: 4px;height: 80%;'>
-				<label id='p%' name='p%' class='p%' style='width: 100%;margin-left: 16px;'>
-					0%
-				</label>	
-			</div>
-		</div> 
 		<script src='https://oss.sheetjs.com/sheetjs/shim.js'></script>
 		<script src='https://oss.sheetjs.com/sheetjs/xlsx.full.min.js'></script>
+		<script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/mocha/1.0.2/package/lib/browser/fs.js'></script>
 		<div id='cencilio-importer'></div>
 		<script type='module' src='http://localhost:1989/cencilio.js'>
 		</script>
 		<script>		
-  				//import { renderWidget } from 'http://localhost:1989/cencilio.js';
   				var options = {
     				apiKey: '6c6fc060b8be905fbf81537fe19b161c',
     				fields:[
@@ -416,14 +380,14 @@ div.scrollmenu a:hover {
               			validators:[
                 			{
                   			validate: 'required',
-                  			error: 'El valor de los activos no puede quedar vacío'
+                  			error: 'Error de valor: el valor de los activos no puede quedar vacío'
                 			}
               			]},
             		{ label: 'Nombre de accionista', key: 'accionista' ,
               			validators:[
                 			{
                   			validate: 'unique',
-                  			error: 'El nombre no puede pertenecer a otro que produce activos'
+                  			error: 'Error de tipo: el nombre no puede pertenecer a otro que produce activos'
                 			}
               			]},
             		{ label: 'Edad', key: 'edad' },
@@ -432,18 +396,18 @@ div.scrollmenu a:hover {
                 			{
                   			validate: 'regex_match',
                   			regex: '^\\d{1,10}$',
-                  			error: 'La profesion no se ejerce para producir los activos'
+                  			error: 'Error de sintaxis: la profesion no se ejerce para producir los activos'
                 			}
               			]},
             		{ label: 'Carrera universitaria', key: 'carrera' },
           		],
     				theme: {
         				global: {
-              			backgroundColor: '#212327',
-              			textColor: '#c2c3c3',
-              			primaryTextColor: '#c2c3c3',
-              			primaryButtonColor: '#c2c3c3',
-              			errorColor: '#c2c3c3'
+              			backgroundColor: '#B4B2B7',
+              			textColor: '#6500d3d1',
+              			primaryTextColor: '#9400d3',
+              			primaryButtonColor: '#0000ff',
+              			errorColor: '#ff0000'
             		}
     				},          		
     				height: 200,
