@@ -3,6 +3,11 @@
 	ini_set('session.cookie_httponly', 0);
 	ini_set('session.cookie_secure', 1);
 	ini_set('session.cookie_samesite', 'Strict');
+	//API BLOCK
+   //require_once('workers/api/php/verify_token.php');	
+   //if ($api_result === 'TYPE ERROR: USER DOES NOT IN DATABASE'){
+   //	exit();
+   //}
 echo "<!DOCTYPE html><html class='perfil_html' lang='en'>
 <script>
   function addActive(x) {
@@ -47,25 +52,6 @@ html *
  position: relative;
 }
 
-  #progress_bar {
-    margin: 10px 0;
-    padding: 3px;
-    border: 1px solid #000;
-    font-size: 14px;
-    clear: both;
-    opacity: 0;
-    -moz-transition: opacity 1s linear;
-    -o-transition: opacity 1s linear;
-    -webkit-transition: opacity 1s linear;
-  }
-  #progress_bar.loading {
-    opacity: 1.0;
-  }
-  #progress_bar .percent {
-    background-color: #99ccff;
-    height: auto;
-    width: 0;
-  }
 
 .scroll-left .inner {
  position: absolute;
@@ -98,21 +84,6 @@ html *
   		color: white;
 	}
 
-		#contact{ 
-  -webkit-user-select: none; /* Chrome/Safari */        
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE10+ */
-  width: 300px; 
-  height: 30px; 
-  line-height: 30px;
-  color: white;
-  font-weight: 200;
-  font-size: 75%;
-  text-align: center;
-  cursor: pointer;
-  border: 1px solid white;
-}
-
 #uservid{ 
   position: relative;
 }
@@ -121,23 +92,6 @@ html *
   position: absolute;
   display: block;
   z-index: 2;
-}
-
-#contactForm {
-  display: none;
-  border-radius: 16px;
-  background-color: #8A2BE2;
-  padding: 0.1em;
-  width: 400px;
-  overflow-y: hidden;
-  max-height: 400px;
-  text-align: center;
-  position: fixed;
-  top:50%;
-  left:50%;
-  transform: translate(-50%,-50%);
-  -webkit-transform: translate(-50%,-50%);
-  z-index: 3;
 }
 
 input, textarea { 
@@ -346,19 +300,6 @@ div.scrollmenu a:hover {
 		<font color = 'white'>			
 		<div class='umenu' style='display:none; justify-content:center;margin-left: -870px;max-width: 500px;margin-top: 16px;'>
 			<div id='player'>
-				<script>  
-					$(function() {
-						$('#contact').click(function() {
-    						$('#contactForm').fadeToggle();
-  	    				});
-  					});
-  					$(document).mouseup(function (e) {
-    					var container = $('#contactForm');
-    					if (!container.is(e.target) && container.has(e.target).length === 0) {
-        					container.fadeOut();
-    					}
-  					});	
-				</script>  
 				<div class= 'vtitle' style='background-color: rgb(138, 82, 231);box-shadow: rgb(138, 82, 231) 0px 2px 8px 5px;position: absolute;z-index: 4;display: block;width: 20%;margin-top: -20px;margin-left: 620px;height: 80px;'>
 					<img src='lista.png' style='height: 36px;width: 36px;margin-top: 16px;margin-left: 40px;'>
 					<button type='button' id='contact' name='contact' class='contact' style='background: transparent;height: 52px;width: 52px;border-width: 0px;margin-top: 12px;margin-left: 816px;'></button>				
@@ -372,34 +313,82 @@ div.scrollmenu a:hover {
 		<div id='cencilio-importer'></div>
 		<script type='module' src='http://localhost:1989/cencilio.js'>
 		</script>
-		<script>		
+		<script>	
+				//* Dev example	
+  				//var options = {
+    			//	apiKey: '6c6fc060b8be905fbf81537fe19b161c',
+    			//	fields:[
+            //		{ label: 'Activos', key: 'acciones',
+            //  			validators:[
+            //    			{
+            //      			validate: 'required',
+            //      			error: 'Error de valor: el valor de los activos no puede quedar vacío'
+            //    			}
+            //  			]},
+            //		{ label: 'Nombre de accionista', key: 'accionista' ,
+            //  			validators:[
+            //    			{
+            //      			validate: 'unique',
+            //      			error: 'Error de tipo: el nombre no puede pertenecer a otro que produce activos'
+            //    			}
+            //  			]},
+            //		{ label: 'Edad', key: 'edad' },
+            //		{ label: 'Profesion', key: 'profesion',
+            //  			validators:[
+            //    			{
+            //      			validate: 'regex_match',
+            //      			regex: '^\\d{1,10}$',
+            //      			error: 'Error de correspondencia: la profesion no se ejerce para producir los activos'
+            //    			}
+            //  			]},
+            //		{ label: 'Carrera universitaria', key: 'carrera' },
+          	//	],
+    			//	theme: {
+        		//		global: {
+            //  			backgroundColor: '#B4B2B7',
+            //  			textColor: '#6500d3d1',
+            //  			primaryTextColor: '#9400d3',
+            //  			primaryButtonColor: '#0000ff',
+            //  			errorColor: '#ff0000'
+            //		}
+    			//	},          		
+    			//	height: 200,
+    			//	width: 300,
+  				//};
   				var options = {
     				apiKey: '6c6fc060b8be905fbf81537fe19b161c',
     				fields:[
-            		{ label: 'Activos', key: 'acciones',
+            		{ label: 'Paqueteria', key: 'paqueteria',
               			validators:[
                 			{
                   			validate: 'required',
-                  			error: 'Error de valor: el valor de los activos no puede quedar vacío'
+                  			error: 'Error de valor: la empresa no puede ser desconocida'
                 			}
               			]},
-            		{ label: 'Nombre de accionista', key: 'accionista' ,
-              			validators:[
-                			{
-                  			validate: 'unique',
-                  			error: 'Error de tipo: el nombre no puede pertenecer a otro que produce activos'
-                			}
-              			]},
-            		{ label: 'Edad', key: 'edad' },
-            		{ label: 'Profesion', key: 'profesion',
+            		{ label: 'Precio de guia', key: 'precio'},
+            		{ label: 'Precio de entrega en zona extendida', key: 'precio_entrega' },
+            		{ label: 'Precio de recoleccion en zona extendida', key: 'precio_recoleccion' },
+            		{ label: 'Precio de sobrepeso', key: 'precio_sobrepeso' },
+            		{ label: 'Precio de asegurar', key: 'precio_asegurar' },
+            		{ label: 'Fecha de creacion', key: 'creada' },
+            		{ label: 'Nombre del cliente', key: 'cliente'},
+            		{ label: 'Codigo postal', key: 'postal', 
               			validators:[
                 			{
                   			validate: 'regex_match',
                   			regex: '^\\d{1,10}$',
-                  			error: 'Error de sintaxis: la profesion no se ejerce para producir los activos'
+                  			error: 'Error de sintaxis: direccion postal erronea'
                 			}
-              			]},
-            		{ label: 'Carrera universitaria', key: 'carrera' },
+              			]
+              		},            		
+            		{ label: 'Numero de rastreo', key: 'rastreo',
+              			validators:[
+                			{
+                  			validate: 'unique',
+                  			error: 'Error de correspondencia: el rastreo esta asociado a otra persona'
+                			}
+              			]
+              		},
           		],
     				theme: {
         				global: {
@@ -416,4 +405,5 @@ div.scrollmenu a:hover {
 		</script>
 	</body>
 </html>";
+?>
 ?>
