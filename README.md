@@ -6,10 +6,20 @@
 
 ### Dependencias
 
-  * El módulo permite el uso de APIs, por lo que se necesita SQL para algunas de las funciones
+  * El módulo permite el uso de APIs, por lo que se necesita una base de datos en SQL para algunas de las funciones
   * SheetJS: se utiliza SheetJS para interpretar el excel con las diferentes estructuras de validez de datos
   * Shim: algunos navegadores no contienen funciones necesarias para usar SheetJS sin dependencias. En ese caso debe agregarse Shim como dependencia 
   * fs: utilizada para guardar los datos cargados una vez creada la estructura en JSON
+
+### Parametros de API
+  Estos parametros sirven solamente si se quiere validar el uso de la app con una base de datos. La respuesta retorna con codigo en PHP :)
+  
+  *userId: alias en el objeto options de user_id (ver tabla en entorno)
+  *apiKey: alias en el objeto options de key (ver tabla en entorno)
+  
+  Los valores se comprueban al llamar a verify_token.php utilizando la funcion validate_api. Un error de tipo se devuelve para una sesion que no esta en la base de datos.
+  Dicho esto el ingreso por URL deberia ser protocolo+/URL+/ejemplo.php?user_id=miusuario&key=miclave 
+  Lo recomemndable es contar con los dos backends para tener una validacion mas rigurosa.
 
 ### ¿Cómo integro el modulo?
 
