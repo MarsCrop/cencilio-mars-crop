@@ -24,10 +24,19 @@ class ElReqs {
 
 function invalidUnknown() {
   	//Message to show if value is not in database
-  	return 1;
+  	alert('INVALID SESSION');
 }
 
+var isFirefox = {
+    that: function() {
+    		console.info(navigator.userAgent);
+        return navigator.userAgent.match(/Firefox/i);
+    },
+};	
+
 function validate_api(api_key, user_id){
+	console.info(api_key);
+	console.info(user_id);
 	if (typeof api_key === 'undefined'){
 		return 'validationError';
 	}
@@ -45,15 +54,15 @@ function validate_api(api_key, user_id){
    xhr.responseType = "json";   	
    xhr.setRequestHeader("Cache-Control", "no-cache, no-store, must-revalidate");
    xhr.onload = function (data) {
-		if (data.currentTarget.response !== null) {
-			if (data.currentTarget.response.results[0].answer !== 'OK') {
-				return 1;				
-			}			
-			else {
-				return 'validationError';				
-			}
-		}		
+   	console.info(data.currentTarget.response);
+		if (data.currentTarget.response !== 'TYPE ERROR: USER DOES NOT IN DATABASE') {
+			return 1;				
+		}			
+		else {
+			return 'validationError';				
+		}
   	};
+  	console.info('SENDING API REQUEST');
    xhr.send();
 }
 
@@ -88,17 +97,24 @@ function readFields(fields){
 			return 'validationError';
 		}
 		if (fields['userId'] !== ''){
-			let verify_user = validate_api(fields['apiKey'], fields['userId']);
+		//	let verify_user = validate_api(fields['apiKey'], fields['userId']);
+		//	console.info(verify_user);
+		//	if (verify_user !== 1){
+		//		invalidUnknown(); //validationError
+		//		return 1;
+		//	}	
 		}
 		else{
-			let verify_user = validate_api(fields['apiKey'], '');	
-		}
-		if (verify_user !== 1){
-			invalidUnknown(); //validationError
-			return 1;
+		//	let verify_user = validate_api(fields['apiKey'], '');	
+		//	if (verify_user !== 1){
+		//	console.info(verify_user);
+		//		invalidUnknown(); //validationError
+		//		return 1;
+		//	}			
 		}
 	}
 	catch (error){
+		console.info(error);
 	}
 	renderer.dom_factor = [];
 	for (var j = 0; j < fields.length; j++) {
@@ -191,10 +207,9 @@ function renderFun(file, config){
 	  	var reader = new FileReader();
 	  	let next_col = false;
 	  	reader.onloadend = function(e) {
-     		// Ensure that the progress bar displays 100% at the end.
      		document.getElementById('percent').style.width = '100%';
      		document.getElementById('percent').textContent = '100%';
-     		setTimeout("document.getElementById('progress_bar').className='';", 300);
+     		//setTimeout("document.getElementById('progress_bar').className='';", 300);
 	  		var data = e.target.result;
 	  		data = new Uint8Array(data);
 	  		//process_wb(XLSX.read(data, {type: 'array'}));
@@ -247,7 +262,7 @@ function renderFun(file, config){
 			sheetDivChildDiv.style='max-height: 144px;';
 	  		let sheetDivChildStrong = document.createElement('strong');
 	  		sheetDivChildStrong.id = 'cencilio_file_name';
-			sheetDivChildStrong.style='font-family: "Gotham Black";margin-left: 56px;font-size: 24px;position: absolute;margin-top: 2px;';
+			sheetDivChildStrong.style='font-family: "Gotham Black";margin-left: 40px;font-size: 24px;position: absolute;margin-top: 2px;color: rgb(148, 0, 211);display: inline-block;text-overflow: ellipsis;overflow: hidden;width: 222px;white-space: nowrap;';
 			sheetDivChildStrong.innerHTML = '';
 			//cencilio default primary text color
 			if (typeof config['theme']['global']['primaryTextColor'] === 'undefined'){
@@ -287,7 +302,7 @@ function renderFun(file, config){
 	  		let sheetDivChildInput = document.createElement('select');
 			sheetDivChildInput.id='sheet_select';
 			sheetDivChildInput.placeholder='Nombre de hoja'; 
-			sheetDivChildInput.style='max-height: 144px;width: 136px;margin-top: 2px;margin-left: 466px;border-radius: 2px;height: 32px;margin-bottom: 16px;';
+			sheetDivChildInput.style='max-height: 144px;width: 136px;margin-top: 2px;margin-left: 506px;border-radius: 2px;height: 32px;margin-bottom: 16px;';
 			sheetDivChildInput.onchange = function(e){
 				let sheet = renderer.loadTable(workbook.SheetNames.indexOf(e.target.value));
 				renderer.page = 0;	
@@ -299,14 +314,14 @@ function renderFun(file, config){
 			sheetDivGrandChildDiv.placeholder='Nombre de hoja'; 
 			sheetDivGrandChildDiv.style='max-height: 144px; padding: 2px;';
 	  		let sheetDivGrandChildSpan = document.createElement('span');
-			sheetDivGrandChildSpan.style='max-height: 144px;margin-left: 276px;margin-top: -106px;position: absolute;';
+			sheetDivGrandChildSpan.style='max-height: 144px;margin-left: 256px;margin-top: -106px;position: absolute;';
 			sheetDivGrandChildSpan.innerHTML='Total:';
 	  		let sheetDivGrandChildLabel = document.createElement('label');
-			sheetDivGrandChildLabel.style='max-height: 144px;margin-left: 320px;margin-top: -106px;position: absolute;';
+			sheetDivGrandChildLabel.style='max-height: 144px;margin-left: 300px;margin-top: -106px;position: absolute;';
 			sheetDivGrandChildLabel.id='total_sheets';
 			sheetDivGrandChildLabel.innerHTML = '0';
 	  		let sheetDivGrandChildSpan2 = document.createElement('span');
-			sheetDivGrandChildSpan2.style='max-height: 174px;position: absolute;margin-top: -106px;margin-left: 340px;';
+			sheetDivGrandChildSpan2.style='max-height: 174px; position: absolute; margin-top: -106px; margin-left: 340px;';
 			sheetDivGrandChildSpan2.innerHTML = '| Con errores:'; 
 	  		let sheetDivGrandChildLabel2 = document.createElement('label');
 			sheetDivGrandChildLabel2.style='max-height: 144px;margin-top: -106px;position: absolute;margin-left: 440px;';
@@ -529,6 +544,7 @@ function renderFun(file, config){
 	  					for(var vtypec = 0; vtypec <= selector_size; ++vtypec) {
 							let selectOption = document.createElement('option'); 
 							try{
+								//console.info(renderer.dom_factor[vtypec]);
 								selectOption.value = renderer.dom_factor[vtypec][0][0].key;
 								tdLabelSelector.choices.push(renderer.dom_factor[vtypec][0][0].key);
 								selectOption.innerHTML = renderer.dom_factor[vtypec][0][0].label;
@@ -539,6 +555,7 @@ function renderFun(file, config){
 								tdLabelSelector.appendChild(selectOption);
 							}
 							catch (error){
+								console.info('Faltan argumentos para renderizar columnas'); //no hay argumentos === no hay columnas
 								console.info(error);
 							}
 						};  	
@@ -597,7 +614,11 @@ function renderFun(file, config){
 			if (e.lengthComputable) {
 			   var percentLoaded = Math.round((e.loaded / e.total) * 100);
 			   document.getElementById('progress_bar').style.display = 'block';
+      		document.getElementById('progress_bar').style.backgroundColor= '#99ccff';
+      		document.getElementById('progress_bar').style.height = 'auto';
+      		document.getElementById('progress_bar').style.width = '200px';
 			   // Increase the progress bar length.
+			   console.info(document.getElementById('progress_bar').style.display);
 			   if (percentLoaded <= 100) {
 			      document.getElementById('p%').style.width = percentLoaded + '%';
 			   	document.getElementById('p%').textContent = percentLoaded + '%';
@@ -608,7 +629,7 @@ function renderFun(file, config){
       	e.abort();
     	};    		
     	reader.onloadstart = function (e) {
-      	document.getElementById('progress_bar').className = 'loading';
+      	document.getElementById('progress_bar').style = 'opacity: 1;';
       	document.getElementById('progress_bar').style.display = 'block';
     	};    	  	
 	  	reader.readAsArrayBuffer(file);
@@ -784,65 +805,59 @@ export default class renderWidget {
 			renderer.excel_data[renderer.page][renderer.cells_names_selected[0].col][renderer.cells_names_selected[0].row] = renderer.cells_names_selected[0].value;
 			renderer.cells_names_selected[1].value = ''; 
 			renderer.excel_data[renderer.page][renderer.cells_names_selected[1].col][renderer.cells_names_selected[1].row] = '';
-			if (renderer.cells_names_selected[0].row !== renderer.cells_names_selected[1].row){ //column combined
-				renderer.cells_names_selected[0].style.height = '66px';
-				if (renderer.cells_names_selected[0].C < renderer.cells_names_selected[1].C){
-					renderer.cells_names_selected[0].style.marginTop = '0px';
-				}
-				else if (renderer.cells_names_selected[1].C < renderer.cells_names_selected[0].C){
-					renderer.cells_names_selected[0].style.marginTop = '-32px';
-				}
-				renderer.cells_names_selected[0].style.position = 'none';
-				let parentSelected = renderer.cells_names_selected[0].parentElement;
-				let grandParentSelected = parentSelected.parentElement;
-				let parentSelectedChildren = grandParentSelected.childNodes;
-				for (var tds = 0; tds < parentSelectedChildren.length; tds++){
-					let selectedChildren = parentSelectedChildren[tds].childNodes;
-					for (var neighbor = 0; neighbor < selectedChildren.length; neighbor++){
-						if (selectedChildren[neighbor].value === renderer.cells_names_selected[0].value){
-							continue;
-						}
-						else if (selectedChildren[neighbor].value === renderer.cells_names_selected[1].value){
-							continue;
-						}
-						else if (selectedChildren[neighbor].style.marginTop !== '0px'){ //cell uncombined
-							console.info('SEEKING POSITION');
-							console.info(renderer.cells_names_selected[0].C === renderer.cells_names_selected[1].C);
-							if (renderer.cells_names_selected[0].C < renderer.cells_names_selected[1].C){
-								selectedChildren[neighbor].style.marginTop = '-31px';
-							}
-							else if (renderer.cells_names_selected[0].C === renderer.cells_names_selected[1].C){
-								console.info('LIFTING');
-								selectedChildren[neighbor].style.marginTop = '-31px';
-							}
-							else{
-								console.info('SETTING DEFAULT ROW');
-								selectedChildren[neighbor].style.marginTop = 'none';
-							}
-						}
-					}
-				}
-				renderer.cells_names_selected[1].style.visibility = 'hidden';
-			}
-			else{ //row combined
-				renderer.cells_names_selected[0].style.width = '300px';
-				let pivot_from = renderer.cells_names_selected[0].R+2;
-				let parentSelected = renderer.cells_names_selected[0].parentElement;
-				let parentSelectedChildren = parentSelected.childNodes;
-				for (var neighbor = 0; neighbor < parentSelectedChildren.length; neighbor++){
-					if (parentSelectedChildren[neighbor].R+2 === pivot_from){
-						parentSelectedChildren[neighbor].style.marginLeft = '-150px'; //shift back neighbors in row
-					}
-				}				
-				renderer.cells_names_selected[1].style.visibility = 'hidden';
-				if (renderer.cells_names_selected[1].R < renderer.cells_names_selected[0].R){
-					renderer.cells_names_selected[0].style.marginLeft = '-150px'; //shift back neighbors in row
-					parentSelectedChildren[neighbor].R -= 1;
-					renderer.cells_names_selected[0].style.width = '315px';
-				}				
-			}
+			//if (renderer.cells_names_selected[0].row !== renderer.cells_names_selected[1].row){ //column combined
+				//renderer.cells_names_selected[0].style.height = '66px';
+				//if (renderer.cells_names_selected[0].col < renderer.cells_names_selected[1].col){
+				//	renderer.cells_names_selected[0].style.marginTop = '0px';
+				//}
+				//else if (renderer.cells_names_selected[1].col < renderer.cells_names_selected[0].col){
+				//	renderer.cells_names_selected[0].style.marginTop = '-32px';
+				//}
+				//renderer.cells_names_selected[0].style.position = 'none';
+				//let parentSelected = renderer.cells_names_selected[0].parentElement;
+				//let grandParentSelected = parentSelected.parentElement;
+				//let parentSelectedChildren = grandParentSelected.childNodes;
+				//for (var tds = 0; tds < parentSelectedChildren.length; tds++){
+				//	let selectedChildren = parentSelectedChildren[tds].childNodes;			
+				//	for (var neighbor = 0; neighbor < selectedChildren.length; neighbor++){
+				//		if (selectedChildren[neighbor].value === renderer.cells_names_selected[0].value){
+				//			selectedChildren[neighbor].style.marginTop = '-31px';
+				//			continue;
+				//		}
+				//		else if (selectedChildren[neighbor].value === renderer.cells_names_selected[1].value){
+				//			continue;
+				//		}
+				//		else if (selectedChildren[neighbor].style.marginTop !== '0px'){ //cell uncombined
+				//			if (renderer.cells_names_selected[0].col < renderer.cells_names_selected[1].col){
+				//				selectedChildren[neighbor].style.marginTop = '-31px';
+				//			}
+				//			else{
+				//				selectedChildren[neighbor].style.marginTop = 'none';
+				//			}
+				//		}
+				//	}
+				//}
+				//renderer.cells_names_selected[1].style.visibility = 'hidden';
+			//}
+			//else{ //row combined
+			//	renderer.cells_names_selected[0].style.width = '300px';
+			//	let pivot_from = renderer.cells_names_selected[0].row+2;
+			//	let parentSelected = renderer.cells_names_selected[0].parentElement;
+			//	let parentSelectedChildren = parentSelected.childNodes;
+			//	for (var neighbor = 0; neighbor < parentSelectedChildren.length; neighbor++){
+			//		if (parentSelectedChildren[neighbor].row+2 === pivot_from){
+			//			parentSelectedChildren[neighbor].style.marginLeft = '-150px'; //shift back neighbors in row
+			//		}
+			//	}				
+			//	renderer.cells_names_selected[1].style.visibility = 'hidden';
+			//	if (renderer.cells_names_selected[1].row < renderer.cells_names_selected[0].row){
+			//		renderer.cells_names_selected[0].style.marginLeft = '-150px'; //shift back neighbors in row
+			//		parentSelectedChildren[neighbor].row -= 1;
+			//		renderer.cells_names_selected[0].style.width = '315px';
+			//	}				
+			//}
 			renderer.cells_names_selected = [];
-			renderer.nselected += 1;
+			//renderer.nselected += 1;
 			event.target.style.backgroundColor = '';
 			return;	
 		}
@@ -856,7 +871,7 @@ export default class renderWidget {
 				let row_vals = document.getElementById('sheet_rows').childNodes[col];
 				if (a_idx.includes(row_vals.childNodes[b].childNodes[0].value) === false){
 					if (typeof row_vals.childNodes[b].childNodes[0].value !== 'undefined'){
-						a_idx.push(row_vals.childNodes[b].childNodes[0].value);
+						a_idx.push(row_vals.childNodes[b].childNodes[0]);
 					}
 				}				
 			}
@@ -864,11 +879,77 @@ export default class renderWidget {
   		for (var row = 0; row < renderer.excel_data[Page].length; row++) {
 			for (var col = 1; col < document.getElementById('sheet_rows').childNodes.length; col++){
 				let row_vals = document.getElementById('sheet_rows').childNodes[col];
-				row_vals.childNodes[a].childNodes[0].value = a_idx[col-2];
 				try{
+					row_vals.childNodes[a].childNodes[0].value = a_idx[col-2].value;
+					if (row_vals.childNodes[a].childNodes[0].isinvalid === true){
+						if (a_idx[col-2].isinvalid === false){
+							row_vals.childNodes[a].childNodes[0].isinvalid = false;
+							row_vals.childNodes[a].childNodes[0].isedited = true;
+							row_vals.childNodes[a].childNodes[0].style.backgroundColor = renderer.errorColor;					
+						}				
+					}
+					else if (row_vals.childNodes[a].childNodes[0].isinvalid === false){
+						if (a_idx[col-2].isinvalid === true){
+							row_vals.childNodes[a].childNodes[0].isinvalid = true;
+							row_vals.childNodes[a].childNodes[0].isedited = true;
+							row_vals.childNodes[a].childNodes[0].style.backgroundColor = 'none';					
+						}				
+					}
+					console.info('PREV INVALID', row_vals.isinvalid);
+					console.info('PREV NODE', row_vals.childNodes[a]);
+					console.info('CURRENT INVALID', row_vals.isinvalid);
+					console.info('CURRENT NODE', row_vals.childNodes[b]);
+					if(row_vals.childNodes[a].isinvalid === false){
+						if(row_vals.childNodes[b].isinvalid === true){
+       	  				let tooltip = document.createElement('span');
+       	  				tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       	  				tooltip.style.left = '0px';
+       	  				tooltip.style.top = '0px';
+       	  				tooltip.innerHTML = this.dom_factor[a-1][0][0].error;
+       	  				tooltip.displayed = false;
+       	  				row_vals.childNodes[a].onmouseover = function(e){
+    							//console.info('HOVERING');
+    							//console.info(e.target.parentElement.childNodes[1]);
+    							if (e.target.childNodes[0].falsable === true){
+						      	if (e.target.childNodes[1].displayed === false){
+            						e.target.childNodes[1].style.display = "block";
+           							e.target.childNodes[1].animate({"opacity" : 1});
+           							e.target.childNodes[1].displayed = true;
+        							}
+        							else{
+            						e.target.childNodes[1].animate({"opacity" : 0});
+            						setTimeout(function (){
+                    					e.target.childNodes[1].style.display = "none";
+                					}, 400);
+                					e.target.childNodes[1].displayed = false;
+										e.target.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+                					//e.target.parentElement.childNodes[1].scrollWidth =  '8px';
+                					//e.target.parentElement.childNodes[1].scrollHeight =  '4px';
+                					//console.info(e.target.parentElement.childNodes[1].transition);
+                					console.info(e.target.childNodes[1].style.transition); 
+        							}
+								}
+								else{
+									try{
+										e.target.childNodes[1].style.display = "none";
+									}	
+									catch (error){
+									}								
+								}        								        	  					
+    						}
+    						row_vals.childNodes[a].appendChild(tooltip);	
+    					}
+    				}		
+					if(row_vals.childNodes[a].isinvalid === true){
+						if(row_vals.childNodes[b].isinvalid === false){
+    						row_vals.childNodes[a].bad_col.falsable = false;
+    					}	
+	       	  	}					
 					renderer.excel_data[Page][col-2][a-1] = renderer.excel_data[Page][col-2][b-1];
+					//SHIFT DTYPE
 				}
 				catch (error){
+					//console.info(error);
 				}
 			}
 		}			
@@ -1052,10 +1133,62 @@ export default class renderWidget {
 	      //console.info(trDiv.style.marginTop);
 	      renderer.sizeIncrement += 32;
 	      tdDiv.style = 'width: 110px;';
-  			for (var C = 0; C < ipage[R].length; C++){
+			if (this.dom_factor.length < ipage[R].length){
+				this.tableSize = ipage[R].length; //doc based
+			}
+			else if (ipage[R].length < this.dom_factor.length){
+				this.tableSize = this.dom_factor.length; //user based
+			}
+			else{
+				this.tableSize = ipage[R].length; //property based
+			}
+			//console.info(this.tableSize);
+  			for (var C = 0; C < this.tableSize; C++){
   				 let v = ipage[R][C]; 
+  				 //console.info(this.dom_factor[C][0][0]);
+  				 //console.info(this.dom_factor[C][0]);
+  				 //console.info(this.dom_factor[C]);
+  				 //console.info(typeof v === 'undefined');
 	   	    try{
-		         	if (this.dom_factor[C][0][0].critical === true){            	
+						if (typeof v === 'undefined'){
+							//console.info('TRAVERSING EMPTY VALUE');
+       		 			this.textbox = document.createElement('input');
+       	  				this.textbox.type = 'text';
+       	  				this.textbox.style = 'width: 150px;';
+       	  				this.textbox.value = '';
+       	  				this.textbox.col = C;
+       	  				this.textbox.row = R;
+       		  			if (0 === C){
+       		  				this.textbox.style.marginLeft = '-16px';
+       		  			}
+	       	  			this.textbox.onchange = function (e){
+								renderer.excel_data[renderer.page][e.target.col][e.target.row] = e.target.value;
+								e.target.isedited = true;	    	
+								//e.target.style.backgroundColor = renderer.errorColor;  				
+	       	  			}
+       	  				this.textbox.onfocus = function(e){
+								renderer.tdCombined(e);       	  		
+         				}	
+       	  				if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
+       	  					document.getElementById('dtype_'+String(C)).innerHTML = String(typeof this.textbox.value);
+       	  				}
+       	  				if (0<parseInt(C)){
+       	  					document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
+								document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
+       	  				}   
+       	  				else{
+       	  					document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
+								document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
+       	  				}           	  				  
+         				this.textbox.isinvalid = false;
+      	  				this.textbox.selecting = false;
+       	  				cells_sum += 1;		
+       	  				let tdDiv = document.createElement('td');
+	      				tdDiv.appendChild(this.textbox);
+	       	  			trDiv.appendChild(tdDiv);
+	       	  			continue;  
+					   } 	
+		         	else if (this.dom_factor[C][0][0].critical === true){            	
 							if (v === ''){             	
       		 	  			this.textbox = document.createElement('input');
        			  			this.textbox.type = 'text';
@@ -1073,14 +1206,15 @@ export default class renderWidget {
        	  					this.textbox.row = R;
 	       	  				this.textbox.onchange = function (e){
 									renderer.prove(e, this.textbox.col, this.textbox.row, renderer.page);	       	  				
-									e.target.isedited = true;	       
+									e.target.isedited = true;	
+									e.target.style.backgroundColor = renderer.errorColor;  									       
 	       	  				}
        	  					this.textbox.readOnly = false;	
-       	  					this.textbox.onselect = function(e){
+       	  					this.textbox.onfocus = function(e){
 									renderer.tdCombined(e);       	  		
        	  					}	
-       	  					this.textbox.value = this.dom_factor[C][0][0].error;
        	  					this.textbox.isinvalid = true;
+       	  					this.textbox.falsable = true;
        	  					this.textbox.err_msg = this.dom_factor[C][0][0].error;
        	  					this.textbox.selecting = false;			
        	  					if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
@@ -1097,10 +1231,49 @@ export default class renderWidget {
        	  						document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
        	  					}           	  
        	  					errors_sum += 1;	
-       	  					cells_sum += 1;	
+       	  					cells_sum += 1;
+       	  					let tooltip = document.createElement('span');
+       	  					tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       	  					tooltip.style.left = '0px';
+       	  					tooltip.style.top = '0px';
+       	  					tooltip.innerHTML = this.dom_factor[C][0][0].error;
+       	  					tooltip.displayed = false;
        	  					let tdDiv = document.createElement('td');
 	      					tdDiv.appendChild(this.textbox);
+	      					tdDiv.appendChild(tooltip);
+    							tdDiv.onmouseover = function(e){
+    								//console.info('HOVERING');
+    								//console.info(e.target.parentElement.childNodes[1]);
+    								if (e.target.parentElement.childNodes[0].falsable === true){
+						        		if (e.target.parentElement.childNodes[1].displayed === false){
+            							e.target.parentElement.childNodes[1].style.display = "block";
+           								e.target.parentElement.childNodes[1].animate({"opacity" : 1});
+           								e.target.parentElement.childNodes[1].displayed = true;
+        								}
+        								else{
+            							e.target.parentElement.childNodes[1].animate({"opacity" : 0});
+            							setTimeout(function (){
+                    						e.target.parentElement.childNodes[1].style.display = "none";
+                						}, 
+                						400);
+                						e.target.parentElement.childNodes[1].displayed = false;
+											e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+                						//e.target.parentElement.childNodes[1].scrollWidth =  '8px';
+                						//e.target.parentElement.childNodes[1].scrollHeight =  '4px';
+                						//console.info(e.target.parentElement.childNodes[1].transition);
+                						console.info(e.target.parentElement.childNodes[1].style.transition); 
+        								}
+									}
+									else{
+										try{
+											e.target.parentElement.childNodes[1].style.display = "none";
+										}	
+										catch (error){
+										}								
+									}        								        	  					
+    							};
 	       	  				trDiv.appendChild(tdDiv);
+	       	  				trDiv.bad_row = true;
 	       	  				continue;  
 							}
 							else{
@@ -1135,9 +1308,10 @@ export default class renderWidget {
 	       	  				this.textbox.onchange = function (e){
 									renderer.prove(e, e.target.col, e.target.row, renderer.page);	       	  				
 									e.target.isedited = true;	       
+									//e.target.style.backgroundColor = renderer.errorColor;  
 	       	  				}
        	  					this.textbox.readOnly = false;	
-       	  					this.textbox.onselect = function(e){
+       	  					this.textbox.onfocus = function(e){
 									renderer.tdCombined(e);       	  		
        	  					}	
        	 					this.textbox.selecting = false;						
@@ -1164,8 +1338,9 @@ export default class renderWidget {
 	         					this.textbox.onchange = function (e){
 										renderer.prove(e, e.target.col, e.target.row, renderer.page);	       	  				
 										e.target.isedited = true;	       
+										e.target.style.backgroundColor = renderer.errorColor;  
        	  						}
-       	  						this.textbox.onselect = function(e){
+       	  						this.textbox.onfocus = function(e){
 										renderer.tdCombined(e);       	  		
        	  						}	
        	  						if (typeof this.textbox.trying === 'undefined'){
@@ -1174,9 +1349,9 @@ export default class renderWidget {
 	       	  					this.textbox.trying.push('unique');
        	  						this.textbox.selecting = false;
        	  						console.info(this.dom_factor[C][0][0].error);
-       	  						this.textbox.value = this.dom_factor[C][0][0].error;
        	  						this.textbox.err_msg = this.dom_factor[C][0][0].error;
        	  						this.textbox.isinvalid = true;
+       	  						this.textbox.falsable = true;
 	       	  					this.textbox.unique = 1;       	  				
        	  						errorCell(this.textbox); //coloriza campo contenido duplicado   
        	  						if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
@@ -1193,9 +1368,48 @@ export default class renderWidget {
        	  						}           	  
 	       	  					errors_sum += 1;		       	
 	       	  					cells_sum += 1;	  					
+       	  						let tooltip = document.createElement('span');
+       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       	  						tooltip.style.left = '0px';
+       	  						tooltip.style.top = '0px';
+       	  						tooltip.innerHTML = this.dom_factor[C][0][0].error;
+       	  						tooltip.displayed = false;
        	  						let tdDiv = document.createElement('td');
 	      						tdDiv.appendChild(this.textbox);
+	      						tdDiv.appendChild(tooltip);
+    								tdDiv.onmouseover = function(e){
+    									//console.info('HOVERING');
+    									//console.info(e.target.parentElement.childNodes[1]);
+    									if (e.target.parentElement.childNodes[0].falsable === true){
+							        		if (e.target.parentElement.childNodes[1].displayed === false){
+   	         							e.target.parentElement.childNodes[1].style.display = "block";
+      	     								e.target.parentElement.childNodes[1].animate({"opacity" : 1});
+         	  								e.target.parentElement.childNodes[1].displayed = true;
+        									}
+        									else{
+            								e.target.parentElement.childNodes[1].animate({"opacity" : 0});
+            								setTimeout(function (){
+                    							e.target.parentElement.childNodes[1].style.display = "none";
+                							}, 
+                							400);
+                							e.target.parentElement.childNodes[1].displayed = false;
+	                						e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+   	             						//e.target.parentElement.childNodes[1].scrollWidth =  '8px';
+      	          						//e.target.parentElement.childNodes[1].scrollHeight =  '4px';
+         	       						//console.info(e.target.parentElement.childNodes[1].transition);
+            	    						console.info(e.target.parentElement.childNodes[1].style.transition);
+        									} 
+        								}	       	  					
+										else{
+											try{
+												e.target.parentElement.childNodes[1].style.display = "none";
+											}	
+											catch (error){
+											}								
+										}  
+    								};
 	       	  					trDiv.appendChild(tdDiv);
+	       	  					trDiv.bad_row = true;
 	       	  					continue;  
        	  					}	
 								else{
@@ -1211,9 +1425,10 @@ export default class renderWidget {
 	         					this.textbox.onchange = function (e){
 										renderer.prove(e, e.target.col, e.target.row,renderer.page);	       	  				
 										e.target.isedited = true;	       
+										//e.target.style.backgroundColor = renderer.errorColor;  
        	  						}
 	       	  					//console.info('ADDING UNIQUE');
-       	  						this.textbox.onselect = function(e){
+       	  						this.textbox.onfocus = function(e){
 										renderer.tdCombined(e);       	  		
        	  						}	
        	  						if (typeof this.textbox.trying === 'undefined'){
@@ -1244,6 +1459,7 @@ export default class renderWidget {
 								}
 	            		}		       	  									
                		else if (this.dom_factor[C][0][0].re !== false){  
+               			//console.info(this.dom_factor[C]);
                			let matching = v.match(this.dom_factor[C][0][0].re);    
 								if (matching === null){        	
        			 				this.textbox = document.createElement('input');
@@ -1260,18 +1476,19 @@ export default class renderWidget {
 	        						this.textbox.onchange = function (e){
 										renderer.prove(e, e.target.col, e.target.row,renderer.page);	       	  				
 										e.target.isedited = true;	       
+										e.target.style.backgroundColor = renderer.errorColor;  
 	       	  					}       	  								
 	       	  					this.textbox.trying.push('re');
        	  						errorCell(this.textbox); //coloriza campo contenido duplicado       	  						
        	  						this.textbox.readOnly = false;	
-       	  						this.textbox.onselect = function(e){
+       	  						this.textbox.onfocus = function(e){
 										renderer.tdCombined(e);       	  		
        	  						}	
        	  						this.textbox.selecting = false;
        	  						errors_sum += 1;
        	  						cells_sum += 1;	
        	  						this.textbox.isinvalid = true;
-      	 	  					this.textbox.value = this.dom_factor[C][0][0].error;
+       	  						this.textbox.falsable = true;
       	 	  					this.textbox.err_msg = this.dom_factor[C][0][0].error;
 	       	  					this.textbox.re = this.dom_factor[C][0][0].re;		
        	  						if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
@@ -1286,9 +1503,45 @@ export default class renderWidget {
        	  							document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
 										document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
        	  						}           	  
+       	  						let tooltip = document.createElement('span');
+       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       	  						tooltip.style.left = '0px';
+       	  						tooltip.style.top = '0px';
+       	  						tooltip.innerHTML = this.dom_factor[C][0][0].error;
+       	  						tooltip.displayed = false;
        	  						let tdDiv = document.createElement('td');
 	      						tdDiv.appendChild(this.textbox);
+	      						tdDiv.appendChild(tooltip);
+    								tdDiv.onmouseover = function(e){
+    									//console.info('HOVERING');
+    									//console.info(e.target.parentElement.childNodes[1]);
+    									if (e.target.parentElement.childNodes[0].falsable === true){
+						        			if (e.target.parentElement.childNodes[1].displayed === false){
+            								e.target.parentElement.childNodes[1].style.display = "block";
+           									e.target.parentElement.childNodes[1].animate({"opacity" : 1});
+           									e.target.parentElement.childNodes[1].displayed = true;
+        									}
+        									else{
+            								e.target.parentElement.childNodes[1].animate({"opacity" : 0});
+            								setTimeout(function (){
+                    							e.target.parentElement.childNodes[1].style.display = "none";
+                							}, 
+                							400);
+                							e.target.parentElement.childNodes[1].displayed = false;
+                							e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+                							//console.info(e.target.parentElement.childNodes[1].style.transition);
+        									}
+        								}	        	  					
+										else{
+											try{
+												e.target.parentElement.childNodes[1].style.display = "none";
+											}	
+											catch (error){
+											}								
+										}          								
+    								};
 	       	  					trDiv.appendChild(tdDiv);
+	       	  					trDiv.bad_row = true;
 	       	  					continue;  
        	  					}	
        	  				}					
@@ -1307,7 +1560,7 @@ export default class renderWidget {
        		  					this.textbox.style.marginLeft = '-16px';
        		  				}
 	       	  				//console.info('ADDING VALID REGEX');
-       	  					this.textbox.onselect = function(e){
+       	  					this.textbox.onfocus = function(e){
 									renderer.tdCombined(e);       	  		
        	  					}	
        	  					if (typeof e.trying === 'undefined'){
@@ -1337,7 +1590,7 @@ export default class renderWidget {
 	       	  				trDiv.appendChild(tdDiv);
 	       	  				continue;  
 							}
-						}
+						}					
 						else{
        		 			this.textbox = document.createElement('input');
        	  				this.textbox.type = 'text';
@@ -1352,7 +1605,7 @@ export default class renderWidget {
 								renderer.excel_data[renderer.page][e.target.col][e.target.row] = e.target.value;
 								e.target.isedited = true;	    	  				
 	       	  			}
-       	  				this.textbox.onselect = function(e){
+       	  				this.textbox.onfocus = function(e){
 								renderer.tdCombined(e);       	  		
          				}	
        	  				if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
@@ -1376,10 +1629,22 @@ export default class renderWidget {
 					  }  						  	
    	       }	
       		 catch (error){
-      			console.info(error);
+      			//console.info(error);
       		 }	  	  			
        	 }
        	 this.trs.push(trDiv); 
+			 if (trDiv.bad_row === true){
+				for (var col = 0; col < trDiv.childNodes.length; col++){
+					if (trDiv.childNodes[col].isinvalid === false){
+						trDiv.childNodes[col].style.marginTop = '-16px';	
+						trDiv.childNodes[col].style.position = 'relative';					
+					}		
+					else{
+						trDiv.childNodes[col].style.marginTop = '0px';			
+						trDiv.childNodes[col].style.position = 'relative';				
+					}		
+				}		
+			 }       	 
 		}
 		document.getElementById('error_sheets').innerHTML = errors_sum;
 		document.getElementById('total_sheets').innerHTML = cells_sum;
@@ -1390,15 +1655,66 @@ export default class renderWidget {
 		if (idx.value !== ''){
   			idx.style.backgroundColor = null;
   			idx.critical = 0;
+  			idx.falsable = false;
 			this.excel_data[Page][C][R] = idx.value;	 
 			idx.isinvalid = false;
   		}
   		else{
 			idx.critical = 1;  		
 			errorCell(idx);  		
-       	idx.value = idx.err_msg;
+       	idx.falsable = true;
        	this.excel_data[Page][C][R] = idx.value;	 
        	idx.isinvalid = true;	      	
+       	console.info(typeof idx.parentElement.childNodes[1]);
+    		console.info(idx);
+    		console.info(idx.falsable);
+       	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
+       		let tooltip = document.createElement('span');
+       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       		tooltip.style.left = '0px';
+       		tooltip.style.top = '0px';
+       		tooltip.innerHTML = this.dom_factor[C][0][0].error;
+       		tooltip.displayed = false;
+    			console.info(idx);
+    			console.info(idx.falsable);
+    			idx.parentElement.onmouseover = function(e){
+    				//console.info('HOVERING');
+    				//console.info(e.target.parentElement.childNodes[1]);
+    				if (e.target.childNodes[0].falsable === true){
+						if (e.target.childNodes[1].displayed === false){
+            			e.target.childNodes[1].style.display = "block";
+           				e.target.childNodes[1].animate({"opacity" : 1});
+           				e.target.childNodes[1].displayed = true;
+        				}
+        				else{
+            			e.target.childNodes[1].animate({"opacity" : 0});
+            			setTimeout(function (){
+                    		e.target.childNodes[1].style.display = "none";
+                		}, 400);
+                		e.target.childNodes[1].displayed = false;
+							e.target.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+                		//e.target.childNodes[1].scrollWidth =  '8px';
+                		//e.target.childNodes[1].scrollHeight =  '4px';
+                		//console.info(e.target.childNodes[1].transition);
+                		console.info(e.target.childNodes[1].style.transition); 
+        				}
+					}
+					else{
+						try{
+							e.target.childNodes[1].style.display = "none";
+						}		
+						catch (error){
+						}								
+					}
+				}	        								        	  					
+    		}
+    		else{
+    			console.info(idx);
+    			console.info(idx.falsable);
+    			if (idx.falsable === false){
+    				idx.falsable = true;
+    			}
+    		}
   		}
 	}
 
@@ -1418,37 +1734,144 @@ export default class renderWidget {
 		if (this.isunique === false){
 			idx.unique = 1;  		
 			errorCell(idx);  
-       	idx.value = idx.err_msg;
+       	//idx.value = idx.err_msg;
        	this.excel_data[Page][C][R] = idx.value;	 
+       	idx.falsable = true;
        	idx.isinvalid = true;			
+       	console.info(typeof idx.parentElement.childNodes[1]);
+    		console.info(idx);
+    		console.info(idx.falsable);
+       	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
+       		let tooltip = document.createElement('span');
+       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       		tooltip.style.left = '0px';
+       		tooltip.style.top = '0px';
+       		tooltip.innerHTML = this.dom_factor[C][0][0].error;
+       		tooltip.displayed = false;
+    			console.info(idx);
+    			console.info(idx.falsable);
+    			idx.parentElement.onmouseover = function(e){
+    				//console.info('HOVERING');
+    				//console.info(e.target.parentElement.childNodes[1]);
+    				if (e.target.childNodes[0].falsable === true){
+						if (e.target.childNodes[1].displayed === false){
+            			e.target.childNodes[1].style.display = "block";
+           				e.target.childNodes[1].animate({"opacity" : 1});
+           				e.target.childNodes[1].displayed = true;
+        				}
+        				else{
+            			e.target.childNodes[1].animate({"opacity" : 0});
+            			setTimeout(function (){
+                    		e.target.childNodes[1].style.display = "none";
+                		}, 400);
+                		e.target.childNodes[1].displayed = false;
+							e.target.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+                		//e.target.childNodes[1].scrollWidth =  '8px';
+                		//e.target.childNodes[1].scrollHeight =  '4px';
+                		//console.info(e.target.childNodes[1].transition);
+                		console.info(e.target.childNodes[1].style.transition); 
+        				}
+					}
+					else{
+						try{
+							e.target.childNodes[1].style.display = "none";
+						}		
+						catch (error){
+						}								
+					}
+				}	        								        	  					
+    		}
+    		else{
+    			console.info(idx);
+    			console.info(idx.falsable);
+    			if (idx.falsable === false){
+    				idx.falsable = true;
+    			}
+    		}
   		}
   		else{
   			idx.style.backgroundColor = null;
   			idx.unique = 0;					
-			this.excel_data[Page][C][R] = idx.value;	  
+			this.excel_data[Page][C][R] = idx.value;	 
+			idx.falsable = false; 
 			idx.isinvalid = false;  
   		}
 	}
 
 	proveRe(idx,C,R,Page) {
-		let matching = idx.value.match(idx.re);          	
+		let matching = idx.value.match(idx.re);   
+		console.info(matching);       	
 		if (typeof matching !== 'object'){
 			idx.unique = 1;  		
 			errorCell(idx);  
-       	idx.value = idx.err_msg;	
+       	//idx.value = idx.err_msg;	
        	this.excel_data[Page][C][R] = idx.value;	 	
-       	idx.isinvalid = true;	
+       	idx.isinvalid = true;
+       	idx.falsable = true;	
+       	console.info(typeof idx.parentElement.childNodes[1]);
+    		console.info(idx);
+    		console.info(idx.falsable);
+       	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
+       		let tooltip = document.createElement('span');
+       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       		tooltip.style.left = '0px';
+       		tooltip.style.top = '0px';
+       		tooltip.innerHTML = this.dom_factor[C][0][0].error;
+       		tooltip.displayed = false;
+    			console.info(idx);
+    			console.info(idx.falsable);
+    			idx.parentElement.onmouseover = function(e){
+    				//console.info('HOVERING');
+    				//console.info(e.target.parentElement.childNodes[1]);
+    				if (e.target.childNodes[0].falsable === true){
+						if (e.target.childNodes[1].displayed === false){
+            			e.target.childNodes[1].style.display = "block";
+           				e.target.childNodes[1].animate({"opacity" : 1});
+           				e.target.childNodes[1].displayed = true;
+        				}
+        				else{
+            			e.target.childNodes[1].animate({"opacity" : 0});
+            			setTimeout(function (){
+                    		e.target.childNodes[1].style.display = "none";
+                		}, 400);
+                		e.target.childNodes[1].displayed = false;
+							e.target.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+                		//e.target.childNodes[1].scrollWidth =  '8px';
+                		//e.target.childNodes[1].scrollHeight =  '4px';
+                		//console.info(e.target.childNodes[1].transition);
+                		console.info(e.target.childNodes[1].style.transition); 
+        				}
+					}
+					else{
+						try{
+							e.target.childNodes[1].style.display = "none";
+						}		
+						catch (error){
+						}								
+					}
+				}	        								        	  					
+    		}
+    		else{
+    			console.info(idx);
+    			console.info(idx.falsable);
+    			if (idx.falsable === false){
+    				idx.falsable = true;
+    			}
+    		}
   		}
   		else{
+  			console.info(idx);
   			idx.style.backgroundColor = null;
   			idx.unique = 0;					
 			this.excel_data[Page][C][R] = idx.value;	    
 			idx.isinvalid = false;
+			idx.falsable = false;
   		}
 	}
 
 	prove(idx,C,R,Page) {
 		for (var j = 0; j < idx.target.trying.length; j++) {
+			//console.info('TRYING', idx.target.trying);
 			if (idx.target.trying[j] === 'critical'){
 				this.proveFilled(idx.target,C,R,Page);
 			}
@@ -1475,7 +1898,7 @@ export default class renderWidget {
 			else{
 				this.verify_user = validate_api(fields['apiKey'], '');	
 			}
-			if (this.verify_user !== 1){
+			if (this.verify_user === 'TYPE ERROR: USER DOES NOT IN DATABASE'){
 				this.invalidUnknown(); //validationError
 				return 1;
 			}
