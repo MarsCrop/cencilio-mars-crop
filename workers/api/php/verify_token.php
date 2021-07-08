@@ -9,15 +9,21 @@
     header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
     require_once('sql.php');
     $arr = array();
-    $statement = 'SELECT `user` FROM `validation` WHERE (`key` IN '.$GET['key'].' AND `id` IN '.$GET['user_id'].')';
-    $statement = mysqli_query($obj->conn,$statement);
-    while ($row = $statement->fetch_assoc()){
-		  $jsonData = '{"results":[';
-        $line = new stdClass;
-        $line->answer = 'OK';      
-        $arr[] = json_encode($line);
-        $jsonData .= implode(",", $arr);     
-        $jsonData .= ']}';
+    if($_SERVER['REQUEST_METHOD'] === 'GET') {
+    	$key = $_GET['key'];
+    	$uid = $_GET['user_id'];
     }
-    echo $jsonData;
+    if($_SERVER['REQUEST_METHOD'] === 'POST') {
+    	$key = $_POST['key'];
+    	$uid = $_POST['user_id'];    	
+    }    
+    $statement = "SELECT `id` FROM `validation` WHERE (`key` = '".$key."' AND `id` = '".$uid."')";
+    $statement = mysqli_query($obj->conn,$statement);
+    $result = json_encode($statement->fetch_assoc());
+    if ($result === 'null'){ //BOOL === STR
+		  $api_result = 'TYPE ERROR: USER DOES NOT IN DATABASE';
+    }
+    else{
+		  $api_result = $result;
+    }
 ?>
