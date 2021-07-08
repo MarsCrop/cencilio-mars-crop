@@ -21,3 +21,4 @@ $obj->username = 'root';
 $obj->password = 'lalala';
 $obj->dab = 'validation';
 $obj->dbConnect();
+?>
