@@ -26,4 +26,5 @@
     else{
 		  $api_result = $result;
     }
+    echo $api_result;
 ?>
