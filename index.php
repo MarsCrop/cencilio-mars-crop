@@ -6,7 +6,7 @@
 	//API BLOCK
    //require_once('workers/api/php/verify_token.php');	
    //if ($api_result === 'TYPE ERROR: USER DOES NOT IN DATABASE'){
-   //	exit();
+   	//exit();
    //}
 echo "<!DOCTYPE html><html class='perfil_html' lang='en'>
 <script>
@@ -356,7 +356,8 @@ div.scrollmenu a:hover {
     			//	width: 300,
   				//};
   				var options = {
-    				apiKey: '6c6fc060b8be905fbf81537fe19b161c',
+    				apiKey: 'miclave',
+    				userId: 'miusuari',
     				fields:[
             		{ label: 'Paqueteria', key: 'paqueteria',
               			validators:[
@@ -405,5 +406,4 @@ div.scrollmenu a:hover {
 		</script>
 	</body>
 </html>";
-?>
 ?>
