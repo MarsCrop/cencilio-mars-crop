@@ -34,38 +34,6 @@ var isFirefox = {
     },
 };	
 
-function validate_api(api_key, user_id){
-	console.info(api_key);
-	console.info(user_id);
-	if (typeof api_key === 'undefined'){
-		return 'validationError';
-	}
-	else if (api_key === ''){
-		return 'validationError';	
-	}
-	else if (typeof user_id === 'undefined'){
-		user_id = '';	
-	}
-	else if (user_id === ''){
-		user_id = '';	
-	}
-   var xhr = new XMLHttpRequest();
-   xhr.open('GET', 'workers/api/php/verify_token.php?key='+api_key+'&user_id='+user_id, true);
-   xhr.responseType = "json";   	
-   xhr.setRequestHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-   xhr.onload = function (data) {
-   	console.info(data.currentTarget.response);
-		if (data.currentTarget.response !== 'TYPE ERROR: USER DOES NOT IN DATABASE') {
-			return 1;				
-		}			
-		else {
-			return 'validationError';				
-		}
-  	};
-  	console.info('SENDING API REQUEST');
-   xhr.send();
-}
-
 function errorCell(idx) {
 	/*Función que coloriza en rojo una celda
 	con placeholder de required inválido*/
@@ -88,249 +56,132 @@ function renderDOM(instance,theme,h,w){
  	}
 }
 
-function readFields(fields){
+//AS THREAD
+function table_maker(Options, workbook){
 	//Usando los campos del objeto en JSON
 	//devuelve un objeto que contiene la
 	//representación de esos datos en el DOM
-	try{
-		if (typeof fields !== 'object'){
-			return 'validationError';
-		}
-		if (fields['userId'] !== ''){
-		//	let verify_user = validate_api(fields['apiKey'], fields['userId']);
-		//	console.info(verify_user);
-		//	if (verify_user !== 1){
-		//		invalidUnknown(); //validationError
-		//		return 1;
-		//	}	
-		}
-		else{
-		//	let verify_user = validate_api(fields['apiKey'], '');	
-		//	if (verify_user !== 1){
-		//	console.info(verify_user);
-		//		invalidUnknown(); //validationError
-		//		return 1;
-		//	}			
-		}
+	if (typeof Options !== 'object'){
+		return 'validationError';
 	}
-	catch (error){
-		console.info(error);
+	if (typeof Options['apiKey'] === 'undefined'){
+		return 'validationError';
 	}
-	renderer.dom_factor = [];
-	for (var j = 0; j < fields.length; j++) {
-		if (typeof fields[j]['validators'] !== 'undefined'){
-			let validators = new ElReqs();
-			for(var set = 0; set <= fields[j]['validators'].length; ++set){
-				try{
-					//console.info(fields[j]['validators'][set]);
-					if (fields[j]['validators'][set]['validate'] === 'required'){
-						validators.required = true;				
-					}
-					else if (fields[j]['validators'][set]['validate']  === 'unique'){
-						//console.info('VALIDATE UNIQUE');
-						validators.unique = true;				
-					}
-					else if (fields[j]['validators'][set]['validate']  === 'regex_match'){
-		   			//console.info('VALIDATE REGEX');
-						validators.regex = true;				
-					}
-					if (typeof fields[j]['validators'][set]['error'] !== 'undefined'){
-		   			//console.info('HAS ERROR');
-						validators.error = true;				
-					}				
-					if (validators.required === true){
-						renderer.ndata = new DOMNodeFactors(true, fields[j]['label'], fields[j]['key']);
-						if (typeof fields[j]['validators'][set]['error'] !== 'undefined'){
-		   				renderer.ndata.error = fields[j]['validators'][set]['error'];
-   					}
-						if (fields[j]['validators'][set]['validate'] === 'regex_match'){
-		   				renderer.ndata.re = fields[j]['validators'][set].regex;
-		   				//console.info('NDATA REGEX');
-   					}
-					}
-					else{
-						renderer.ndata = new DOMNodeFactors(false, fields[j]['label'], fields[j]['key']);
-						if (typeof fields[j]['validators'][set]['error'] !== 'undefined'){
-		   				renderer.ndata.error = fields[j]['validators'][set]['error'];
-   					}
-						if (fields[j]['validators'][set]['validate'] === 'regex_match'){
-		   				renderer.ndata.re = fields[j]['validators'][set].regex;
-		   				//console.info('NDATA REGEX');
-   					}
-					}
-					//console.info(renderer.ndata );
-				   if (typeof renderer.ndata !== 'undefined'){
-						if (renderer.dom_factor.length <= j){
-							renderer.dom_factor.push([]);
-							renderer.dom_factor[renderer.dom_factor.length-1].push([renderer.ndata,validators]);
-						}  
-						else{
-							renderer.dom_factor.push([]);
-							renderer.dom_factor[j].push([renderer.ndata,validators]); 						
-						}
-					}
-				}
-				catch(error){
-				}	
-   		}		
-		}
-		else if (typeof fields[j]['validators'] === 'undefined'){
-		   renderer.ndata = new DOMNodeFactors(false, fields[j]['label'], fields[j]['key']);
-		   if (typeof renderer.ndata !== 'undefined'){
-				if (renderer.dom_factor.length <= j){
-					renderer.dom_factor.push([]);
-					renderer.dom_factor[renderer.dom_factor.length-1].push([renderer.ndata,null]);
-				}  
-				else{
-					renderer.dom_factor.push([]);
-					renderer.dom_factor[j].push([renderer.ndata,validators]); 						
-				}
-			}	
-   	}
-   	else{
-			let validators = null;   	
-   	}
-   	//console.info(renderer.dom_factor);
+	else if (Options['apiKey'] === ''){
+		return 'validationError';	
 	}
-}
-
-function renderFun(file, config){
-	/*Función que toma la configuración del módulo como argumento
-	y el nombre de archivo cargado mediante drag and drop para renderizar el documento.
-	*/
-	//console.info(config);
-	//console.info(typeof config);
-	renderer.excel_data = [];
-	//console.info(document.getElementById('profpic'));
-	try{
-		//console.info(document.getElementById('pIn'));
-	  	var reader = new FileReader();
-	  	let next_col = false;
-	  	reader.onloadend = function(e) {
-     		document.getElementById('percent').style.width = '100%';
-     		document.getElementById('percent').textContent = '100%';
-     		//setTimeout("document.getElementById('progress_bar').className='';", 300);
-	  		var data = e.target.result;
-	  		data = new Uint8Array(data);
-	  		//process_wb(XLSX.read(data, {type: 'array'}));
-	  		/* read the file */
-			//console.info(data);	  		
-	  		var workbook = XLSX.read(data, {type: 'array'}); // parse the file
-	  		//console.info(range);
-	  		let sheetDiv = document.createElement('div');
-			sheetDiv.className='sheet_div'; 
-			sheetDiv.id='sheet_div'; 
-			sheetDiv.style='position: absolute;z-index: 4; margin-top: 80px; padding: 16px; width: 80%; margin-left: 160px;border-radius: 4px;height: 80%;overflow-y: scroll;';
+   var xhr = new XMLHttpRequest();
+   xhr.open('GET', 'workers/api/php/verify_token.php?key='+Options['apiKey']+'&user_id='+Options['userId'], true);
+   xhr.responseType = "json";   	
+   xhr.setRequestHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+   xhr.onload = function (data) {
+		if (data.currentTarget.response !== 'TYPE ERROR: USER DOES NOT IN DATABASE') {
+			console.info('SESSION IS VALID');
+			renderer.dom_factor = [];
+	  		renderer.sheetDiv = document.createElement('div');
+			renderer.sheetDiv.className='sheet_div'; 
+			renderer.sheetDiv.id='sheet_div'; 
+			renderer.sheetDiv.style='position: absolute;z-index: 4; margin-top: -130px; padding: 16px; width: 80%; margin-left: 300px;border-radius: 4px;height: 80%;overflow-y: scroll;';
 			//cencilio default background color
-			if (typeof config['theme']['global']['backgroundColor'] === 'undefined'){
-				sheetDiv.style.backgroundColor = 'rgb(180, 178, 183)';
+			if (typeof Options['theme']['global']['backgroundColor'] === 'undefined'){
+				renderer.sheetDiv.style.backgroundColor = 'rgb(180, 178, 183)';
 				document.getElementById('raw_response_header').style.backgroundColor = 'rgb(180, 178, 183)';
 				document.getElementById('data_exported').style.backgroundColor = 'rgb(180, 178, 183)';
+				//document.getElementById('cencilio-importer').style.backgroundColor = 'repeating-linear-gradient(90deg, #9c989b, #c7c7c7 51%, #8a00c7) var(--x, 0)/ 400%';
+				document.getElementById('ppbutton').style.backgroundColor = 'repeating-linear-gradient(90deg, #9c989b, #c7c7c7 51%, #8a00c7) var(--x, 0)/ 400%';
 			}
 			else{ //cencilio user background color
-				if (config['theme']['global']['backgroundColor'].length <= 7){
-					if (config['theme']['global']['backgroundColor'].includes('#')){
-						sheetDiv.style.backgroundColor = config['theme']['global']['backgroundColor'];
-						document.getElementById('raw_response_header').style.backgroundColor = config['theme']['global']['backgroundColor'];
-						document.getElementById('data_exported').style.backgroundColor = config['theme']['global']['backgroundColor'];
+				if (Options['theme']['global']['backgroundColor'].length <= 7){
+					if (Options['theme']['global']['backgroundColor'].includes('#')){
+						renderer.sheetDiv.style.backgroundColor = Options['theme']['global']['backgroundColor'];
+						document.getElementById('raw_response_header').style.backgroundColor = Options['theme']['global']['backgroundColor'];
+						document.getElementById('data_exported').style.backgroundColor = Options['theme']['global']['backgroundColor'];
+						//document.getElementById('cencilio-importer').style.backgroundColor = Options['theme']['global']['backgroundColor'];
+						document.getElementById('ppbutton').style.backgroundColor = Options['theme']['global']['backgroundColor'];
 					}
 				}
 			}
 			//cencilio default text color
-			if (typeof config['theme']['global']['textColor'] === 'undefined'){
-				sheetDiv.style.color = '#9400d3';
+			if (typeof Options['theme']['global']['textColor'] === 'undefined'){
+				renderer.sheetDiv.style.color = '#9400d3';
 				document.getElementById('raw_response_header').style.color = '#9400d3';
 				document.getElementById('data_exported').style.color = '#9400d3';
+				document.getElementById('cencilio-importer').style.color = '#9400d3';
 			}
 			else{ //cencilio user text color
-				if (7 <= config['theme']['global']['textColor'].length <= 9){
-					if (config['theme']['global']['textColor'].includes('#')){
-						sheetDiv.style.color = config['theme']['global']['textColor'];
-						document.getElementById('raw_response_header').style.color = config['theme']['global']['textColor'];
-						document.getElementById('data_exported').style.color = config['theme']['global']['textColor'];
+				if (7 <= Options['theme']['global']['textColor'].length <= 9){
+					if (Options['theme']['global']['textColor'].includes('#')){
+						renderer.sheetDiv.style.color = Options['theme']['global']['textColor'];
+						document.getElementById('raw_response_header').style.color = Options['theme']['global']['textColor'];
+						document.getElementById('data_exported').style.color = Options['theme']['global']['textColor'];
+						document.getElementById('cencilio-importer').style.color = Options['theme']['global']['textColor'];
 					}
 				}
 			}
 			//cencilio user defined font color
- 			if (typeof config['theme']['global']['fontFamily'] !== 'undefined'){
- 				sheetDiv.style.fontFamily = config['theme']['global']['fontFamily']; 
- 				document.getElementById('raw_response_header').style.fontFamily = config['theme']['global']['fontFamily'];
- 				document.getElementById('data_exported').style.fontFamily = config['theme']['global']['fontFamily'];
+ 			if (typeof Options['theme']['global']['fontFamily'] !== 'undefined'){
+ 				renderer.sheetDiv.style.fontFamily = Options['theme']['global']['fontFamily']; 
+ 				document.getElementById('raw_response_header').style.fontFamily = Options['theme']['global']['fontFamily'];
+ 				document.getElementById('data_exported').style.fontFamily = Options['theme']['global']['fontFamily'];
+ 				document.getElementById('cencilio-importer').style.fontFamily = Options['theme']['global']['fontFamily'];
  			} 				
-	  		let sheetDivChildDiv = document.createElement('div');
-			sheetDivChildDiv.id='header_xlsx';
-			sheetDivChildDiv.style='max-height: 144px;';
-	  		let sheetDivChildStrong = document.createElement('strong');
-	  		sheetDivChildStrong.id = 'cencilio_file_name';
-			sheetDivChildStrong.style='font-family: "Gotham Black";margin-left: 40px;font-size: 24px;position: absolute;margin-top: 2px;color: rgb(148, 0, 211);display: inline-block;text-overflow: ellipsis;overflow: hidden;width: 222px;white-space: nowrap;';
-			sheetDivChildStrong.innerHTML = '';
+	  		renderer.sheetDivChildStrong = document.createElement('strong');
+	  		renderer.sheetDivChildStrong.id = 'cencilio_file_name';
+			renderer.sheetDivChildStrong.style='font-family: "Gotham Black";margin-left: 40px;font-size: 20px;position: absolute;margin-top: 2px;color: rgb(148, 0, 211);display: inline-block;text-overflow: ellipsis;overflow: hidden;width: 222px;white-space: nowrap;';
+			renderer.sheetDivChildStrong.innerHTML = '';
 			//cencilio default primary text color
-			if (typeof config['theme']['global']['primaryTextColor'] === 'undefined'){
-				sheetDivChildStrong.style.color = 'darkviolet';
+			if (typeof Options['theme']['global']['primaryTextColor'] === 'undefined'){
+				renderer.sheetDivChildStrong.style.color = 'darkviolet';
 			}
 			else{ //cencilio user primary text color
-				if (7 <= config['theme']['global']['primaryTextColor'].length <= 9){
-					if (config['theme']['global']['primaryTextColor'].includes('#')){
-						sheetDivChildStrong.style.color = config['theme']['global']['primaryTextColor'];
+				if (7 <= Options['theme']['global']['primaryTextColor'].length <= 9){
+					if (Options['theme']['global']['primaryTextColor'].includes('#')){
+						renderer.sheetDivChildStrong.style.color = Options['theme']['global']['primaryTextColor'];
 					}
 				}
 			}
 			//cencilio default shadow color
-			if (typeof config['theme']['global']['shadowColor'] === 'undefined'){
-				sheetDiv.style.boxShadow = 'rgb(210, 191, 241) 0px 2px 8px 5px;';
+			if (typeof Options['theme']['global']['shadowColor'] === 'undefined'){
+				renderer.sheetDiv.style.boxShadow = 'rgb(210, 191, 241) 0px 2px 8px 5px;';
 				document.getElementById('raw_response_header').style.boxShadow = 'rgb(210, 191, 241) 0px 2px 8px 5px;';
 			}
 			else{ //cencilio user shadow color
-				if (7 <= config['theme']['global']['shadowColor'].length <= 9){
-					if (config['theme']['global']['shadowColor'].includes('#')){
-						sheetDiv.style.boxShadow = config['theme']['global']['shadowColor'];
-						document.getElementById('raw_response_header').style.boxShadow = config['theme']['global']['shadowColor'];
+				if (7 <= Options['theme']['global']['shadowColor'].length <= 9){
+					if (Options['theme']['global']['shadowColor'].includes('#')){
+						renderer.sheetDiv.style.boxShadow = Options['theme']['global']['shadowColor'];
+						document.getElementById('raw_response_header').style.boxShadow = Options['theme']['global']['shadowColor'];
 					}
 				}
 			}
 			//cencilio default JSON background color
-			if (typeof config['theme']['global']['jsDataColor'] === 'undefined'){
+			if (typeof Options['theme']['global']['jsDataColor'] === 'undefined'){
 				document.getElementById('js_data').style.boxShadow = 'rgb(0 0 0 / 16%)';
 			}
 			else{ //cencilio user JSON background color
-				if (7 <= config['theme']['global']['jsDataColor'].length <= 9){
-					if (config['theme']['global']['jsDataColor'].includes('#')){
-						document.getElementById('js_data').style.boxShadow = config['theme']['global']['jsDataColor'];
+				if (7 <= Options['theme']['global']['jsDataColor'].length <= 9){
+					if (Options['theme']['global']['jsDataColor'].includes('#')){
+						document.getElementById('js_data').style.boxShadow = Options['theme']['global']['jsDataColor'];
 					}
 				}
 			}
-	  		let sheetDivChildInput = document.createElement('select');
-			sheetDivChildInput.id='sheet_select';
-			sheetDivChildInput.placeholder='Nombre de hoja'; 
-			sheetDivChildInput.style='max-height: 144px;width: 136px;margin-top: 2px;margin-left: 506px;border-radius: 2px;height: 32px;margin-bottom: 16px;';
-			sheetDivChildInput.onchange = function(e){
-				let sheet = renderer.loadTable(workbook.SheetNames.indexOf(e.target.value));
-				renderer.page = 0;	
-				console.info(sheet);
-				document.getElementById('sheet_rows').childNodes[0] = sheet;		
-			}
-	  		let sheetDivGrandChildDiv = document.createElement('div');
-			sheetDivGrandChildDiv.id='sheets_span';
-			sheetDivGrandChildDiv.placeholder='Nombre de hoja'; 
-			sheetDivGrandChildDiv.style='max-height: 144px; padding: 2px;';
-	  		let sheetDivGrandChildSpan = document.createElement('span');
-			sheetDivGrandChildSpan.style='max-height: 144px;margin-left: 256px;margin-top: -106px;position: absolute;';
-			sheetDivGrandChildSpan.innerHTML='Total:';
-	  		let sheetDivGrandChildLabel = document.createElement('label');
-			sheetDivGrandChildLabel.style='max-height: 144px;margin-left: 300px;margin-top: -106px;position: absolute;';
-			sheetDivGrandChildLabel.id='total_sheets';
-			sheetDivGrandChildLabel.innerHTML = '0';
-	  		let sheetDivGrandChildSpan2 = document.createElement('span');
-			sheetDivGrandChildSpan2.style='max-height: 174px; position: absolute; margin-top: -106px; margin-left: 340px;';
-			sheetDivGrandChildSpan2.innerHTML = '| Con errores:'; 
-	  		let sheetDivGrandChildLabel2 = document.createElement('label');
-			sheetDivGrandChildLabel2.style='max-height: 144px;margin-top: -106px;position: absolute;margin-left: 440px;';
-			sheetDivGrandChildLabel2.id='error_sheets'; 
-			sheetDivGrandChildLabel2.innerHTML = '0';
-	  		let sheetDivGrandChildButton = document.createElement('button');
-			sheetDivGrandChildButton.id='cargar'; 
-			sheetDivGrandChildButton.type = 'button';
-			sheetDivGrandChildButton.onclick = function(e){
+	  		renderer.sheetDivGrandChildSpan = document.createElement('span');
+			renderer.sheetDivGrandChildSpan.style='max-height: 144px;margin-left: 256px;margin-top: -106px;position: absolute;';
+			renderer.sheetDivGrandChildSpan.innerHTML='Total:';
+	  		renderer.sheetDivGrandChildLabel = document.createElement('label');
+			renderer.sheetDivGrandChildLabel.style='max-height: 144px;margin-left: 300px;margin-top: -106px;position: absolute;';
+			renderer.sheetDivGrandChildLabel.id='total_sheets';
+			renderer.sheetDivGrandChildLabel.innerHTML = '0';
+	  		renderer.sheetDivGrandChildSpan2 = document.createElement('span');
+			renderer.sheetDivGrandChildSpan2.style='max-height: 174px; position: absolute; margin-top: -106px; margin-left: 340px;';
+			renderer.sheetDivGrandChildSpan2.innerHTML = '| Con errores:'; 
+	  		renderer.sheetDivGrandChildLabel2 = document.createElement('label');
+			renderer.sheetDivGrandChildLabel2.style='max-height: 144px;margin-top: -106px;position: absolute;margin-left: 440px;';
+			renderer.sheetDivGrandChildLabel2.id='error_sheets'; 
+			renderer.sheetDivGrandChildLabel2.innerHTML = '0';
+	  		renderer.sheetDivGrandChildButton = document.createElement('button');
+			renderer.sheetDivGrandChildButton.id='cargar'; 
+			renderer.sheetDivGrandChildButton.type = 'button';
+			renderer.sheetDivGrandChildButton.onclick = function(e){
 				document.getElementById('raw_response_header').style.display = 'block';
 				document.getElementById('data_exported').style.display = 'block';
 				let json_string = '{';
@@ -370,56 +221,46 @@ function renderFun(file, config){
     				console.log("Datos cargados correctamente.");
 				});
 			}
-			sheetDivGrandChildButton.name='cargar';
-			sheetDivGrandChildButton.class='cargar'; 
-			sheetDivGrandChildButton.style='background: blue;height: 36px;width: 122px;border-width: 0px;margin-left: 720px;border-radius: 16px;padding: 8px;margin-top: -114px;position: absolute;';
-			let sheetDivGrandChildButtonChild = document.createElement('img'); 
-			sheetDivGrandChildButtonChild.src='https://assets.cencilio.com/info.png'; 
-			sheetDivGrandChildButtonChild.style='height: 16px;width: 16px;margin-left: -76px;margin-top: -2px;';
-			let sheetDivGrandChildButtonLabel = document.createElement('label');  
-			sheetDivGrandChildButtonLabel.style='height: 20px;margin-top: 5px;margin-left: 3px;font-size: 9px;position: absolute;';
-			sheetDivGrandChildButtonLabel.innerHTML = 'CARGAR DATOS';
+			renderer.sheetDivGrandChildButton.name='cargar';
+			renderer.sheetDivGrandChildButton.class='cargar'; 
+			renderer.sheetDivGrandChildButton.style='background: blue;height: 36px;width: 122px;border-width: 0px;margin-left: 720px;border-radius: 16px;padding: 8px;margin-top: -114px;position: absolute;';
+			renderer.sheetDivGrandChildButtonChild = document.createElement('img'); 
+			renderer.sheetDivGrandChildButtonChild.src='https://assets.cencilio.com/info.png'; 
+			renderer.sheetDivGrandChildButtonChild.style='height: 16px;width: 16px;margin-left: -76px;margin-top: -2px;';
+			renderer.sheetDivGrandChildButtonLabel = document.createElement('label');  
+			renderer.sheetDivGrandChildButtonLabel.style='height: 20px;margin-top: 5px;margin-left: 3px;font-size: 9px;position: absolute;';
+			renderer.sheetDivGrandChildButtonLabel.innerHTML = 'CARGAR DATOS';
 			//default primary button color
-			if (typeof config['primaryButtonColor'] === 'undefined'){
-				sheetDivGrandChildButton.style.backgroundColor = 'blue';
+			if (typeof Options['primaryButtonColor'] === 'undefined'){
+				renderer.sheetDivGrandChildButton.style.backgroundColor = 'blue';
 				document.getElementById('close_button').style.backgroundColor = 'blue';
 			}
 			else{ //user primary button color
-				if (7 <= config['primaryButtonColor'].length <= 9){
-					if (config['primaryButtonColor'].includes('#')){
-						sheetDivGrandChildButton.style.backgroundColor = config['primaryButtonColor'];
-						document.getElementById('close_button').style.backgroundColor = config['primaryButtonColor'];
+				if (7 <= Options['primaryButtonColor'].length <= 9){
+					if (Options['primaryButtonColor'].includes('#')){
+						renderer.sheetDivGrandChildButton.style.backgroundColor = Options['primaryButtonColor'];
+						document.getElementById('close_button').style.backgroundColor = Options['primaryButtonColor'];
 					}
 				}
 			}
-			let sheetDivGrandChildOptions = document.createElement('div');  
-			sheetDivGrandChildOptions.style='max-height: 144px;';
-			sheetDivGrandChildOptions.id = 'options_xlsx';
-			let sheetDivGrandChildOptionsDiv = document.createElement('div');  
-			sheetDivGrandChildOptionsDiv.style='max-height: 144px;';
-			sheetDivGrandChildOptionsDiv.id = 'sheets_span';
-			let sheetDivGrandChildOptionsDivSpan = document.createElement('span');  
-			sheetDivGrandChildOptionsDivSpan.style='max-height: 144px;margin-top: 18px;margin-left: 32px;position: absolute;';
-			sheetDivGrandChildOptionsDivSpan.innerHTML = 'Instrucciones:'; 
-			let sheetDivGrandChildOptionsDivLabel = document.createElement('label');  
-			sheetDivGrandChildOptionsDivLabel.style='max-height: 144px;width: 40%;margin-left: 140px;margin-top: 18px;';
-			sheetDivGrandChildOptionsDivLabel.id = 'instruction'; 
-			sheetDivGrandChildOptionsDivLabel.innerHTML = 'Selecciona la página que necesites validar y corrobora que no hayan errores.';
-			let sheetDivTable = document.createElement('table');  
-			let sheetDivHead = document.createElement('thead');  
-			let sheetDivTableBody = document.createElement('tbody');  
-         sheetDivTableBody.id='sheet_rows';
-			let sheetDivDtypeRow = document.createElement('tr');  
-			sheetDivDtypeRow.style = 'margin-top: 150px;';
-			sheetDivTableBody.appendChild(sheetDivDtypeRow);
-			let sheetFieldSelector = document.createElement('tr');  
-			sheetFieldSelector.style = 'margin-top: 32px;position: absolute;';
-			sheetDivTableBody.appendChild(sheetFieldSelector);
-			let sheetDivCheckInvalid = document.createElement('input');  
-			sheetDivCheckInvalid.style='width: 24px; height: 258px; margin-left: 820px; margin-top: -141px;';
-			sheetDivCheckInvalid.id = 'show_errors'; 
-			sheetDivCheckInvalid.type='checkbox'; 
-			sheetDivCheckInvalid.onchange = function(e){
+			renderer.sheetDivGrandChildOptions = document.createElement('div');  
+			renderer.sheetDivGrandChildOptions.style='max-height: 144px;';
+			renderer.sheetDivGrandChildOptions.id = 'options_xlsx';
+			renderer.sheetDivGrandChildOptionsDiv = document.createElement('div');  
+			renderer.sheetDivGrandChildOptionsDiv.style='max-height: 144px;';
+			renderer.sheetDivGrandChildOptionsDiv.id = 'sheets_span';
+			renderer.sheetDivGrandChildOptionsDivSpan = document.createElement('span');  
+			renderer.sheetDivGrandChildOptionsDivSpan.style='max-height: 144px;margin-top: 18px;margin-left: 32px;position: absolute;';
+			renderer.sheetDivGrandChildOptionsDivSpan.innerHTML = 'Instrucciones:'; 
+			renderer.sheetDivGrandChildOptionsDivLabel = document.createElement('label');  
+			renderer.sheetDivGrandChildOptionsDivLabel.style='max-height: 144px;width: 40%;margin-left: 140px;margin-top: 18px;';
+			renderer.sheetDivGrandChildOptionsDivLabel.id = 'instruction'; 
+			renderer.sheetDivGrandChildOptionsDivLabel.innerHTML = 'Selecciona la página que necesites validar y corrobora que no hayan errores.';
+			renderer.sheetDivCheckInvalid = document.createElement('input');  
+			renderer.sheetDivCheckInvalid.style='width: 24px; height: 258px; margin-left: 820px; margin-top: -141px;';
+			renderer.sheetDivCheckInvalid.id = 'show_errors'; 
+			renderer.sheetDivCheckInvalid.type='checkbox'; 
+			renderer.sheetDivCheckInvalid.onchange = function(e){
 				document.getElementById('select_all').incoming = 'show_errors';
 				if (document.getElementById('select_all').checked === false){
 					document.getElementById('select_all').click();
@@ -433,11 +274,11 @@ function renderFun(file, config){
 					}						
 				}
 			}; 
-			let sheetDivCheckChanged = document.createElement('input');  
-			sheetDivCheckChanged.style='width: 24px;height: 24px;margin-left: 616px;margin-top: -48px;';
-			sheetDivCheckChanged.id = 'show_changed'; 
-			sheetDivCheckChanged.type='checkbox'; 
-			sheetDivCheckChanged.onchange = function(e){
+			renderer.sheetDivCheckChanged = document.createElement('input');  
+			renderer.sheetDivCheckChanged.style='width: 24px;height: 24px;margin-left: 616px;margin-top: -48px;';
+			renderer.sheetDivCheckChanged.id = 'show_changed'; 
+			renderer.sheetDivCheckChanged.type='checkbox'; 
+			renderer.sheetDivCheckChanged.onchange = function(e){
 				document.getElementById('select_all').incoming = 'show_changed';
 				if (document.getElementById('select_all').checked === false){
 					document.getElementById('select_all').click();
@@ -451,46 +292,151 @@ function renderFun(file, config){
 					}						
 				}
 			}; 
-			let sheetDivCheckInvalidLabel = document.createElement('label');  
-			sheetDivCheckInvalidLabel.style='max-height: 144px; width: 40%; margin-left: 850px; margin-top: -138px; position: absolute;';
-			sheetDivCheckInvalidLabel.id = 'show_errors_label'; 
-			sheetDivCheckInvalidLabel.innerHTML = 'Mostrar filas con errores';
-			let sheetDivCheckChangedLabel = document.createElement('label');  
-			sheetDivCheckChangedLabel.style='max-height: 144px; width: 40%; margin-left: 646px; margin-top: -138px; position: absolute;';
-			sheetDivCheckChangedLabel.id = 'show_changed_label'; 
-			sheetDivCheckChangedLabel.innerHTML = 'Mostrar filas editadas';
+			renderer.sheetDivCheckInvalidLabel = document.createElement('label');  
+			renderer.sheetDivCheckInvalidLabel.style='max-height: 144px; width: 40%; margin-left: 850px; margin-top: -138px; position: absolute;';
+			renderer.sheetDivCheckInvalidLabel.id = 'show_errors_label'; 
+			renderer.sheetDivCheckInvalidLabel.innerHTML = 'Mostrar filas con errores';
+			renderer.sheetDivCheckChangedLabel = document.createElement('label');  
+			renderer.sheetDivCheckChangedLabel.style='max-height: 144px; width: 40%; margin-left: 646px; margin-top: -138px; position: absolute;';
+			renderer.sheetDivCheckChangedLabel.id = 'show_changed_label'; 
+			renderer.sheetDivCheckChangedLabel.innerHTML = 'Mostrar filas editadas';
+			renderer.sheetDivSpan2 = document.createElement('span');  
+         renderer.sheetDivSpan2.innerHTML = 'Sólo fila inválida';
+         renderer.sheetDivSpan2.style = 'margin-top: -140px;position: absolute;margin-left: 32px;font-size: 80%;';						
+			renderer.sheetDivGrandChildOptionsDiv2 = document.createElement('div');  
+			renderer.sheetDivGrandChildOptionsDiv2.style='overflow-y: scroll; overflow-x: hidden; max-height: 144px;';
+			renderer.sheetDivGrandChildOptionsDiv2.id = 'mensajes';
+			renderer.sheetDivGrandChildOptionsDiv.appendChild(renderer.sheetDivGrandChildOptionsDivSpan);
+			renderer.sheetDivGrandChildOptionsDiv.appendChild(renderer.sheetDivGrandChildOptionsDivLabel);			
+			renderer.sheetDivGrandChildOptions.appendChild(renderer.sheetDivGrandChildOptionsDiv);
+			renderer.sheetDivGrandChildButton.appendChild(renderer.sheetDivGrandChildButtonChild);
+			renderer.sheetDivGrandChildButton.appendChild(renderer.sheetDivGrandChildButtonLabel);
+	  		renderer.sheetDivGrandChildDiv = document.createElement('div');
+			renderer.sheetDivGrandChildDiv.id='sheets_span';
+			renderer.sheetDivGrandChildDiv.placeholder='Nombre de hoja'; 
+			renderer.sheetDivGrandChildDiv.style='max-height: 144px; padding: 2px;';
+			renderer.sheetDivGrandChildDiv.appendChild(renderer.sheetDivGrandChildOptions);
+			renderer.sheetDivGrandChildDiv.appendChild(renderer.sheetDivGrandChildSpan);
+			renderer.sheetDivGrandChildDiv.appendChild(renderer.sheetDivGrandChildButton);
+			renderer.sheetDivGrandChildDiv.appendChild(renderer.sheetDivGrandChildLabel);
+			renderer.sheetDivGrandChildDiv.appendChild(renderer.sheetDivGrandChildSpan2);
+			renderer.sheetDivGrandChildDiv.appendChild(renderer.sheetDivGrandChildLabel2);			
+	  		renderer.sheetDivChildDiv = document.createElement('div');
+			renderer.sheetDivChildDiv.id='header_xlsx';
+			renderer.sheetDivChildDiv.style='max-height: 144px;';
+	  		let sheetDivChildInput = document.createElement('select');
+			sheetDivChildInput.id='sheet_select';
+			sheetDivChildInput.placeholder='Nombre de hoja'; 
+			sheetDivChildInput.style='max-height: 144px;width: 136px;margin-top: 2px;margin-left: 506px;border-radius: 2px;height: 32px;margin-bottom: 16px;';
+			sheetDivChildInput.onchange = function(e){
+				let sheet = renderer.loadTable(workbook.SheetNames.indexOf(e.target.value));
+				renderer.page = 0;	
+				console.info(sheet);
+				document.getElementById('sheet_rows').childNodes[0] = sheet;		
+			}			
+			let sheetDivTable = document.createElement('table');  
+			let sheetDivHead = document.createElement('thead');  
+			let sheetDivTableBody = document.createElement('tbody');  
+         sheetDivTableBody.id='sheet_rows';
+			let sheetFieldSelector = document.createElement('tr');  
+			sheetFieldSelector.style = 'margin-top: 32px;position: absolute;';
+			sheetDivTableBody.appendChild(sheetFieldSelector);			
+			let sheetDivDtypeRow = document.createElement('tr');  
+			sheetDivDtypeRow.style = 'margin-top: 150px;';
+			sheetDivTableBody.appendChild(sheetDivDtypeRow);
 			sheetDivTable.appendChild(sheetDivTableBody);
 			sheetDivTable.appendChild(sheetDivHead);
-			let sheetDivSpan2 = document.createElement('span');  
-         sheetDivSpan2.innerHTML = 'Sólo fila inválida';
-         sheetDivSpan2.style = 'margin-top: -140px;position: absolute;margin-left: 32px;font-size: 80%;';						
-			let sheetDivGrandChildOptionsDiv2 = document.createElement('div');  
-			sheetDivGrandChildOptionsDiv2.style='overflow-y: scroll; overflow-x: hidden; max-height: 144px;';
-			sheetDivGrandChildOptionsDiv2.id = 'mensajes';
-			sheetDivGrandChildOptionsDiv.appendChild(sheetDivGrandChildOptionsDivSpan);
-			sheetDivGrandChildOptionsDiv.appendChild(sheetDivGrandChildOptionsDivLabel);			
-			sheetDivGrandChildOptions.appendChild(sheetDivGrandChildOptionsDiv);
-			sheetDivGrandChildButton.appendChild(sheetDivGrandChildButtonChild);
-			sheetDivGrandChildButton.appendChild(sheetDivGrandChildButtonLabel);
-			sheetDivGrandChildDiv.appendChild(sheetDivGrandChildOptions);
-			sheetDivGrandChildDiv.appendChild(sheetDivGrandChildSpan);
-			sheetDivGrandChildDiv.appendChild(sheetDivGrandChildButton);
-			sheetDivGrandChildDiv.appendChild(sheetDivGrandChildLabel);
-			sheetDivGrandChildDiv.appendChild(sheetDivGrandChildSpan2);
-			sheetDivGrandChildDiv.appendChild(sheetDivGrandChildLabel2);
-			sheetDivChildDiv.appendChild(sheetDivChildStrong);
-			sheetDivChildDiv.appendChild(sheetDivChildInput);
-			sheetDivChildDiv.appendChild(sheetDivGrandChildDiv);
-			sheetDivChildDiv.appendChild(sheetDivCheckChanged);
-			sheetDivChildDiv.appendChild(sheetDivCheckInvalid);
-			sheetDivChildDiv.appendChild(sheetDivCheckChangedLabel);
-			sheetDivChildDiv.appendChild(sheetDivCheckInvalidLabel);
-			sheetDiv.appendChild(sheetDivChildDiv);
-			sheetDiv.appendChild(sheetDivTable);
-			document.body.appendChild(sheetDiv);
-			let labeled_data = [];
-			readFields(config['fields']); 
-			//DATA STRUCTURE BEFORE VALIDITY 
+			let fields = Options['fields'];
+			//console.info(renderer.dom_factor);
+			//console.info(fields);
+			for (var j = 0; j < fields.length; j++) {
+				//console.info(renderer.dom_factor);
+				if (typeof fields[j]['validators'] !== 'undefined'){
+					let validators = new ElReqs();
+					//console.info(fields[j]['validators'][0].validate);
+					//console.info(renderer.dom_factor);
+					//console.info(fields[j]['validators'] === null);
+					//console.info(typeof fields[j]['validators'] === 'undefined');
+					for(var set = 0; set <= fields[j]['validators'].length; ++set){
+						try{
+							//console.info(fields[j]['validators'][set]);
+							//console.info(typeof fields[j]['validators'][set] === 'undefined');
+							//console.info(renderer.dom_factor);
+							if (typeof fields[j]['validators'][set] === 'undefined'){
+								continue;				
+							}
+							if (fields[j]['validators'][set]['validate'] === 'required'){
+								validators.required = true;				
+							}
+							else if (fields[j]['validators'][set]['validate']  === 'unique'){
+								//console.info('VALIDATE UNIQUE');
+								validators.unique = true;				
+							}
+							else if (fields[j]['validators'][set]['validate']  === 'regex_match'){
+			   				//console.info('VALIDATE REGEX');
+								validators.regex = true;				
+							}
+							if (typeof fields[j]['validators'][set]['error'] !== 'undefined'){
+			   				//console.info('HAS ERROR');
+								validators.error = true;				
+							}				
+							if (validators.required === true){
+								renderer.ndata = new DOMNodeFactors(true, fields[j]['label'], fields[j]['key']);
+								if (typeof fields[j]['validators'][set]['error'] !== 'undefined'){
+			   					renderer.ndata.error = fields[j]['validators'][set]['error'];
+	  	 						}
+								if (fields[j]['validators'][set]['validate'] === 'regex_match'){
+			   					renderer.ndata.re = fields[j]['validators'][set].regex;
+			   					//console.info('NDATA REGEX');
+	  	 						}
+							}
+							else{
+								renderer.ndata = new DOMNodeFactors(false, fields[j]['label'], fields[j]['key']);
+								if (typeof fields[j]['validators'][set]['error'] !== 'undefined'){
+			   					renderer.ndata.error = fields[j]['validators'][set]['error'];
+	  	 						}
+								if (fields[j]['validators'][set]['validate'] === 'regex_match'){
+			   					renderer.ndata.re = fields[j]['validators'][set].regex;
+			   					//console.info('NDATA REGEX');
+	   						}
+							}
+							//console.info(renderer.ndata );
+							//console.info(renderer.dom_factor);
+					   	if (typeof renderer.ndata !== 'undefined'){
+								if (renderer.dom_factor.length <= j){
+									renderer.dom_factor.push([]);
+									renderer.dom_factor[renderer.dom_factor.length-1].push([renderer.ndata,validators]);
+								}  
+								else{
+									renderer.dom_factor.push([]);
+									renderer.dom_factor[j].push([renderer.ndata,validators]); 						
+								}
+							}
+						}
+						catch(error){
+							//console.info(renderer.dom_factor);
+							console.info(error);
+						}	
+   				}		
+				}
+				else if (typeof fields[j]['validators'] === 'undefined'){
+		   		renderer.ndata = new DOMNodeFactors(false, fields[j]['label'], fields[j]['key']);
+		   		if (typeof renderer.ndata !== 'undefined'){
+						if (renderer.dom_factor.length <= j){
+							renderer.dom_factor.push([]);
+							renderer.dom_factor[renderer.dom_factor.length-1].push([renderer.ndata,null]);
+						}  
+						else{
+							renderer.dom_factor.push([]);
+							renderer.dom_factor[j].push([renderer.ndata,validators]); 						
+						}
+					}	
+   			}
+   			else{
+					let validators = null;   	
+   			}
+			}
+			//console.info(renderer.dom_factor);
 			for(var sh = 0; sh <= workbook.SheetNames.length; ++sh){ 
 				try{
 					var sheet = workbook.Sheets[workbook.SheetNames[sh]]; // get the first worksheet
@@ -501,7 +447,7 @@ function renderFun(file, config){
 	  				let pageOption = document.createElement('option');
 	  				pageOption.value = workbook.SheetNames[sh];
 	  				pageOption.innerHTML = workbook.SheetNames[sh];
-	  				document.getElementById('sheet_select').appendChild(pageOption);
+	  				sheetDivChildInput.appendChild(pageOption);
 	  				var range = XLSX.utils.decode_range(sheet['!ref']); // get the range
 	  				let page_data = [];
 	  				//dtype checkbox 
@@ -524,9 +470,10 @@ function renderFun(file, config){
 					let colsize = range.e.c;	
 					//console.info(colsize);	
 					let selectorIncrement = 148;		
+					//console.info(sheet);
 	  				for(var vtypei = 0; vtypei <= colsize; ++vtypei) {
 						let tdLabelShiftDiv = document.createElement('div');  
-						tdLabelShiftDiv.style = 'max-height: 144px;font-size: 16px;margin-right: 16px;margin-top: -148px;position: absolute;width: 80px;margin-left: 748px;';
+						tdLabelShiftDiv.style = 'max-height: 144px;font-size: 12px;margin-right: 16px;margin-top: -80px;position: absolute;width: 80px;margin-left: 748px;';
 						tdLabelShiftDiv.style.marginLeft = String(selectorIncrement)+'px';
 						selectorIncrement += 150;
 						let tdLabelSelector = document.createElement('select');  
@@ -555,7 +502,7 @@ function renderFun(file, config){
 								tdLabelSelector.appendChild(selectOption);
 							}
 							catch (error){
-								console.info('Faltan argumentos para renderizar columnas'); //no hay argumentos === no hay columnas
+								//console.info('Faltan argumentos para renderizar columnas'); //no hay argumentos === no hay columnas
 								console.info(error);
 							}
 						};  	
@@ -567,7 +514,7 @@ function renderFun(file, config){
 						let tdDtypeCol = document.createElement('td');  
 						let dtypeColSpan = document.createElement('span');  
 						dtypeColSpan.id = 'dtype_'+String(vtypei);  
-						dtypeColSpan.style = 'max-height: 144px;font-size: 16px;margin-right: 16px;margin-top: -4px;position: absolute;';
+						dtypeColSpan.style = 'max-height: 144px;font-size: 12px;margin-right: 16px;margin-top: -4px;position: absolute;';
 						//dtypeColSpan.innerHTML = vtypei;
 						tdDtypeCol.appendChild(dtypeColSpan);	
 						sheetDivDtypeRow.appendChild(tdDtypeCol);	
@@ -584,17 +531,68 @@ function renderFun(file, config){
          			}	       	
 	   			}
 	   			renderer.excel_data[sh] = page_data; //element-wise
+	   			console.info(renderer.excel_data);
 				}
 				catch (error){ //looping sums 1
 					console.info(error);
 				}
 	   	}
 	   	renderer.page = 0;
+	   	renderer.sheetDivTable = sheetDivTable;
+	   	renderer.sheetDivChildInput = sheetDivChildInput;
+			renderer.sheetDivChildDiv.appendChild(renderer.sheetDivChildStrong);
+			renderer.sheetDivChildDiv.appendChild(renderer.sheetDivChildInput);
+			renderer.sheetDivChildDiv.appendChild(renderer.sheetDivGrandChildDiv);
+			renderer.sheetDivChildDiv.appendChild(renderer.sheetDivCheckChanged);
+			renderer.sheetDivChildDiv.appendChild(renderer.sheetDivCheckInvalid);
+			renderer.sheetDivChildDiv.appendChild(renderer.sheetDivCheckChangedLabel);
+			renderer.sheetDivChildDiv.appendChild(renderer.sheetDivCheckInvalidLabel);
+			renderer.sheetDiv.appendChild(renderer.sheetDivChildDiv);
+			renderer.sheetDiv.appendChild(renderer.sheetDivTable); 
+			document.body.appendChild(renderer.sheetDiv);
 	   	let sheet1 = renderer.loadTable(0);	
 	   	for (var s = 0; s < sheet1.length; s++) {
-	   		document.getElementById('sheet_rows').appendChild(sheet1[s]);	
+	   		renderer.sheetDiv.appendChild(sheet1[s]);	
 	   	}
-	   	document.getElementById('cencilio_file_name').innerHTML = renderer.file_name;
+	   	renderer.sheetDivChildStrong.innerHTML = renderer.file_name;
+			//CONSENT BEFORE DATA STRUCTURE BEFORE VALIDITY	   	
+		}				
+		else {
+			console.info('validationError');	
+			return 'validationError';				
+		}
+  	};
+  	//console.info('SENDING API REQUEST');
+   xhr.send();
+}
+
+function renderFun(file, config){
+	/*Función que toma la configuración del módulo como argumento
+	y el nombre de archivo cargado mediante drag and drop para renderizar el documento.
+	*/
+	//console.info(config);
+	//console.info(typeof config);
+	renderer.excel_data = [];
+	//console.info(document.getElementById('profpic'));
+	try{
+		//console.info(document.getElementById('pIn'));
+	  	var reader = new FileReader();
+	  	let next_col = false;
+	  	reader.onloadend = function(e) {
+     		document.getElementById('percent').style.width = '65%';
+     		document.getElementById('percent').style.padding = '2px';
+     		document.getElementById('percent').textContent = '100%';
+     		//setTimeout("document.getElementById('progress_bar').className='';", 300);
+	  		var data = e.target.result;
+	  		data = new Uint8Array(data);
+	  		//process_wb(XLSX.read(data, {type: 'array'}));
+	  		/* read the file */
+			//console.info(data);	  		
+	  		var workbook = XLSX.read(data, {type: 'array'}); // parse the file
+	  		//console.info(range);
+			//USER BASED
+			//console.info(config);			
+			table_maker(config, workbook);
 		};		
     	reader.onerror = function (e) {
     		switch(e.target.error.code) {
@@ -614,11 +612,9 @@ function renderFun(file, config){
 			if (e.lengthComputable) {
 			   var percentLoaded = Math.round((e.loaded / e.total) * 100);
 			   document.getElementById('progress_bar').style.display = 'block';
-      		document.getElementById('progress_bar').style.backgroundColor= '#99ccff';
-      		document.getElementById('progress_bar').style.height = 'auto';
-      		document.getElementById('progress_bar').style.width = '200px';
+      		document.getElementById('percent').style.backgroundColor= '#99ccff';
+      		//document.getElementById('progress_bar').style.width = '200px';
 			   // Increase the progress bar length.
-			   console.info(document.getElementById('progress_bar').style.display);
 			   if (percentLoaded <= 100) {
 			      document.getElementById('p%').style.width = percentLoaded + '%';
 			   	document.getElementById('p%').textContent = percentLoaded + '%';
@@ -629,7 +625,7 @@ function renderFun(file, config){
       	e.abort();
     	};    		
     	reader.onloadstart = function (e) {
-      	document.getElementById('progress_bar').style = 'opacity: 1;';
+      	document.getElementById('progress_bar').style.opacity =  '1';
       	document.getElementById('progress_bar').style.display = 'block';
     	};    	  	
 	  	reader.readAsArrayBuffer(file);
@@ -648,14 +644,14 @@ export default class renderWidget {
 		this.cells_names_selected = [];
 		this.nselected = 0;
 		this.sizeIncrement = 0;
-		let dragger = document.createElement('div');	
+		let dragger = document.getElementById('cencilio-importer');	
 		dragger.className = 'dragger';
-		dragger.id = 'xls_dragger';
-		dragger.style = 'position: relative;margin-left: -1246px; z-index: -1;';
+		//dragger.id = 'xls_dragger';
+		dragger.style = 'position: relative; margin-left: 766px; z-index: -1; height: 200px; width: 300px;';
 		let draggerForm = document.createElement('form');	
 		draggerForm.className = 'pimg';
 		draggerForm.id = 'pimg';
-		draggerForm.style = 'visibility: hidden; margin-top: 96px;position: absolute;margin-left: 1714px;background-color: #0000ff08;width: 464px;height: 280px;';
+		draggerForm.style = 'visibility: hidden;margin-top: 146px;position: absolute;margin-left: 1418px;width: 464px;height: 280px;';
 		draggerForm.enctype = 'multipart/form-data';
 		let draggerInput = document.createElement('input');	
 		draggerInput.type = 'file';
@@ -673,10 +669,10 @@ export default class renderWidget {
 		let draggerLabel = document.createElement('label');	
 		draggerLabel.innerHTML = 'Arrastra archivos aquí o haz click para cargar';   
 		draggerLabel.class='perfil_label';
-		draggerLabel.style='position: absolute; margin-left: 1760px; margin-top: 160px; width: 342px;';
+		draggerLabel.style='position: absolute;margin-left: -240px;margin-top: 188px;width: 382px;';
 		let draggerImg2 = document.createElement('img');	
 		draggerImg2.src = 'icons.png';
-		draggerImg2.style='height: 78px;width: 65px;margin-left: 1891px;margin-top: 210px;position: absolute;';
+		draggerImg2.style='height: 78px; width: 65px; margin-left: -135px; margin-top: 244px; position: absolute;';
 		dragger.appendChild(draggerImg2);
 		draggerInput.addEventListener("dragover", function(event) {
   			event.preventDefault();
@@ -705,16 +701,16 @@ export default class renderWidget {
 		excelButton.onclick = function (e) { 
 			uploadimg();
 		}; 				
-		excelButton.style = 'width: 465px;height: 282px;margin-top: -40px;position: absolute;opacity: 0.3;border: 2px dashed lightyellow;background: repeating-linear-gradient(90deg, #9c989b, #c7c7c7 51%, #8a00c7) var(--x, 0)/ 400%;margin-left: -388px;'; 	
+		excelButton.style = 'width: 465px;height: 282px;margin-top: 140px;position: absolute;opacity: 0.3;border: 2px dashed lightyellow;margin-left: -340px;'; 	
 		dragger.appendChild(draggerLabel);
-		draggerLabel.appendChild(excelButton);		
+		dragger.appendChild(excelButton);		
 		let dataExportDiv = document.createElement('div');
 		dataExportDiv.id = 'data_exported';
 		dataExportDiv.name = 'data_exported';
 		dataExportDiv.className = 'data_exported'; 	
 		dataExportDiv.style='background-color: rgb(138, 82, 231);box-shadow: rgb(138, 82, 231) 0px 2px 8px 5px;position: absolute;display: none;z-index: 7;margin-left: 396px;width: 512px;margin-top: 166px;border-radius: 4px;';
 		let dataExportSpan = document.createElement('span');
-		dataExportSpan.style = 'max-height: 144px;margin-left: 56px;font-size: 24px;';
+		dataExportSpan.style = 'max-height: 144px;margin-left: 56px;font-size: 20px;';
 		dataExportSpan.innerHTML = 'Datos cargados exitosamente';
 		let dataExportButton = document.createElement('button');
 		dataExportButton.type = 'button';
@@ -749,7 +745,7 @@ export default class renderWidget {
 		let headerDiv = document.createElement('div');
 		headerDiv.className = 'raw_response_header';
 		headerDiv.id = 'raw_response_header';
-		headerDiv.style = 'position: absolute; display: none; justify-content:center;margin-left: 0px;width: 273px;margin-top: 6px;height: 42px;background-color: #b05cc5b8;border-radius: 4px;margin-left: 8px;box-shadow: rgb(231 82 220 / 44%) 0px 2px 8px 5px;';		
+		headerDiv.style = 'position: absolute; display: none; justify-content:center;margin-left: 0px;width: 273px;margin-top: -190px;height: 42px;background-color: #b05cc5b8;border-radius: 4px;margin-left: 8px;box-shadow: rgb(231 82 220 / 44%) 0px 2px 8px 5px;';		
 		let headerLabel = document.createElement('label');
 		headerLabel.style = 'background: transparent;height: 240px;width: 208px;border-width: 0px;margin-top: 10px;margin-left: 56px;';		
 		headerLabel.innerHTML = 'Raw response header';
@@ -764,18 +760,18 @@ export default class renderWidget {
 		progressBarDiv.className = 'progress_bar';
 		progressBarDiv.id = 'progress_bar';		
 		progressBarDiv.name = 'progress_bar';		
-		progressBarDiv.style = 'display: block;margin-top: 60px;background-color: rgb(142, 53, 53);height: 40px;width: 400px;margin-left: 483px;border-radius: 12px;position: absolute;';	
+		progressBarDiv.style = 'display: none; margin-top: 20px;background-color: rgb(142, 53, 53);height: 40px;width: 400px;border-radius: 12px;position: absolute;margin-left: 594px;opacity: 1;';	
 		let progressBarLabel = document.createElement('label'); 	
 		progressBarLabel.className = 'pmsg';
 		progressBarLabel.id = 'pmsg';		
 		progressBarLabel.name = 'pmsg';		
-		progressBarLabel.style = 'font-size: 18px;margin-left: 24px;margin-top: 4px;';	
+		progressBarLabel.style = 'font-size: 14px; margin-left: 32px; margin-top: 10px; color: white;';	
 		progressBarLabel.innerHTML = 'Uploading';	
 		let progressBarChildDiv = document.createElement('div'); 	
 		progressBarChildDiv.className = 'percent';
 		progressBarChildDiv.id = 'percent';		
 		progressBarChildDiv.name = 'percent';		
-		progressBarChildDiv.style = 'font-size: 20px;margin-left: 160px;margin-top: -32px;width: 55%;border-radius: 4px;height: 80%;';	
+		progressBarChildDiv.style = 'font-size: 16px;margin-left: 120px;margin-top: -26px;width: 65%;border-radius: 4px;height: 55%;color: white;background-color: rgb(153, 204, 255);';	
 		let progressBarChildDivLabel = document.createElement('label'); 	
 		progressBarChildDivLabel.className = 'p%';
 		progressBarChildDivLabel.id = 'p%';		
@@ -785,7 +781,7 @@ export default class renderWidget {
 		progressBarDiv.appendChild(progressBarLabel);
 		progressBarChildDiv.appendChild(progressBarChildDivLabel);
 		progressBarDiv.appendChild(progressBarChildDiv);
-		dragger.appendChild(progressBarDiv);
+		document.body.appendChild(progressBarDiv);
 		document.body.appendChild(dragger);
 		document.body.appendChild(headerDiv);
 		//importer graphics are defined after the dragger
@@ -867,9 +863,14 @@ export default class renderWidget {
 		let a_idx= [];	
 		//let b_idx= [];		
   		for (var row = 0; row < renderer.excel_data[Page].length; row++) {
-			for (var col = 1; col < document.getElementById('sheet_rows').childNodes.length; col++){
-				let row_vals = document.getElementById('sheet_rows').childNodes[col];
+			for (var col = 2; col < document.getElementById('sheet_div').childNodes.length; col++){
+				let row_vals = document.getElementById('sheet_div').childNodes[col];
+				//console.info(col);
+				//console.info(row_vals);
+				//console.info(row_vals.childNodes[b]);
+				//console.info(row_vals.childNodes[b].childNodes[0]);
 				if (a_idx.includes(row_vals.childNodes[b].childNodes[0].value) === false){
+					//console.info(row_vals.childNodes[b]);
 					if (typeof row_vals.childNodes[b].childNodes[0].value !== 'undefined'){
 						a_idx.push(row_vals.childNodes[b].childNodes[0]);
 					}
@@ -877,9 +878,13 @@ export default class renderWidget {
 			}
 		}			
   		for (var row = 0; row < renderer.excel_data[Page].length; row++) {
-			for (var col = 1; col < document.getElementById('sheet_rows').childNodes.length; col++){
-				let row_vals = document.getElementById('sheet_rows').childNodes[col];
+			for (var col = 1; col < document.getElementById('sheet_div').childNodes.length; col++){
+				let row_vals = document.getElementById('sheet_div').childNodes[col];
 				try{
+					//console.info(a_idx);
+					//console.info(a_idx[col]);
+					//console.info(a_idx[col-2].value);
+					//console.info(row_vals.childNodes[a].childNodes[0].value);
 					row_vals.childNodes[a].childNodes[0].value = a_idx[col-2].value;
 					if (row_vals.childNodes[a].childNodes[0].isinvalid === true){
 						if (a_idx[col-2].isinvalid === false){
@@ -888,68 +893,65 @@ export default class renderWidget {
 							row_vals.childNodes[a].childNodes[0].style.backgroundColor = renderer.errorColor;					
 						}				
 					}
-					else if (row_vals.childNodes[a].childNodes[0].isinvalid === false){
+					else if (row_vals.childNodes[a].childNodes[0].isinvalid === false){ //BOTH INVALID AFTER TRANSFER
 						if (a_idx[col-2].isinvalid === true){
 							row_vals.childNodes[a].childNodes[0].isinvalid = true;
 							row_vals.childNodes[a].childNodes[0].isedited = true;
-							row_vals.childNodes[a].childNodes[0].style.backgroundColor = 'none';					
-						}				
-					}
-					console.info('PREV INVALID', row_vals.isinvalid);
-					console.info('PREV NODE', row_vals.childNodes[a]);
-					console.info('CURRENT INVALID', row_vals.isinvalid);
-					console.info('CURRENT NODE', row_vals.childNodes[b]);
-					if(row_vals.childNodes[a].isinvalid === false){
-						if(row_vals.childNodes[b].isinvalid === true){
+							row_vals.childNodes[a].childNodes[0].style.backgroundColor = renderer.errorColor;					
+       	  				//APPLIES
        	  				let tooltip = document.createElement('span');
-       	  				tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       	  				tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        	  				tooltip.style.left = '0px';
        	  				tooltip.style.top = '0px';
+       	  				console.info(this.dom_factor[a-1][0][0].error);
+       	  				console.info(this.dom_factor[a][0][0].error);
        	  				tooltip.innerHTML = this.dom_factor[a-1][0][0].error;
        	  				tooltip.displayed = false;
        	  				row_vals.childNodes[a].onmouseover = function(e){
-    							//console.info('HOVERING');
-    							//console.info(e.target.parentElement.childNodes[1]);
-    							if (e.target.childNodes[0].falsable === true){
-						      	if (e.target.childNodes[1].displayed === false){
-            						e.target.childNodes[1].style.display = "block";
-           							e.target.childNodes[1].animate({"opacity" : 1});
-           							e.target.childNodes[1].displayed = true;
+    							console.info('HOVERING');
+    							console.info('IS FALSABLE', e.target.parentElement.childNodes[0].falsable);
+    							if (e.target.parentElement.childNodes[0].falsable === true){
+    								console.info('ENABLING INVALID ARGUMENT');
+    								console.info(e.target.parentElement);
+    								console.info(e.target.parentElement.childNodes[1].displayed);
+						        	if (e.target.parentElement.childNodes[1].displayed === false){
+						        		console.info(e.target);
+            						e.target.parentElement.childNodes[1].style.display = "block";
+           							e.target.parentElement.childNodes[1].animate({"opacity" : 1});
+           							e.target.parentElement.childNodes[1].displayed = true;
         							}
         							else{
-            						e.target.childNodes[1].animate({"opacity" : 0});
+            						e.target.parentElement.childNodes[1].animate({"opacity" : 0});
             						setTimeout(function (){
-                    					e.target.childNodes[1].style.display = "none";
-                					}, 400);
-                					e.target.childNodes[1].displayed = false;
-										e.target.childNodes[1].style.transition =  'opacity 6s ease-in-out';
-                					//e.target.parentElement.childNodes[1].scrollWidth =  '8px';
-                					//e.target.parentElement.childNodes[1].scrollHeight =  '4px';
-                					//console.info(e.target.parentElement.childNodes[1].transition);
-                					console.info(e.target.childNodes[1].style.transition); 
+                    					e.target.parentElement.childNodes[1].style.display = "none";
+                					}, 
+                					400);
+                					e.target.parentElement.childNodes[1].displayed = false;
+                					console.info('IS ARGUMENT DISPLAYED?', e.target.parentElement.childNodes[1].displayed);
+                					e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+                					console.info(e.target.parentElement.childNodes[1].style.transition);
         							}
-								}
-								else{
-									try{
-										e.target.childNodes[1].style.display = "none";
-									}	
-									catch (error){
-									}								
-								}        								        	  					
+        						}	        	  					
+								else if (e.target.parentElement.childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
+									console.info('DISABLING INVALID ARGUMENT');
+									if (e.target.parentElement.childNodes[0].isinvalid === false){								
+										e.target.parentElement.childNodes[1].style.display = "none";	//SPAN IS CHILD OF TD		
+									}					
+								}      										        	  					
     						}
     						row_vals.childNodes[a].appendChild(tooltip);	
-    					}
-    				}		
-					if(row_vals.childNodes[a].isinvalid === true){
-						if(row_vals.childNodes[b].isinvalid === false){
-    						row_vals.childNodes[a].bad_col.falsable = false;
+						}				
+					}	
+					if(row_vals.childNodes[a].childNodes[0].isinvalid === true){
+						if(row_vals.childNodes[b].childNodes[0].isinvalid === false){
+    						row_vals.childNodes[a].childNodes[0].falsable = false;
     					}	
 	       	  	}					
 					renderer.excel_data[Page][col-2][a-1] = renderer.excel_data[Page][col-2][b-1];
 					//SHIFT DTYPE
 				}
 				catch (error){
-					//console.info(error);
+					console.info(error);
 				}
 			}
 		}			
@@ -1133,11 +1135,11 @@ export default class renderWidget {
 	      //console.info(trDiv.style.marginTop);
 	      renderer.sizeIncrement += 32;
 	      tdDiv.style = 'width: 110px;';
-			if (this.dom_factor.length < ipage[R].length){
+			if (renderer.dom_factor.length < ipage[R].length){
 				this.tableSize = ipage[R].length; //doc based
 			}
-			else if (ipage[R].length < this.dom_factor.length){
-				this.tableSize = this.dom_factor.length; //user based
+			else if (ipage[R].length < renderer.dom_factor.length){
+				this.tableSize = renderer.dom_factor.length; //user based
 			}
 			else{
 				this.tableSize = ipage[R].length; //property based
@@ -1188,7 +1190,7 @@ export default class renderWidget {
 	       	  			trDiv.appendChild(tdDiv);
 	       	  			continue;  
 					   } 	
-		         	else if (this.dom_factor[C][0][0].critical === true){            	
+		         	else if (renderer.dom_factor[C][0][0].critical === true){            	
 							if (v === ''){             	
       		 	  			this.textbox = document.createElement('input');
        			  			this.textbox.type = 'text';
@@ -1204,10 +1206,12 @@ export default class renderWidget {
 	       	  				this.textbox.trying.push('critical');
        	  					this.textbox.col = C;
        	  					this.textbox.row = R;
-	       	  				this.textbox.onchange = function (e){
-									renderer.prove(e, this.textbox.col, this.textbox.row, renderer.page);	       	  				
+	       	  				this.textbox.onchange = function (e){       	  				
 									e.target.isedited = true;	
-									e.target.style.backgroundColor = renderer.errorColor;  									       
+									if (e.target.isinvalid === true){
+										e.target.style.backgroundColor = renderer.errorColor;  
+									}	
+									renderer.prove(e, this.textbox.col, this.textbox.row, renderer.page);																		       
 	       	  				}
        	  					this.textbox.readOnly = false;	
        	  					this.textbox.onfocus = function(e){
@@ -1215,7 +1219,7 @@ export default class renderWidget {
        	  					}	
        	  					this.textbox.isinvalid = true;
        	  					this.textbox.falsable = true;
-       	  					this.textbox.err_msg = this.dom_factor[C][0][0].error;
+       	  					this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
        	  					this.textbox.selecting = false;			
        	  					if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
        	  						document.getElementById('dtype_'+String(C)).innerHTML = 'Exception';
@@ -1233,44 +1237,45 @@ export default class renderWidget {
        	  					errors_sum += 1;	
        	  					cells_sum += 1;
        	  					let tooltip = document.createElement('span');
-       	  					tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       	  					tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        	  					tooltip.style.left = '0px';
        	  					tooltip.style.top = '0px';
-       	  					tooltip.innerHTML = this.dom_factor[C][0][0].error;
+       	  					tooltip.innerHTML = renderer.dom_factor[C][0][0].error;
        	  					tooltip.displayed = false;
        	  					let tdDiv = document.createElement('td');
 	      					tdDiv.appendChild(this.textbox);
 	      					tdDiv.appendChild(tooltip);
     							tdDiv.onmouseover = function(e){
-    								//console.info('HOVERING');
-    								//console.info(e.target.parentElement.childNodes[1]);
-    								if (e.target.parentElement.childNodes[0].falsable === true){
-						        		if (e.target.parentElement.childNodes[1].displayed === false){
-            							e.target.parentElement.childNodes[1].style.display = "block";
-           								e.target.parentElement.childNodes[1].animate({"opacity" : 1});
-           								e.target.parentElement.childNodes[1].displayed = true;
-        								}
-        								else{
-            							e.target.parentElement.childNodes[1].animate({"opacity" : 0});
-            							setTimeout(function (){
-                    						e.target.parentElement.childNodes[1].style.display = "none";
-                						}, 
-                						400);
-                						e.target.parentElement.childNodes[1].displayed = false;
-											e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
-                						//e.target.parentElement.childNodes[1].scrollWidth =  '8px';
-                						//e.target.parentElement.childNodes[1].scrollHeight =  '4px';
-                						//console.info(e.target.parentElement.childNodes[1].transition);
-                						console.info(e.target.parentElement.childNodes[1].style.transition); 
-        								}
-									}
-									else{
-										try{
-											e.target.parentElement.childNodes[1].style.display = "none";
-										}	
-										catch (error){
-										}								
-									}        								        	  					
+    									//console.info('HOVERING');
+    									//console.info('IS FALSABLE', e.target.parentElement.childNodes[0].falsable);
+    									if (e.target.parentElement.childNodes[0].falsable === true){
+    										//console.info('ENABLING INVALID ARGUMENT');
+    										//console.info(e.target.parentElement);
+    										//console.info(e.target.parentElement.childNodes[1].displayed);
+						        			if (e.target.parentElement.childNodes[1].displayed === false){
+						        			//	console.info(e.target);
+            								e.target.parentElement.childNodes[1].style.display = "block";
+           									e.target.parentElement.childNodes[1].animate({"opacity" : 1});
+           									e.target.parentElement.childNodes[1].displayed = true;
+        									}
+        									else{
+            								e.target.parentElement.childNodes[1].animate({"opacity" : 0});
+            								setTimeout(function (){
+                    							e.target.parentElement.childNodes[1].style.display = "none";
+                							}, 
+                							400);
+                							e.target.parentElement.childNodes[1].displayed = false;
+                							//console.info('IS ARGUMENT DISPLAYED?', e.target.parentElement.childNodes[1].displayed);
+                							e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+                							//console.info(e.target.parentElement.childNodes[1].style.transition);
+        									}
+        								}	        	  					
+										else if (e.target.parentElement.childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
+											//console.info('DISABLING INVALID ARGUMENT');
+											if (e.target.parentElement.childNodes[0].isinvalid === false){								
+												e.target.parentElement.childNodes[1].style.display = "none";	//SPAN IS CHILD OF TD		
+											}					
+										}      								        	  					
     							};
 	       	  				trDiv.appendChild(tdDiv);
 	       	  				trDiv.bad_row = true;
@@ -1303,12 +1308,15 @@ export default class renderWidget {
        	  						document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
 									document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
        	  					}           	  					   	  					
-       	  					this.textbox.err_msg = this.dom_factor[C][0][0].error;
+       	  					this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
        	  					this.textbox.isinvalid = false;
 	       	  				this.textbox.onchange = function (e){
 									renderer.prove(e, e.target.col, e.target.row, renderer.page);	       	  				
 									e.target.isedited = true;	       
 									//e.target.style.backgroundColor = renderer.errorColor;  
+									if (e.target.isinvalid === true){
+										e.target.style.backgroundColor = renderer.errorColor;  
+									}										
 	       	  				}
        	  					this.textbox.readOnly = false;	
        	  					this.textbox.onfocus = function(e){
@@ -1322,10 +1330,10 @@ export default class renderWidget {
 	       	  				continue;  
 							}
 	            	}
-		         	else if (this.dom_factor[C][0][1] !== null){  
-		         		if (this.dom_factor[C][0][1].unique !== false){	
-		         			//console.info(this.dom_factor[C][0][0].childs);	         			   	    		           	
-								if (this.dom_factor[C][0][0].childs.includes(v)){            	
+		         	else if (renderer.dom_factor[C][0][1] !== null){  
+		         		if (renderer.dom_factor[C][0][1].unique !== false){	
+		         			//console.info(renderer.dom_factor[C][0][0].childs);	         			   	    		           	
+								if (renderer.dom_factor[C][0][0].childs.includes(v)){            	
        							this.textbox = document.createElement('input');
        	  						this.textbox.type = 'text';
        	  						this.textbox.style = 'width: 150px;';    	  						
@@ -1338,7 +1346,9 @@ export default class renderWidget {
 	         					this.textbox.onchange = function (e){
 										renderer.prove(e, e.target.col, e.target.row, renderer.page);	       	  				
 										e.target.isedited = true;	       
-										e.target.style.backgroundColor = renderer.errorColor;  
+										if (e.target.isinvalid === true){
+											e.target.style.backgroundColor = renderer.errorColor;  
+										}	
        	  						}
        	  						this.textbox.onfocus = function(e){
 										renderer.tdCombined(e);       	  		
@@ -1348,8 +1358,8 @@ export default class renderWidget {
          						}
 	       	  					this.textbox.trying.push('unique');
        	  						this.textbox.selecting = false;
-       	  						console.info(this.dom_factor[C][0][0].error);
-       	  						this.textbox.err_msg = this.dom_factor[C][0][0].error;
+       	  						console.info(renderer.dom_factor[C][0][0].error);
+       	  						this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
        	  						this.textbox.isinvalid = true;
        	  						this.textbox.falsable = true;
 	       	  					this.textbox.unique = 1;       	  				
@@ -1369,22 +1379,26 @@ export default class renderWidget {
 	       	  					errors_sum += 1;		       	
 	       	  					cells_sum += 1;	  					
        	  						let tooltip = document.createElement('span');
-       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        	  						tooltip.style.left = '0px';
        	  						tooltip.style.top = '0px';
-       	  						tooltip.innerHTML = this.dom_factor[C][0][0].error;
+       	  						tooltip.innerHTML = renderer.dom_factor[C][0][0].error;
        	  						tooltip.displayed = false;
        	  						let tdDiv = document.createElement('td');
 	      						tdDiv.appendChild(this.textbox);
 	      						tdDiv.appendChild(tooltip);
     								tdDiv.onmouseover = function(e){
     									//console.info('HOVERING');
-    									//console.info(e.target.parentElement.childNodes[1]);
+    									//console.info('IS FALSABLE', e.target.parentElement.childNodes[0].falsable);
     									if (e.target.parentElement.childNodes[0].falsable === true){
-							        		if (e.target.parentElement.childNodes[1].displayed === false){
-   	         							e.target.parentElement.childNodes[1].style.display = "block";
-      	     								e.target.parentElement.childNodes[1].animate({"opacity" : 1});
-         	  								e.target.parentElement.childNodes[1].displayed = true;
+    										//console.info('ENABLING INVALID ARGUMENT');
+    										//console.info(e.target.parentElement);
+    										//console.info(e.target.parentElement.childNodes[1].displayed);
+						        			if (e.target.parentElement.childNodes[1].displayed === false){
+						        			//	console.info(e.target);
+            								e.target.parentElement.childNodes[1].style.display = "block";
+           									e.target.parentElement.childNodes[1].animate({"opacity" : 1});
+           									e.target.parentElement.childNodes[1].displayed = true;
         									}
         									else{
             								e.target.parentElement.childNodes[1].animate({"opacity" : 0});
@@ -1393,20 +1407,17 @@ export default class renderWidget {
                 							}, 
                 							400);
                 							e.target.parentElement.childNodes[1].displayed = false;
-	                						e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
-   	             						//e.target.parentElement.childNodes[1].scrollWidth =  '8px';
-      	          						//e.target.parentElement.childNodes[1].scrollHeight =  '4px';
-         	       						//console.info(e.target.parentElement.childNodes[1].transition);
-            	    						console.info(e.target.parentElement.childNodes[1].style.transition);
-        									} 
-        								}	       	  					
-										else{
-											try{
-												e.target.parentElement.childNodes[1].style.display = "none";
-											}	
-											catch (error){
-											}								
-										}  
+                							//console.info('IS ARGUMENT DISPLAYED?', e.target.parentElement.childNodes[1].displayed);
+                							e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+                							//console.info(e.target.parentElement.childNodes[1].style.transition);
+        									}
+        								}	        	  					
+										else if (e.target.parentElement.childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
+											//console.info('DISABLING INVALID ARGUMENT');
+											if (e.target.parentElement.childNodes[0].isinvalid === false){								
+												e.target.parentElement.childNodes[1].style.display = "none";	//SPAN IS CHILD OF TD		
+											}					
+										}    
     								};
 	       	  					trDiv.appendChild(tdDiv);
 	       	  					trDiv.bad_row = true;
@@ -1425,7 +1436,9 @@ export default class renderWidget {
 	         					this.textbox.onchange = function (e){
 										renderer.prove(e, e.target.col, e.target.row,renderer.page);	       	  				
 										e.target.isedited = true;	       
-										//e.target.style.backgroundColor = renderer.errorColor;  
+										if (e.target.isinvalid === true){
+											e.target.style.backgroundColor = renderer.errorColor;  
+										}	
        	  						}
 	       	  					//console.info('ADDING UNIQUE');
        	  						this.textbox.onfocus = function(e){
@@ -1446,7 +1459,7 @@ export default class renderWidget {
        	  							document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
 										document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
        	  						}                  	  							 	  					
-         						this.textbox.err_msg = this.dom_factor[C][0][0].error;
+         						this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
          						this.textbox.isinvalid = false;
 	       	  					this.textbox.trying.push('unique');
        	  						this.textbox.selecting = false;
@@ -1458,9 +1471,9 @@ export default class renderWidget {
 	       	  					continue;  
 								}
 	            		}		       	  									
-               		else if (this.dom_factor[C][0][0].re !== false){  
-               			//console.info(this.dom_factor[C]);
-               			let matching = v.match(this.dom_factor[C][0][0].re);    
+               		else if (renderer.dom_factor[C][0][0].re !== false){  
+               			//console.info(renderer.dom_factor[C]);
+               			let matching = v.match(renderer.dom_factor[C][0][0].re);    
 								if (matching === null){        	
        			 				this.textbox = document.createElement('input');
        	  						this.textbox.type = 'text';
@@ -1476,7 +1489,9 @@ export default class renderWidget {
 	        						this.textbox.onchange = function (e){
 										renderer.prove(e, e.target.col, e.target.row,renderer.page);	       	  				
 										e.target.isedited = true;	       
-										e.target.style.backgroundColor = renderer.errorColor;  
+										if (e.target.isinvalid === true){
+											e.target.style.backgroundColor = renderer.errorColor;  
+										}	
 	       	  					}       	  								
 	       	  					this.textbox.trying.push('re');
        	  						errorCell(this.textbox); //coloriza campo contenido duplicado       	  						
@@ -1489,8 +1504,8 @@ export default class renderWidget {
        	  						cells_sum += 1;	
        	  						this.textbox.isinvalid = true;
        	  						this.textbox.falsable = true;
-      	 	  					this.textbox.err_msg = this.dom_factor[C][0][0].error;
-	       	  					this.textbox.re = this.dom_factor[C][0][0].re;		
+      	 	  					this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
+	       	  					this.textbox.re = renderer.dom_factor[C][0][0].re;		
        	  						if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
        	  							document.getElementById('dtype_'+String(C)).innerHTML = 'Exception';
        	  						}
@@ -1504,19 +1519,23 @@ export default class renderWidget {
 										document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
        	  						}           	  
        	  						let tooltip = document.createElement('span');
-       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        	  						tooltip.style.left = '0px';
        	  						tooltip.style.top = '0px';
-       	  						tooltip.innerHTML = this.dom_factor[C][0][0].error;
+       	  						tooltip.innerHTML = renderer.dom_factor[C][0][0].error;
        	  						tooltip.displayed = false;
        	  						let tdDiv = document.createElement('td');
 	      						tdDiv.appendChild(this.textbox);
 	      						tdDiv.appendChild(tooltip);
-    								tdDiv.onmouseover = function(e){
+    								tdDiv.onmouseover = function(e){ //e is always first result in z
     									//console.info('HOVERING');
-    									//console.info(e.target.parentElement.childNodes[1]);
+    									//console.info('IS FALSABLE', e.target.parentElement.childNodes[0].falsable);
     									if (e.target.parentElement.childNodes[0].falsable === true){
+    										//console.info('ENABLING INVALID ARGUMENT');
+    										//console.info(e.target.parentElement);
+    										//console.info(e.target.parentElement.childNodes[1].displayed);
 						        			if (e.target.parentElement.childNodes[1].displayed === false){
+						        			//	console.info(e.target);
             								e.target.parentElement.childNodes[1].style.display = "block";
            									e.target.parentElement.childNodes[1].animate({"opacity" : 1});
            									e.target.parentElement.childNodes[1].displayed = true;
@@ -1528,16 +1547,16 @@ export default class renderWidget {
                 							}, 
                 							400);
                 							e.target.parentElement.childNodes[1].displayed = false;
+                							//console.info('IS ARGUMENT DISPLAYED?', e.target.parentElement.childNodes[1].displayed);
                 							e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
                 							//console.info(e.target.parentElement.childNodes[1].style.transition);
         									}
         								}	        	  					
-										else{
-											try{
-												e.target.parentElement.childNodes[1].style.display = "none";
-											}	
-											catch (error){
-											}								
+										else if (e.target.parentElement.childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
+											//console.info('DISABLING INVALID ARGUMENT');
+											if (e.target.parentElement.childNodes[0].isinvalid === false){								
+												e.target.parentElement.childNodes[1].style.display = "none";	//SPAN IS CHILD OF TD		
+											}					
 										}          								
     								};
 	       	  					trDiv.appendChild(tdDiv);
@@ -1555,6 +1574,9 @@ export default class renderWidget {
 	         				this.textbox.onchange = function (e){
 									renderer.prove(e, e.target.col, e.target.row,renderer.page);	       	  				
 									e.target.isedited = true;	       
+									if (e.target.isinvalid === true){
+										e.target.style.backgroundColor = renderer.errorColor;  
+									}	
        	  					}
        		  				if (0 === C){
        		  					this.textbox.style.marginLeft = '-16px';
@@ -1570,7 +1592,7 @@ export default class renderWidget {
 	       	  				this.textbox.trying.push('unique');
        	  					this.textbox.selecting = false;
        	  					this.textbox.isinvalid = false;
-       	  					this.textbox.err_msg = this.dom_factor[C][0][0].error;
+       	  					this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
        	  					if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
        	  						document.getElementById('dtype_'+String(C)).innerHTML = String(typeof this.textbox.value);
        	  					}
@@ -1584,7 +1606,7 @@ export default class renderWidget {
 									document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
        	  					}    
        	  					cells_sum += 1;	
-	       	  				this.textbox.re = this.dom_factor[C][0][0].re;		      	  													
+	       	  				this.textbox.re = renderer.dom_factor[C][0][0].re;		      	  													
        	  					let tdDiv = document.createElement('td');
 	      					tdDiv.appendChild(this.textbox);
 	       	  				trDiv.appendChild(tdDiv);
@@ -1670,7 +1692,7 @@ export default class renderWidget {
     		console.info(idx.falsable);
        	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
        		let tooltip = document.createElement('span');
-       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        		tooltip.style.left = '0px';
        		tooltip.style.top = '0px';
        		tooltip.innerHTML = this.dom_factor[C][0][0].error;
@@ -1701,10 +1723,13 @@ export default class renderWidget {
 					}
 					else{
 						try{
-							e.target.childNodes[1].style.display = "none";
-						}		
+							console.info('HIDING', e.target.parentElement);
+							console.info('HIDING', e.target.parentElement.childNodes[1]);
+							e.target.parentElement.childNodes[1].style.display = "none";
+						}	
 						catch (error){
-						}								
+							console.info(error);
+						}									
 					}
 				}	        								        	  					
     		}
@@ -1743,7 +1768,7 @@ export default class renderWidget {
     		console.info(idx.falsable);
        	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
        		let tooltip = document.createElement('span');
-       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        		tooltip.style.left = '0px';
        		tooltip.style.top = '0px';
        		tooltip.innerHTML = this.dom_factor[C][0][0].error;
@@ -1774,16 +1799,19 @@ export default class renderWidget {
 					}
 					else{
 						try{
-							e.target.childNodes[1].style.display = "none";
-						}		
+							console.info('HIDING', e.target.parentElement);
+							console.info('HIDING', e.target.parentElement.childNodes[1]);
+							e.target.parentElement.childNodes[1].style.display = "none";
+						}	
 						catch (error){
-						}								
+							console.info(error);
+						}									
 					}
 				}	        								        	  					
     		}
     		else{
-    			console.info(idx);
-    			console.info(idx.falsable);
+    			//console.info(idx);
+    			//console.info(idx.falsable);
     			if (idx.falsable === false){
     				idx.falsable = true;
     			}
@@ -1800,26 +1828,27 @@ export default class renderWidget {
 
 	proveRe(idx,C,R,Page) {
 		let matching = idx.value.match(idx.re);   
-		console.info(matching);       	
-		if (typeof matching !== 'object'){
+		//console.info(matching);   
+		//console.info(typeof matching !== 'object');       	
+		if (matching === null){ //no match of expressions 
 			idx.unique = 1;  		
 			errorCell(idx);  
        	//idx.value = idx.err_msg;	
        	this.excel_data[Page][C][R] = idx.value;	 	
        	idx.isinvalid = true;
        	idx.falsable = true;	
-       	console.info(typeof idx.parentElement.childNodes[1]);
-    		console.info(idx);
-    		console.info(idx.falsable);
+       	//console.info(typeof idx.parentElement.childNodes[1]);
+    		//console.info(idx);
+    		//console.info(idx.falsable);
        	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
        		let tooltip = document.createElement('span');
-       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 2px; width: 120px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 16px; background-color: black; height: 30px; overflow: hidden; font-size: 9px;';	
+       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        		tooltip.style.left = '0px';
        		tooltip.style.top = '0px';
        		tooltip.innerHTML = this.dom_factor[C][0][0].error;
        		tooltip.displayed = false;
-    			console.info(idx);
-    			console.info(idx.falsable);
+    			//console.info(idx);
+    			//console.info(idx.falsable);
     			idx.parentElement.onmouseover = function(e){
     				//console.info('HOVERING');
     				//console.info(e.target.parentElement.childNodes[1]);
@@ -1844,28 +1873,32 @@ export default class renderWidget {
 					}
 					else{
 						try{
-							e.target.childNodes[1].style.display = "none";
-						}		
+							console.info('HIDING', e.target.parentElement);
+							console.info('HIDING', e.target.parentElement.childNodes[1]);
+							e.target.parentElement.childNodes[1].style.display = "none";
+						}	
 						catch (error){
-						}								
+							console.info(error);
+						}										
 					}
 				}	        								        	  					
     		}
     		else{
-    			console.info(idx);
-    			console.info(idx.falsable);
+    			//console.info(idx);
+    			//console.info(idx.falsable);
     			if (idx.falsable === false){
     				idx.falsable = true;
     			}
     		}
   		}
-  		else{
-  			console.info(idx);
-  			idx.style.backgroundColor = null;
+  		else{		
   			idx.unique = 0;					
 			this.excel_data[Page][C][R] = idx.value;	    
 			idx.isinvalid = false;
 			idx.falsable = false;
+  			idx.style.backgroundColor = 'white';  
+  			//console.info(idx);
+  			//console.info(idx.style.backgroundColor);
   		}
 	}
 
@@ -1882,72 +1915,6 @@ export default class renderWidget {
 				this.proveRe(idx.target,C,R,Page);
 			}
 		}
-	}
-
-	readFields(fields){
-		//Usando los campos del objeto en JSON
-		//devuelve un objeto que contiene la
-		//representación de esos datos en el DOM
-		try{
-			if (typeof fields !== 'object'){
-				return 'validationError';
-			}
-			if (fields['userId'] !== ''){
-				this.verify_user = validate_api(fields['apiKey'], fields['userId']);
-			}
-			else{
-				this.verify_user = validate_api(fields['apiKey'], '');	
-			}
-			if (this.verify_user === 'TYPE ERROR: USER DOES NOT IN DATABASE'){
-				this.invalidUnknown(); //validationError
-				return 1;
-			}
-		}
-		catch (error){
-		}
-		this.dom_factor = [];
-	   for (var j = 0; j < fields.length; j++) {
-			if (typeof fields[j]['validators'] !== 'undefined'){
-				validators = new ElReqs();
-				fields[j]['validators'].forEach((key, index) => {
-					if (fields[j]['validators'][key] === 'required'){
-						validators.required = true;				
-					}
-					else if (fields[j]['validators'][key] === 'unique'){
-						validators.unique = true;				
-					}
-					else if (fields[j]['validators'][key] === 'error'){
-						validators.error = true;				
-					}
-					else if (key === 'regex'){
-						validators.regex = true;				
-					}
-				});
-			}
-			if (validators.required === true){
-				dom_node_data = new DOMNodeFactors(true, fields[j]['label'], this.fields[j]['key']);
-			}
-			else{
-				dom_node_data = new DOMNodeFactors(false, fields[j]['label'], this.fields[j]['key']);		
-			}
-			if (fields[j]['validators'].keys().includes('error')){
-	   		dom_node_data.error = fields[j]['validators']['error'];
-   		}
-			else if (validators.regex === true){
-		    	dom_node_data.re = fields[j]['validators']['regex'];
-   		}
-			else if (dom_node_data){
-		    	dom_node_data.label = fields[j]['label'];
-   		}
-			else if (dom_node_data){
-		    	dom_node_data.key = fields[j]['key'];
-   		}
-   		if (typeof dom_node_data !== 'undefined'){
-				this.dom_factor.push([]);
-				console.info(dom_node_data);
-				this.dom_factor[j].push(dom_node_data);
-			}
-	   }
 	}
 
 	//XLSX.writeFile(workbook, fname, write_opts) write file back
