@@ -14,8 +14,8 @@
 ### Parametros de API
   Estos parametros sirven solamente si se quiere validar el uso de la app con una base de datos. La respuesta retorna con codigo en PHP :)
   
-  * **userId**: alias en respuesta API de _id
-  * **apiKey**: alias en respuesta API de _mail
+  * **userId**: alias de respuesta en _mail
+  * **apiKey**: alias de respuesta en _id
   
   El endpoint remoto para validar es el siguiente **https://app.cencilio.com/api/1.1/obj/account/token**. 
   Una respuesta invalida se traduce por el modulo como **validationError**
