@@ -3,11 +3,7 @@
 	ini_set('session.cookie_httponly', 0);
 	ini_set('session.cookie_secure', 1);
 	ini_set('session.cookie_samesite', 'Strict');
-	//API BLOCK
-   //require_once('workers/api/php/verify_token.php');	
-   //if ($api_result === 'TYPE ERROR: USER DOES NOT IN DATABASE'){
-   	//exit();
-   //}
+
 echo "<!DOCTYPE html><html class='perfil_html' lang='en'>
 <script>
   function addActive(x) {
@@ -356,7 +352,7 @@ div.scrollmenu a:hover {
     			//	width: 300,
   				//};
   				var options = {
-    				apiKey: 'miclave',
+    				apiKey: '1625962363888x457774068936559500',
     				userId: 'miusuari',
     				fields:[
             		{ label: 'Paqueteria', key: 'paqueteria',
