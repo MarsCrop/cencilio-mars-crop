@@ -49,10 +49,32 @@ function renderDOM(instance,theme,h,w){
 	//Función que renderiza el tema personalizado
  	let children = document.getElementsByTagName('button');
  	if (typeof h !== 'undefined'){
- 		document.getElementById('cencilio-importer').style.height = String(h)+'px';
+ 		if (h <= 200){
+ 			console.info(h);
+ 			document.getElementById('ppbutton').style.height = String(h)+'px'; 
+ 			document.getElementById('importer-msg').style.marginLeft = '-240px'; 		
+ 			document.getElementById('importer-msg').style.marginTop = '180px'; 		
+ 			document.getElementById('importer-img').style.marginLeft = '-235px'; 
+ 			document.getElementById('importer-msg').style.width = '100px'; 		
+ 			document.getElementById('importer-img').style.marginTop = '260px'; 	
+ 		}
+ 		else{
+ 			document.getElementById('ppbutton').style.height = String(h)+'px';
+ 		}
  	}
  	if (typeof w !== 'undefined'){
- 		document.getElementById('cencilio-importer').style.width = String(w)+'px';
+ 		if (w <= 300){
+ 			console.info(w);
+ 			document.getElementById('ppbutton').style.width = String(w)+'px'; 
+ 			document.getElementById('importer-msg').style.marginLeft = '-240px'; 		
+ 			document.getElementById('importer-msg').style.marginTop = '180px'; 		
+ 			document.getElementById('importer-img').style.marginLeft = '-235px'; 
+ 			document.getElementById('importer-msg').style.width = '100px'; 		
+ 			document.getElementById('importer-img').style.marginTop = '260px'; 	
+ 		}
+ 		else{
+ 			document.getElementById('ppbutton').style.width = String(w)+'px';
+ 		}	
  	}
 }
 
@@ -70,12 +92,24 @@ function table_maker(Options, workbook){
 	else if (Options['apiKey'] === ''){
 		return 'validationError';	
 	}
+	//console.info('RUNNING AJAX REQUEST');
    var xhr = new XMLHttpRequest();
-   xhr.open('GET', 'workers/api/php/verify_token.php?key='+Options['apiKey']+'&user_id='+Options['userId'], true);
-   xhr.responseType = "json";   	
-   xhr.setRequestHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+   xhr.open('GET', 'https://app.cencilio.com/api/1.1/obj/account/'+Options['apiKey'], true); 	
+   xhr.setRequestHeader('Content-Type', 'application/json');	
    xhr.onload = function (data) {
-		if (data.currentTarget.response !== 'TYPE ERROR: USER DOES NOT IN DATABASE') {
+   	//console.info(data.currentTarget.response);
+   	//console.info(data.target.response);
+   	let resp = data.currentTarget.response;
+		if (resp.id !== null) {
+   		if (Options['userId'] !== null){	
+				let split_resp = resp.split('}');
+				split_resp = split_resp.slice(0, -1);
+				split_resp += '"_mail": "'+Options['userId']+'"';
+				split_resp += '}}';		 
+   		}
+   		else{
+				split_resp = resp;   		
+   		}
 			console.info('SESSION IS VALID');
 			renderer.dom_factor = [];
 	  		renderer.sheetDiv = document.createElement('div');
@@ -329,10 +363,13 @@ function table_maker(Options, workbook){
 			sheetDivChildInput.placeholder='Nombre de hoja'; 
 			sheetDivChildInput.style='max-height: 144px;width: 136px;margin-top: 2px;margin-left: 506px;border-radius: 2px;height: 32px;margin-bottom: 16px;';
 			sheetDivChildInput.onchange = function(e){
+				console.info('PAGE IS', workbook.SheetNames.indexOf(e.target.value));
 				let sheet = renderer.loadTable(workbook.SheetNames.indexOf(e.target.value));
 				renderer.page = 0;	
 				console.info(sheet);
-				document.getElementById('sheet_rows').childNodes[0] = sheet;		
+				for(var c = 2; c <= document.getElementById('sheet_div').length; ++c){
+					document.getElementById('sheet_div').childNodes[c] = sheet[c-2];		
+				}
 			}			
 			let sheetDivTable = document.createElement('table');  
 			let sheetDivHead = document.createElement('thead');  
@@ -556,13 +593,14 @@ function table_maker(Options, workbook){
 	   	}
 	   	renderer.sheetDivChildStrong.innerHTML = renderer.file_name;
 			//CONSENT BEFORE DATA STRUCTURE BEFORE VALIDITY	   	
+			return split_resp;
 		}				
-		else {
+		else if (data.currentTarget.response.statusCode === 404){
 			console.info('validationError');	
 			return 'validationError';				
 		}
   	};
-  	//console.info('SENDING API REQUEST');
+  	console.info('SENDING API REQUEST');
    xhr.send();
 }
 
@@ -615,10 +653,10 @@ function renderFun(file, config){
       		document.getElementById('percent').style.backgroundColor= '#99ccff';
       		//document.getElementById('progress_bar').style.width = '200px';
 			   // Increase the progress bar length.
-			   if (percentLoaded <= 100) {
-			      document.getElementById('p%').style.width = percentLoaded + '%';
-			   	document.getElementById('p%').textContent = percentLoaded + '%';
-				}
+			   //if (percentLoaded <= 100) {
+			   //   document.getElementById('p%').style.width = percentLoaded + '%';
+			   //	document.getElementById('p%').textContent = percentLoaded + '%';
+				//}
 			}
     	};
     	reader.onabort = function (e) {
@@ -669,9 +707,11 @@ export default class renderWidget {
 		let draggerLabel = document.createElement('label');	
 		draggerLabel.innerHTML = 'Arrastra archivos aquí o haz click para cargar';   
 		draggerLabel.class='perfil_label';
+		draggerLabel.id='importer-msg';
 		draggerLabel.style='position: absolute;margin-left: -240px;margin-top: 188px;width: 382px;';
 		let draggerImg2 = document.createElement('img');	
 		draggerImg2.src = 'icons.png';
+		draggerImg2.id='importer-img';
 		draggerImg2.style='height: 78px; width: 65px; margin-left: -135px; margin-top: 244px; position: absolute;';
 		dragger.appendChild(draggerImg2);
 		draggerInput.addEventListener("dragover", function(event) {
@@ -897,52 +937,57 @@ export default class renderWidget {
 						if (a_idx[col-2].isinvalid === true){
 							row_vals.childNodes[a].childNodes[0].isinvalid = true;
 							row_vals.childNodes[a].childNodes[0].isedited = true;
-							row_vals.childNodes[a].childNodes[0].style.backgroundColor = renderer.errorColor;					
+							row_vals.childNodes[a].childNodes[0].style.backgroundColor = renderer.errorColor;	
+							//console.info(row_vals.childNodes[a].childNodes[0]);		
        	  				//APPLIES
        	  				let tooltip = document.createElement('span');
        	  				tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        	  				tooltip.style.left = '0px';
        	  				tooltip.style.top = '0px';
-       	  				console.info(this.dom_factor[a-1][0][0].error);
-       	  				console.info(this.dom_factor[a][0][0].error);
        	  				tooltip.innerHTML = this.dom_factor[a-1][0][0].error;
        	  				tooltip.displayed = false;
-       	  				row_vals.childNodes[a].onmouseover = function(e){
-    							console.info('HOVERING');
-    							console.info('IS FALSABLE', e.target.parentElement.childNodes[0].falsable);
-    							if (e.target.parentElement.childNodes[0].falsable === true){
-    								console.info('ENABLING INVALID ARGUMENT');
-    								console.info(e.target.parentElement);
-    								console.info(e.target.parentElement.childNodes[1].displayed);
-						        	if (e.target.parentElement.childNodes[1].displayed === false){
-						        		console.info(e.target);
-            						e.target.parentElement.childNodes[1].style.display = "block";
-           							e.target.parentElement.childNodes[1].animate({"opacity" : 1});
-           							e.target.parentElement.childNodes[1].displayed = true;
-        							}
-        							else{
-            						e.target.parentElement.childNodes[1].animate({"opacity" : 0});
-            						setTimeout(function (){
-                    					e.target.parentElement.childNodes[1].style.display = "none";
-                					}, 
-                					400);
-                					e.target.parentElement.childNodes[1].displayed = false;
-                					console.info('IS ARGUMENT DISPLAYED?', e.target.parentElement.childNodes[1].displayed);
-                					e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
-                					console.info(e.target.parentElement.childNodes[1].style.transition);
-        							}
-        						}	        	  					
-								else if (e.target.parentElement.childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
-									console.info('DISABLING INVALID ARGUMENT');
-									if (e.target.parentElement.childNodes[0].isinvalid === false){								
-										e.target.parentElement.childNodes[1].style.display = "none";	//SPAN IS CHILD OF TD		
-									}					
-								}      										        	  					
-    						}
     						row_vals.childNodes[a].appendChild(tooltip);	
+       	  				row_vals.childNodes[a].onmouseover = function(e){ //DEPENDENCY === no parenting
+    							//console.info('HOVERING');
+    							try{
+    								console.info(e.target.parentElement.childNodes[1].childNodes[0].falsable);
+    								if (e.target.parentElement.childNodes[1].childNodes[0].falsable === true){
+    									console.info('ENABLING INVALID ARGUMENT');
+						        		if (e.target.parentElement.childNodes[1].displayed === false){
+						        			console.info(e.target.parentElement.childNodes[1].displayed);
+            							e.target.parentElement.childNodes[1].style.display = "block";
+           								e.target.parentElement.childNodes[1].animate({"opacity" : 1});
+           								e.target.parentElement.childNodes[1].displayed = true;
+        								}
+        								else{
+            							e.target.parentElement.childNodes[1].animate({"opacity" : 0});
+            							setTimeout(function (){
+                    						e.target.parentElement.childNodes[1].style.display = "none";
+                						}, 
+                						400);
+                						e.target.parentElement.childNodes[1].displayed = false;
+                						console.info('IS ARGUMENT DISPLAYED?', e.target.parentElement.childNodes[1].displayed);
+                						e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+                						console.info(e.target.parentElement.childNodes[1].style.transition);
+        								}
+        							}	        	  					
+									else if (e.target.parentElement.childNodes[1].childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
+										//console.info('DISABLING INVALID ARGUMENT');
+										console.info(e.target.parentElement.childNodes[1].childNodes[0].isinvalid);
+										if (e.target.parentElement.childNodes[1].childNodes[0].isinvalid === false){								
+											e.target.parentElement.childNodes[1].childNodes[0].style.display = "none";	//SPAN IS CHILD OF TD		
+										}					
+									}      										        	  					
+									row_vals.childNodes[a].childNodes[0].falsable = true;		
+    							}
+    							catch(error){
+    								//console.info(e.target.parentElement.childNodes[1].childNodes[0]); CHILD IS MUTUAL AS CHILD OF NODE
+    							}
+    						}	
 						}				
 					}	
-					if(row_vals.childNodes[a].childNodes[0].isinvalid === true){
+					else if(row_vals.childNodes[a].childNodes[0].isinvalid === true){
+						console.info('INVALID TO VALID TRANSFER');
 						if(row_vals.childNodes[b].childNodes[0].isinvalid === false){
     						row_vals.childNodes[a].childNodes[0].falsable = false;
     					}	
@@ -951,7 +996,7 @@ export default class renderWidget {
 					//SHIFT DTYPE
 				}
 				catch (error){
-					console.info(error);
+					 console.info(error); //TRAVERSES NODES WITHOUT CHILDS
 				}
 			}
 		}			
@@ -966,6 +1011,7 @@ export default class renderWidget {
 				document.getElementById('render_row_'+String(i)).checked = state;
 			}
 			catch (error){
+				console.info(error);
 			}
 		}			
 	}	
@@ -1137,12 +1183,16 @@ export default class renderWidget {
 	      tdDiv.style = 'width: 110px;';
 			if (renderer.dom_factor.length < ipage[R].length){
 				this.tableSize = ipage[R].length; //doc based
+				console.info('NOT USING USER PARAMS FOR SIZE');
 			}
 			else if (ipage[R].length < renderer.dom_factor.length){
 				this.tableSize = renderer.dom_factor.length; //user based
+				console.info('USING USER PARAMS FOR SIZE');
+				//console.info(this.tableSize);
 			}
 			else{
 				this.tableSize = ipage[R].length; //property based
+				console.info('DEFAULT SIZE');
 			}
 			//console.info(this.tableSize);
   			for (var C = 0; C < this.tableSize; C++){
@@ -1171,19 +1221,24 @@ export default class renderWidget {
        	  				this.textbox.onfocus = function(e){
 								renderer.tdCombined(e);       	  		
          				}	
-       	  				if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
-       	  					document.getElementById('dtype_'+String(C)).innerHTML = String(typeof this.textbox.value);
-       	  				}
-       	  				if (0<parseInt(C)){
-       	  					document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
-								document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
-       	  				}   
-       	  				else{
-       	  					document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
-								document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
-       	  				}           	  				  
+         				//try{
+       	  					if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
+       	  						document.getElementById('dtype_'+String(C)).innerHTML = String(typeof this.textbox.value);
+       	  					}
+       	  					if (0<parseInt(C)){
+       	  						document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
+									document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
+       	  					}   
+       	  					else{
+       	  						document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
+									document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
+       	  					}   
+       	  				//}
+       	  				//catch(error){
+       	  				//}        	  				  
          				this.textbox.isinvalid = false;
       	  				this.textbox.selecting = false;
+      	  				this.textbox.falsable = false;
        	  				cells_sum += 1;		
        	  				let tdDiv = document.createElement('td');
 	      				tdDiv.appendChild(this.textbox);
@@ -1310,6 +1365,7 @@ export default class renderWidget {
        	  					}           	  					   	  					
        	  					this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
        	  					this.textbox.isinvalid = false;
+       	  					this.textbox.falsable = false;
 	       	  				this.textbox.onchange = function (e){
 									renderer.prove(e, e.target.col, e.target.row, renderer.page);	       	  				
 									e.target.isedited = true;	       
@@ -1461,6 +1517,7 @@ export default class renderWidget {
        	  						}                  	  							 	  					
          						this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
          						this.textbox.isinvalid = false;
+         						this.textbox.falsable = false;
 	       	  					this.textbox.trying.push('unique');
        	  						this.textbox.selecting = false;
 	       	  					this.textbox.unique = 1;       	  					  
@@ -1592,6 +1649,7 @@ export default class renderWidget {
 	       	  				this.textbox.trying.push('unique');
        	  					this.textbox.selecting = false;
        	  					this.textbox.isinvalid = false;
+       	  					this.textbox.falsable = false;
        	  					this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
        	  					if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
        	  						document.getElementById('dtype_'+String(C)).innerHTML = String(typeof this.textbox.value);
@@ -1642,6 +1700,7 @@ export default class renderWidget {
 								document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
        	  				}           	  				  
          				this.textbox.isinvalid = false;
+         				this.textbox.falsable = false;
       	  				this.textbox.selecting = false;
        	  				cells_sum += 1;		
        	  				let tdDiv = document.createElement('td');
@@ -1651,7 +1710,7 @@ export default class renderWidget {
 					  }  						  	
    	       }	
       		 catch (error){
-      			//console.info(error);
+      			console.info(error);
       		 }	  	  			
        	 }
        	 this.trs.push(trDiv); 
@@ -1687,9 +1746,6 @@ export default class renderWidget {
        	idx.falsable = true;
        	this.excel_data[Page][C][R] = idx.value;	 
        	idx.isinvalid = true;	      	
-       	console.info(typeof idx.parentElement.childNodes[1]);
-    		console.info(idx);
-    		console.info(idx.falsable);
        	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
        		let tooltip = document.createElement('span');
        		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
@@ -1699,38 +1755,43 @@ export default class renderWidget {
        		tooltip.displayed = false;
     			console.info(idx);
     			console.info(idx.falsable);
+    			idx.appendChild(tooltip);	
     			idx.parentElement.onmouseover = function(e){
     				//console.info('HOVERING');
-    				//console.info(e.target.parentElement.childNodes[1]);
-    				if (e.target.childNodes[0].falsable === true){
-						if (e.target.childNodes[1].displayed === false){
-            			e.target.childNodes[1].style.display = "block";
-           				e.target.childNodes[1].animate({"opacity" : 1});
-           				e.target.childNodes[1].displayed = true;
-        				}
-        				else{
-            			e.target.childNodes[1].animate({"opacity" : 0});
-            			setTimeout(function (){
-                    		e.target.childNodes[1].style.display = "none";
-                		}, 400);
-                		e.target.childNodes[1].displayed = false;
-							e.target.childNodes[1].style.transition =  'opacity 6s ease-in-out';
-                		//e.target.childNodes[1].scrollWidth =  '8px';
-                		//e.target.childNodes[1].scrollHeight =  '4px';
-                		//console.info(e.target.childNodes[1].transition);
-                		console.info(e.target.childNodes[1].style.transition); 
-        				}
+    				//console.info('IS FALSABLE', e.target.parentElement.childNodes[0].falsable);
+    				try{
+	    				if (e.target.parentElement.childNodes[0].falsable === true){
+   	 					console.info('ENABLING INVALID ARGUMENT');
+    						console.info(e.target.parentElement);
+    						console.info(e.target.parentElement.childNodes[1]);
+							if (e.target.parentElement.childNodes[1].displayed === false){
+							   //	console.info(e.target);
+            				e.target.parentElement.childNodes[1].style.display = "block";
+           					e.target.parentElement.childNodes[1].animate({"opacity" : 1});
+           					e.target.parentElement.childNodes[1].displayed = true;
+	        				}
+   	     				else{
+      	      			e.target.parentElement.childNodes[1].animate({"opacity" : 0});
+         	   			setTimeout(function (){
+            	        		e.target.parentElement.childNodes[1].style.display = "none";
+               	 		}, 
+                			400);
+                			e.target.parentElement.childNodes[1].displayed = false;
+	                		//console.info('IS ARGUMENT DISPLAYED?', e.target.parentElement.childNodes[1].displayed);
+   	             		e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+      	          		//console.info(e.target.parentElement.childNodes[1].style.transition);
+        					}
+	        			}	        	  					
+							else if (e.target.parentElement.childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
+								//console.info('DISABLING INVALID ARGUMENT');
+							if (e.target.parentElement.childNodes[0].isinvalid === false){								
+								e.target.parentElement.childNodes[1].style.display = "none";	//SPAN IS CHILD OF TD		
+							}					
+						} 
 					}
-					else{
-						try{
-							console.info('HIDING', e.target.parentElement);
-							console.info('HIDING', e.target.parentElement.childNodes[1]);
-							e.target.parentElement.childNodes[1].style.display = "none";
-						}	
-						catch (error){
-							console.info(error);
-						}									
-					}
+					catch (error){
+						 console.info(error);
+					}   
 				}	        								        	  					
     		}
     		else{
@@ -1775,38 +1836,42 @@ export default class renderWidget {
        		tooltip.displayed = false;
     			console.info(idx);
     			console.info(idx.falsable);
+    			idx.appendChild(tooltip);	
     			idx.parentElement.onmouseover = function(e){
     				//console.info('HOVERING');
-    				//console.info(e.target.parentElement.childNodes[1]);
-    				if (e.target.childNodes[0].falsable === true){
-						if (e.target.childNodes[1].displayed === false){
-            			e.target.childNodes[1].style.display = "block";
-           				e.target.childNodes[1].animate({"opacity" : 1});
-           				e.target.childNodes[1].displayed = true;
-        				}
-        				else{
-            			e.target.childNodes[1].animate({"opacity" : 0});
-            			setTimeout(function (){
-                    		e.target.childNodes[1].style.display = "none";
-                		}, 400);
-                		e.target.childNodes[1].displayed = false;
-							e.target.childNodes[1].style.transition =  'opacity 6s ease-in-out';
-                		//e.target.childNodes[1].scrollWidth =  '8px';
-                		//e.target.childNodes[1].scrollHeight =  '4px';
-                		//console.info(e.target.childNodes[1].transition);
-                		console.info(e.target.childNodes[1].style.transition); 
-        				}
+    				//console.info('IS FALSABLE', e.target.parentElement.childNodes[0].falsable);
+    				try{
+    					if (e.target.parentElement.childNodes[0].falsable === true){
+    						//console.info('ENABLING INVALID ARGUMENT');
+    						//console.info(e.target.parentElement);
+    						//console.info(e.target.parentElement.childNodes[1].displayed);
+							if (e.target.parentElement.childNodes[1].displayed === false){
+						   	//	console.info(e.target);
+            				e.target.parentElement.childNodes[1].style.display = "block";
+           					e.target.parentElement.childNodes[1].animate({"opacity" : 1});
+           					e.target.parentElement.childNodes[1].displayed = true;
+        					}
+        					else{
+            				e.target.parentElement.childNodes[1].animate({"opacity" : 0});
+            				setTimeout(function (){
+                    			e.target.parentElement.childNodes[1].style.display = "none";
+                			}, 
+                			400);
+                			e.target.parentElement.childNodes[1].displayed = false;
+                			//console.info('IS ARGUMENT DISPLAYED?', e.target.parentElement.childNodes[1].displayed);
+                			e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+                			//console.info(e.target.parentElement.childNodes[1].style.transition);
+        					}
+        				}	        	  					
+						else if (e.target.parentElement.childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
+							//console.info('DISABLING INVALID ARGUMENT');
+							if (e.target.parentElement.childNodes[0].isinvalid === false){								
+								e.target.parentElement.childNodes[1].style.display = "none";	//SPAN IS CHILD OF TD		
+							}					
+						}
 					}
-					else{
-						try{
-							console.info('HIDING', e.target.parentElement);
-							console.info('HIDING', e.target.parentElement.childNodes[1]);
-							e.target.parentElement.childNodes[1].style.display = "none";
-						}	
-						catch (error){
-							console.info(error);
-						}									
-					}
+					catch(error){
+					}	    
 				}	        								        	  					
     		}
     		else{
@@ -1849,38 +1914,43 @@ export default class renderWidget {
        		tooltip.displayed = false;
     			//console.info(idx);
     			//console.info(idx.falsable);
+    			idx.appendChild(tooltip);	
     			idx.parentElement.onmouseover = function(e){
     				//console.info('HOVERING');
-    				//console.info(e.target.parentElement.childNodes[1]);
-    				if (e.target.childNodes[0].falsable === true){
-						if (e.target.childNodes[1].displayed === false){
-            			e.target.childNodes[1].style.display = "block";
-           				e.target.childNodes[1].animate({"opacity" : 1});
-           				e.target.childNodes[1].displayed = true;
-        				}
-        				else{
-            			e.target.childNodes[1].animate({"opacity" : 0});
-            			setTimeout(function (){
-                    		e.target.childNodes[1].style.display = "none";
-                		}, 400);
-                		e.target.childNodes[1].displayed = false;
-							e.target.childNodes[1].style.transition =  'opacity 6s ease-in-out';
-                		//e.target.childNodes[1].scrollWidth =  '8px';
-                		//e.target.childNodes[1].scrollHeight =  '4px';
-                		//console.info(e.target.childNodes[1].transition);
-                		console.info(e.target.childNodes[1].style.transition); 
-        				}
+    				//console.info('IS FALSABLE', e.target.parentElement.childNodes[0].falsable);
+    				try{
+    					if (e.target.parentElement.childNodes[0].falsable === true){
+    						//console.info('ENABLING INVALID ARGUMENT');
+    						//console.info(e.target.parentElement);
+    						//console.info(e.target.parentElement.childNodes[1].displayed);
+							if (e.target.parentElement.childNodes[1].displayed === false){
+						   	//	console.info(e.target);
+            				e.target.parentElement.childNodes[1].style.display = "block";
+           					e.target.parentElement.childNodes[1].animate({"opacity" : 1});
+           					e.target.parentElement.childNodes[1].displayed = true;
+        					}
+        					else{
+            				e.target.parentElement.childNodes[1].animate({"opacity" : 0});
+            				setTimeout(function (){
+                    			e.target.parentElement.childNodes[1].style.display = "none";
+                			}, 
+                			400);
+                			e.target.parentElement.childNodes[1].displayed = false;
+                			//console.info('IS ARGUMENT DISPLAYED?', e.target.parentElement.childNodes[1].displayed);
+                			e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
+                			//console.info(e.target.parentElement.childNodes[1].style.transition);
+        					}
+        				}	        	  					
+						else if (e.target.parentElement.childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
+							//console.info('DISABLING INVALID ARGUMENT');
+							if (e.target.parentElement.childNodes[0].isinvalid === false){								
+								e.target.parentElement.childNodes[1].style.display = "none";	//SPAN IS CHILD OF TD		
+							}					
+						}
 					}
-					else{
-						try{
-							console.info('HIDING', e.target.parentElement);
-							console.info('HIDING', e.target.parentElement.childNodes[1]);
-							e.target.parentElement.childNodes[1].style.display = "none";
-						}	
-						catch (error){
-							console.info(error);
-						}										
-					}
+					catch (error){
+						console.info(error);
+					}	    
 				}	        								        	  					
     		}
     		else{
