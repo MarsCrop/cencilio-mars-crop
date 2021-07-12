@@ -97,8 +97,8 @@ function table_maker(Options, workbook){
    xhr.open('GET', 'https://app.cencilio.com/api/1.1/obj/account/'+Options['apiKey'], true); 	
    xhr.setRequestHeader('Content-Type', 'application/json');	
    xhr.onload = function (data) {
-   	console.info(data.currentTarget.response);
-   	console.info(data.target.response);
+   	//console.info(data.currentTarget.response);
+   	//console.info(data.target.response);
    	let resp = data.currentTarget.response;
 		if (resp.id !== null) {
    		if (Options['userId'] !== null){	
@@ -110,7 +110,7 @@ function table_maker(Options, workbook){
    		else{
 				renderer.split_resp = resp;   		
    		}
-			console.info('SESSION IS VALID');
+			//console.info('SESSION IS VALID');
 			renderer.dom_factor = [];
 	  		renderer.sheetDiv = document.createElement('div');
 			renderer.sheetDiv.className='sheet_div'; 
@@ -241,7 +241,7 @@ function table_maker(Options, workbook){
         				console.error(err);
         				return;
     				};
-    				console.log("Datos cargados correctamente.");
+    				//console.log("Datos cargados correctamente.");
 				});
 			}
 			renderer.sheetDivGrandChildButton.name='cargar';
@@ -254,7 +254,7 @@ function table_maker(Options, workbook){
 			renderer.sheetDivGrandChildButtonLabel.style='height: 20px;margin-top: 5px;margin-left: 3px;font-size: 9px;position: absolute;';
 			renderer.sheetDivGrandChildButtonLabel.innerHTML = 'CARGAR DATOS';
 			//default primary button color
-			console.info(Options['theme']['global']['primaryButtonColor']);
+			//console.info(Options['theme']['global']['primaryButtonColor']);
 			if (typeof Options['theme']['global']['primaryButtonColor'] === 'undefined'){
 				renderer.sheetDivGrandChildButton.style.backgroundColor = 'blue';
 				document.getElementById('close_button').style.backgroundColor = 'blue';
@@ -368,8 +368,8 @@ function table_maker(Options, workbook){
 				let sheet = renderer.loadTable(workbook.SheetNames.indexOf(e.target.value));
 				renderer.page = 0;	
 				for(var c = 2; c <= document.getElementById('sheet_div').length; ++c){
-					console.info(sheet[c-2]);
-					console.info(document.getElementById('sheet_div').childNodes[c]);
+					//console.info(sheet[c-2]);
+					//console.info(document.getElementById('sheet_div').childNodes[c]);
 					document.getElementById('sheet_div').childNodes[c] = sheet[c-2];		
 				}
 			}			
@@ -454,7 +454,7 @@ function table_maker(Options, workbook){
 						}
 						catch(error){
 							//console.info(renderer.dom_factor);
-							console.info(error);
+							//console.info(error);
 						}	
    				}		
 				}
@@ -542,7 +542,7 @@ function table_maker(Options, workbook){
 							}
 							catch (error){
 								//console.info('Faltan argumentos para renderizar columnas'); //no hay argumentos === no hay columnas
-								console.info(error);
+								//console.info(error);
 							}
 						};  	
 						vtypec = 0;
@@ -573,7 +573,7 @@ function table_maker(Options, workbook){
 	   			//console.info(renderer.excel_data);
 				}
 				catch (error){ //looping sums 1
-					console.info(error);
+					//console.info(error);
 				}
 	   	}
 	   	renderer.page = 0;
@@ -602,7 +602,7 @@ function table_maker(Options, workbook){
 			return 'validationError';				
 		}
   	};
-  	console.info('SENDING API REQUEST');
+  	//console.info('SENDING API REQUEST');
    xhr.send();
 }
 
@@ -907,6 +907,7 @@ export default class renderWidget {
 	}
 
 	swap_columns(Page,a,b) {
+		//TODO: DATA STRUCTURE OF SWAPPED COLUMNS
 		let a_idx= [];	
 		//let b_idx= [];		
   		for (var row = 0; row < renderer.excel_data[Page].length; row++) {
@@ -943,49 +944,72 @@ export default class renderWidget {
 					else if (row_vals.childNodes[a].childNodes[0].isinvalid === false){ //BOTH INVALID AFTER TRANSFER
 						if (a_idx[col-2].isinvalid === true){
 							row_vals.childNodes[a].childNodes[0].isinvalid = true;
+							row_vals.childNodes[a].childNodes[0].trying = a_idx[col-2].trying;
+							//console.info('PIVOT TRIAL', row_vals.childNodes[a].childNodes[0].trying);
 							row_vals.childNodes[a].childNodes[0].isedited = true;
 							row_vals.childNodes[a].childNodes[0].style.backgroundColor = renderer.errorColor;	
 							//console.info(row_vals.childNodes[a].childNodes[0]);		
        	  				//APPLIES
        	  				let tooltip = document.createElement('span');
-       	  				tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 316px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       	  				tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        	  				tooltip.style.left = '0px';
        	  				tooltip.style.top = '0px';
-       	  				console.info(this.dom_factor);
-       	  				console.info(this.dom_factor[a]);
-       	  				console.info(this.dom_factor[a][0][0].error);
-       	  				tooltip.innerHTML = this.dom_factor[a][0][0].error;
+       	  				//console.info('VIRTUAL POS B', b+1);
+       	  				//console.info(158*(b+1));
+       	  				tooltip.style.marginLeft = String(158*(b+1))+'px';
+       	  				tooltip.innerHTML = this.dom_factor[b-1][0][0].error;
        	  				tooltip.displayed = false;
     						row_vals.childNodes[a].appendChild(tooltip);	
     						//console.info(row_vals.childNodes[a]);
        	  				row_vals.childNodes[a].onmouseover = function(e){ //DEPENDENCY === no parenting
     							try{
-    								if (e.target.parentElement.childNodes[1].childNodes[0].falsable === true){
+    								//console.info('HOVERING');
+    								//console.info('IS FALSABLE AS TARGET?', typeof e.target.falsable);
+    								//console.info('IS INVALID AS CHILD?', typeof e.target.parentElement.childNodes[1].childNodes[0].isinvalid);
+    								if (e.target.parentElement.childNodes[1].childNodes[0].isinvalid === false){ //falsable as child
+    									return null;
+    								}
+    								else{ //falsable as target
+    									//console.info('INVALID AS CHILD');
+    								}
+    								if (typeof e.target.parentElement.childNodes[1].childNodes[0].falsable !== 'undefined'){ //falsable as child
+    									this.falsability = e.target.parentElement.childNodes[1].childNodes[0];
+    								}
+    								else if (typeof e.target.falsable !== 'undefined'){ //falsable as target
+    									this.falsability = e.target;
+    								}
+    								if (this.falsability.falsable === true){
+    									//console.info('ENABLING INVALID ARGUMENT');
     									if (typeof e.target.parentElement.childNodes[1].displayed === 'undefined'){
 											  this.absent = e.target.childNodes[1];  									
     									}
     									else{
     										this.absent = e.target.parentElement.childNodes[1];
     									}
-    									//console.info(this.absent.displayed);
+    									//console.info(this.absent);
 						        		if (this.absent.displayed === false){
             							this.absent.style.display = "block";
             							this.absent.displayed = true;
         								}
         								else{
+        									//console.info(this.absent.style.display);
                 						this.absent.displayed = false;
             							this.absent.style.display = "none";
         								}
-        							}	        	  						
+        							}	    
+									else if (this.falsability.falsable === false){ //TRANSVERSALLY NULLIFIED 
+										if (e.target.parentElement.childNodes[0].isinvalid === false){								
+											e.target.parentElement.childNodes[1].style.display = "none";	//SPAN IS CHILD OF TD		
+										}					
+									}             							    	  						
     							}
     							catch(error){
-    								//CHILD IS MUTUAL AS CHILD OF NODE
+    								//console.info(error);//CHILD IS MUTUAL AS CHILD OF NODE
     							}
     						}	
 						}				
 					}	
 					else if(row_vals.childNodes[a].childNodes[0].isinvalid === true){
-						console.info('INVALID TO VALID TRANSFER');
 						if(row_vals.childNodes[b].childNodes[0].isinvalid === false){
     						row_vals.childNodes[a].childNodes[0].falsable = false;
     					}	
@@ -1009,7 +1033,7 @@ export default class renderWidget {
 				document.getElementById('render_row_'+String(i)).checked = state;
 			}
 			catch (error){
-				console.info(error);
+				//console.info(error);
 			}
 		}			
 	}	
@@ -1181,16 +1205,16 @@ export default class renderWidget {
 	      tdDiv.style = 'width: 110px;';
 			if (renderer.dom_factor.length < ipage[R].length){
 				this.tableSize = ipage[R].length; //doc based
-				console.info('NOT USING USER PARAMS FOR SIZE');
+				//console.info('NOT USING USER PARAMS FOR SIZE');
 			}
 			else if (ipage[R].length < renderer.dom_factor.length){
 				this.tableSize = renderer.dom_factor.length; //user based
-				console.info('USING USER PARAMS FOR SIZE');
+				//console.info('USING USER PARAMS FOR SIZE');
 				//console.info(this.tableSize);
 			}
 			else{
 				this.tableSize = ipage[R].length; //property based
-				console.info('DEFAULT SIZE');
+				//console.info('DEFAULT SIZE');
 			}
 			//console.info(this.tableSize);
   			for (var C = 0; C < this.tableSize; C++){
@@ -1264,6 +1288,7 @@ export default class renderWidget {
 									if (e.target.isinvalid === true){
 										e.target.style.backgroundColor = renderer.errorColor;  
 									}	
+									//console.info('PROVING');
 									renderer.prove(e, this.textbox.col, this.textbox.row, renderer.page);																		       
 	       	  				}
        	  					this.textbox.readOnly = false;	
@@ -1277,9 +1302,8 @@ export default class renderWidget {
        	  					if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
        	  						document.getElementById('dtype_'+String(C)).innerHTML = 'Exception';
        	  					}
-       	  					
        	  					if (0<C){
-       	  						console.info((C+1)*128);
+       	  						//console.info((C+1)*128);
        	  						document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
        	  						document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
        	  					}    
@@ -1365,6 +1389,7 @@ export default class renderWidget {
        	  					this.textbox.isinvalid = false;
        	  					this.textbox.falsable = false;
 	       	  				this.textbox.onchange = function (e){
+	       	  					//console.info('PROVING');
 									renderer.prove(e, e.target.col, e.target.row, renderer.page);	       	  				
 									e.target.isedited = true;	       
 									//e.target.style.backgroundColor = renderer.errorColor;  
@@ -1398,6 +1423,7 @@ export default class renderWidget {
        		  						this.textbox.style.marginLeft = '-40px';
        		  					}
 	         					this.textbox.onchange = function (e){
+	         						//console.info('PROVING');
 										renderer.prove(e, e.target.col, e.target.row, renderer.page);	       	  				
 										e.target.isedited = true;	       
 										if (e.target.isinvalid === true){
@@ -1412,7 +1438,7 @@ export default class renderWidget {
          						}
 	       	  					this.textbox.trying.push('unique');
        	  						this.textbox.selecting = false;
-       	  						console.info(renderer.dom_factor[C][0][0].error);
+       	  						//console.info(renderer.dom_factor[C][0][0].error);
        	  						this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
        	  						this.textbox.isinvalid = true;
        	  						this.textbox.falsable = true;
@@ -1421,7 +1447,7 @@ export default class renderWidget {
        	  						if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
        	  							document.getElementById('dtype_'+String(C)).innerHTML = 'Exception';
        	  						}
-       	  						console.info(C);
+       	  						//console.info(C);
        	  						if (0<C){
        	  							document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
 										document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
@@ -1488,6 +1514,7 @@ export default class renderWidget {
        		  						this.textbox.style.marginLeft = '-40px';
        		  					}
 	         					this.textbox.onchange = function (e){
+	         						//console.info('PROVING');
 										renderer.prove(e, e.target.col, e.target.row,renderer.page);	       	  				
 										e.target.isedited = true;	       
 										if (e.target.isinvalid === true){
@@ -1542,6 +1569,7 @@ export default class renderWidget {
 										this.textbox.trying = [];       	  						
        	  						}       	  				
 	        						this.textbox.onchange = function (e){
+	        							//console.info('PROVING');
 										renderer.prove(e, e.target.col, e.target.row,renderer.page);	       	  				
 										e.target.isedited = true;	       
 										if (e.target.isinvalid === true){
@@ -1627,6 +1655,7 @@ export default class renderWidget {
        	  					this.textbox.col = C;
        	  					this.textbox.row = R;
 	         				this.textbox.onchange = function (e){
+	         					//console.info('PROVING');
 									renderer.prove(e, e.target.col, e.target.row,renderer.page);	       	  				
 									e.target.isedited = true;	       
 									if (e.target.isinvalid === true){
@@ -1652,7 +1681,7 @@ export default class renderWidget {
        	  					if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
        	  						document.getElementById('dtype_'+String(C)).innerHTML = String(typeof this.textbox.value);
        	  					}
-       	  					console.info(C);
+       	  					//console.info(C);
        	  					if (0<parseInt(C)){
        	  						document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
 									document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
@@ -1676,12 +1705,18 @@ export default class renderWidget {
        	  				this.textbox.value = ipage[R][C];
        	  				this.textbox.col = C;
        	  				this.textbox.row = R;
+       	  				this.textbox.trying = null;
        		  			if (0 === C){
        		  				this.textbox.style.marginLeft = '-40px';
        		  			}
 	       	  			this.textbox.onchange = function (e){
 								renderer.excel_data[renderer.page][e.target.col][e.target.row] = e.target.value;
 								e.target.isedited = true;	    	  				
+	         				//console.info('DEMONSTRATES VALID');
+								renderer.prove(e, e.target.col, e.target.row,renderer.page);	       	  				
+								if (e.target.isinvalid === true){
+									e.target.style.backgroundColor = renderer.errorColor;  
+								}	
 	       	  			}
        	  				this.textbox.onfocus = function(e){
 								renderer.tdCombined(e);       	  		
@@ -1781,8 +1816,8 @@ export default class renderWidget {
       	          		//console.info(e.target.parentElement.childNodes[1].style.transition);
         					}
 	        			}	        	  					
-							else if (e.target.parentElement.childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
-								//console.info('DISABLING INVALID ARGUMENT');
+						else if (e.target.parentElement.childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
+							console.info('DISABLING INVALID ARGUMENT');
 							if (e.target.parentElement.childNodes[0].isinvalid === false){								
 								e.target.parentElement.childNodes[1].style.display = "none";	//SPAN IS CHILD OF TD		
 							}					
@@ -1841,7 +1876,7 @@ export default class renderWidget {
     				//console.info('IS FALSABLE', e.target.parentElement.childNodes[0].falsable);
     				try{
     					if (e.target.parentElement.childNodes[0].falsable === true){
-    						//console.info('ENABLING INVALID ARGUMENT');
+    						console.info('ENABLING INVALID ARGUMENT');
     						//console.info(e.target.parentElement);
     						//console.info(e.target.parentElement.childNodes[1].displayed);
 							if (e.target.parentElement.childNodes[1].displayed === false){
@@ -1863,7 +1898,7 @@ export default class renderWidget {
         					}
         				}	        	  					
 						else if (e.target.parentElement.childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
-							//console.info('DISABLING INVALID ARGUMENT');
+							console.info('DISABLING INVALID ARGUMENT');
 							if (e.target.parentElement.childNodes[0].isinvalid === false){								
 								e.target.parentElement.childNodes[1].style.display = "none";	//SPAN IS CHILD OF TD		
 							}					
@@ -1919,7 +1954,7 @@ export default class renderWidget {
     				//console.info('IS FALSABLE', e.target.parentElement.childNodes[0].falsable);
     				try{
     					if (e.target.parentElement.childNodes[0].falsable === true){
-    						//console.info('ENABLING INVALID ARGUMENT');
+    						console.info('ENABLING INVALID ARGUMENT');
     						//console.info(e.target.parentElement);
     						//console.info(e.target.parentElement.childNodes[1].displayed);
 							if (e.target.parentElement.childNodes[1].displayed === false){
@@ -1941,7 +1976,7 @@ export default class renderWidget {
         					}
         				}	        	  					
 						else if (e.target.parentElement.childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
-							//console.info('DISABLING INVALID ARGUMENT');
+							console.info('DISABLING INVALID ARGUMENT');
 							if (e.target.parentElement.childNodes[0].isinvalid === false){								
 								e.target.parentElement.childNodes[1].style.display = "none";	//SPAN IS CHILD OF TD		
 							}					
@@ -1972,6 +2007,7 @@ export default class renderWidget {
 	}
 
 	prove(idx,C,R,Page) {
+		console.info('MUST PROVE');
 		for (var j = 0; j < idx.target.trying.length; j++) {
 			//console.info('TRYING', idx.target.trying);
 			if (idx.target.trying[j] === 'critical'){
