@@ -102,20 +102,20 @@ function table_maker(Options, workbook){
    	let resp = data.currentTarget.response;
 		if (resp.id !== null) {
    		if (Options['userId'] !== null){	
-				let split_resp = resp.split('}');
-				split_resp = split_resp.slice(0, -1);
-				split_resp += '"_mail": "'+Options['userId']+'"';
-				split_resp += '}}';		 
+				renderer.split_resp = resp.split('}');
+				renderer.split_resp = renderer.split_resp.slice(0, -1);
+				renderer.split_resp += '"_mail": "'+Options['userId']+'"';
+				renderer.split_resp += '}}';		 
    		}
    		else{
-				split_resp = resp;   		
+				renderer.split_resp = resp;   		
    		}
 			console.info('SESSION IS VALID');
 			renderer.dom_factor = [];
 	  		renderer.sheetDiv = document.createElement('div');
 			renderer.sheetDiv.className='sheet_div'; 
 			renderer.sheetDiv.id='sheet_div'; 
-			renderer.sheetDiv.style='position: absolute;z-index: 4; margin-top: -130px; padding: 16px; width: 80%; margin-left: 300px;border-radius: 4px;height: 80%;overflow-y: scroll;';
+			renderer.sheetDiv.style='position: absolute;z-index: 4;top: 50%;padding: 16px;width: 72%;margin-left: 194px;border-radius: 4px;height: 80%;overflow-y: scroll;/* margin: 0; */-ms-transform: translateY(-50%);transform: translateY(-50%);border: 1px solid #DEDEDE;box-sizing: border-box;box-shadow: 0px 4px 38px rgba(0, 0, 0, 0.4);border-radius: 4px;';
 			//cencilio default background color
 			if (typeof Options['theme']['global']['backgroundColor'] === 'undefined'){
 				renderer.sheetDiv.style.backgroundColor = 'rgb(180, 178, 183)';
@@ -161,19 +161,8 @@ function table_maker(Options, workbook){
  			} 				
 	  		renderer.sheetDivChildStrong = document.createElement('strong');
 	  		renderer.sheetDivChildStrong.id = 'cencilio_file_name';
-			renderer.sheetDivChildStrong.style='font-family: "Gotham Black";margin-left: 40px;font-size: 20px;position: absolute;margin-top: 2px;color: rgb(148, 0, 211);display: inline-block;text-overflow: ellipsis;overflow: hidden;width: 222px;white-space: nowrap;';
+			renderer.sheetDivChildStrong.style='font-family: "Gotham Black";margin-left: 32px;font-size: 18px;position: absolute;margin-top: 6px;color: rgb(148, 0, 211);display: inline-block;text-overflow: ellipsis;overflow: hidden;width: 222px;white-space: nowrap;';
 			renderer.sheetDivChildStrong.innerHTML = '';
-			//cencilio default primary text color
-			if (typeof Options['theme']['global']['primaryTextColor'] === 'undefined'){
-				renderer.sheetDivChildStrong.style.color = 'darkviolet';
-			}
-			else{ //cencilio user primary text color
-				if (7 <= Options['theme']['global']['primaryTextColor'].length <= 9){
-					if (Options['theme']['global']['primaryTextColor'].includes('#')){
-						renderer.sheetDivChildStrong.style.color = Options['theme']['global']['primaryTextColor'];
-					}
-				}
-			}
 			//cencilio default shadow color
 			if (typeof Options['theme']['global']['shadowColor'] === 'undefined'){
 				renderer.sheetDiv.style.boxShadow = 'rgb(210, 191, 241) 0px 2px 8px 5px;';
@@ -257,7 +246,7 @@ function table_maker(Options, workbook){
 			}
 			renderer.sheetDivGrandChildButton.name='cargar';
 			renderer.sheetDivGrandChildButton.class='cargar'; 
-			renderer.sheetDivGrandChildButton.style='background: blue;height: 36px;width: 122px;border-width: 0px;margin-left: 720px;border-radius: 16px;padding: 8px;margin-top: -114px;position: absolute;';
+			renderer.sheetDivGrandChildButton.style='height: 36px;width: 122px;border-width: 0px;margin-left: 720px;border-radius: 16px;padding: 8px;margin-top: -114px;position: absolute;';
 			renderer.sheetDivGrandChildButtonChild = document.createElement('img'); 
 			renderer.sheetDivGrandChildButtonChild.src='https://assets.cencilio.com/info.png'; 
 			renderer.sheetDivGrandChildButtonChild.style='height: 16px;width: 16px;margin-left: -76px;margin-top: -2px;';
@@ -265,18 +254,30 @@ function table_maker(Options, workbook){
 			renderer.sheetDivGrandChildButtonLabel.style='height: 20px;margin-top: 5px;margin-left: 3px;font-size: 9px;position: absolute;';
 			renderer.sheetDivGrandChildButtonLabel.innerHTML = 'CARGAR DATOS';
 			//default primary button color
-			if (typeof Options['primaryButtonColor'] === 'undefined'){
+			console.info(Options['theme']['global']['primaryButtonColor']);
+			if (typeof Options['theme']['global']['primaryButtonColor'] === 'undefined'){
 				renderer.sheetDivGrandChildButton.style.backgroundColor = 'blue';
 				document.getElementById('close_button').style.backgroundColor = 'blue';
 			}
 			else{ //user primary button color
-				if (7 <= Options['primaryButtonColor'].length <= 9){
-					if (Options['primaryButtonColor'].includes('#')){
-						renderer.sheetDivGrandChildButton.style.backgroundColor = Options['primaryButtonColor'];
-						document.getElementById('close_button').style.backgroundColor = Options['primaryButtonColor'];
+				if (7 <= Options['theme']['global']['primaryButtonColor'].length <= 9){
+					if (Options['theme']['global']['primaryButtonColor'].includes('#')){
+						renderer.sheetDivGrandChildButton.style.backgroundColor = Options['theme']['global']['primaryButtonColor'];
+						document.getElementById('close_button').style.backgroundColor = Options['theme']['global']['primaryButtonColor'];
 					}
 				}
 			}
+			//cencilio default primary text color
+			if (typeof Options['theme']['global']['primaryTextColor'] === 'undefined'){
+				renderer.sheetDivGrandChildButtonLabel.style.color = 'darkviolet';
+			}
+			else{ //cencilio user primary text color
+				if (7 <= Options['theme']['global']['primaryTextColor'].length <= 9){
+					if (Options['theme']['global']['primaryTextColor'].includes('#')){
+						renderer.sheetDivGrandChildButtonLabel.style.color = Options['theme']['global']['primaryTextColor'];
+					}
+				}
+			}			
 			renderer.sheetDivGrandChildOptions = document.createElement('div');  
 			renderer.sheetDivGrandChildOptions.style='max-height: 144px;';
 			renderer.sheetDivGrandChildOptions.id = 'options_xlsx';
@@ -284,14 +285,14 @@ function table_maker(Options, workbook){
 			renderer.sheetDivGrandChildOptionsDiv.style='max-height: 144px;';
 			renderer.sheetDivGrandChildOptionsDiv.id = 'sheets_span';
 			renderer.sheetDivGrandChildOptionsDivSpan = document.createElement('span');  
-			renderer.sheetDivGrandChildOptionsDivSpan.style='max-height: 144px;margin-top: 18px;margin-left: 32px;position: absolute;';
+			renderer.sheetDivGrandChildOptionsDivSpan.style='font-weight: 400; max-height: 144px;margin-top: 18px;margin-left: 32px;position: absolute;';
 			renderer.sheetDivGrandChildOptionsDivSpan.innerHTML = 'Instrucciones:'; 
 			renderer.sheetDivGrandChildOptionsDivLabel = document.createElement('label');  
-			renderer.sheetDivGrandChildOptionsDivLabel.style='max-height: 144px;width: 40%;margin-left: 140px;margin-top: 18px;';
+			renderer.sheetDivGrandChildOptionsDivLabel.style='max-height: 144px; font-weight: 400; width: 40%;margin-left: 140px;margin-top: 18px;';
 			renderer.sheetDivGrandChildOptionsDivLabel.id = 'instruction'; 
 			renderer.sheetDivGrandChildOptionsDivLabel.innerHTML = 'Selecciona la página que necesites validar y corrobora que no hayan errores.';
 			renderer.sheetDivCheckInvalid = document.createElement('input');  
-			renderer.sheetDivCheckInvalid.style='width: 24px; height: 258px; margin-left: 820px; margin-top: -141px;';
+			renderer.sheetDivCheckInvalid.style='width: 24px;height: 258px;margin-left: 690px;margin-top: -141px;';
 			renderer.sheetDivCheckInvalid.id = 'show_errors'; 
 			renderer.sheetDivCheckInvalid.type='checkbox'; 
 			renderer.sheetDivCheckInvalid.onchange = function(e){
@@ -309,7 +310,7 @@ function table_maker(Options, workbook){
 				}
 			}; 
 			renderer.sheetDivCheckChanged = document.createElement('input');  
-			renderer.sheetDivCheckChanged.style='width: 24px;height: 24px;margin-left: 616px;margin-top: -48px;';
+			renderer.sheetDivCheckChanged.style='width: 24px;height: 24px;margin-left: 500px;margin-top: -48px;';
 			renderer.sheetDivCheckChanged.id = 'show_changed'; 
 			renderer.sheetDivCheckChanged.type='checkbox'; 
 			renderer.sheetDivCheckChanged.onchange = function(e){
@@ -327,11 +328,11 @@ function table_maker(Options, workbook){
 				}
 			}; 
 			renderer.sheetDivCheckInvalidLabel = document.createElement('label');  
-			renderer.sheetDivCheckInvalidLabel.style='max-height: 144px; width: 40%; margin-left: 850px; margin-top: -138px; position: absolute;';
+			renderer.sheetDivCheckInvalidLabel.style='max-height: 144px;width: 40%;margin-left: 720px;margin-top: -138px;position: absolute;';
 			renderer.sheetDivCheckInvalidLabel.id = 'show_errors_label'; 
 			renderer.sheetDivCheckInvalidLabel.innerHTML = 'Mostrar filas con errores';
 			renderer.sheetDivCheckChangedLabel = document.createElement('label');  
-			renderer.sheetDivCheckChangedLabel.style='max-height: 144px; width: 40%; margin-left: 646px; margin-top: -138px; position: absolute;';
+			renderer.sheetDivCheckChangedLabel.style='max-height: 144px;width: 40%;margin-left: 530px;margin-top: -138px;position: absolute;';
 			renderer.sheetDivCheckChangedLabel.id = 'show_changed_label'; 
 			renderer.sheetDivCheckChangedLabel.innerHTML = 'Mostrar filas editadas';
 			renderer.sheetDivSpan2 = document.createElement('span');  
@@ -363,11 +364,12 @@ function table_maker(Options, workbook){
 			sheetDivChildInput.placeholder='Nombre de hoja'; 
 			sheetDivChildInput.style='max-height: 144px;width: 136px;margin-top: 2px;margin-left: 506px;border-radius: 2px;height: 32px;margin-bottom: 16px;';
 			sheetDivChildInput.onchange = function(e){
-				console.info('PAGE IS', workbook.SheetNames.indexOf(e.target.value));
+				//console.info('PAGE IS', workbook.SheetNames.indexOf(e.target.value));
 				let sheet = renderer.loadTable(workbook.SheetNames.indexOf(e.target.value));
 				renderer.page = 0;	
-				console.info(sheet);
 				for(var c = 2; c <= document.getElementById('sheet_div').length; ++c){
+					console.info(sheet[c-2]);
+					console.info(document.getElementById('sheet_div').childNodes[c]);
 					document.getElementById('sheet_div').childNodes[c] = sheet[c-2];		
 				}
 			}			
@@ -506,7 +508,7 @@ function table_maker(Options, workbook){
 					//dtype labels		
 					let colsize = range.e.c;	
 					//console.info(colsize);	
-					let selectorIncrement = 148;		
+					let selectorIncrement = 125;		
 					//console.info(sheet);
 	  				for(var vtypei = 0; vtypei <= colsize; ++vtypei) {
 						let tdLabelShiftDiv = document.createElement('div');  
@@ -568,7 +570,7 @@ function table_maker(Options, workbook){
          			}	       	
 	   			}
 	   			renderer.excel_data[sh] = page_data; //element-wise
-	   			console.info(renderer.excel_data);
+	   			//console.info(renderer.excel_data);
 				}
 				catch (error){ //looping sums 1
 					console.info(error);
@@ -593,7 +595,7 @@ function table_maker(Options, workbook){
 	   	}
 	   	renderer.sheetDivChildStrong.innerHTML = renderer.file_name;
 			//CONSENT BEFORE DATA STRUCTURE BEFORE VALIDITY	   	
-			return split_resp;
+			return renderer.split_resp;
 		}				
 		else if (data.currentTarget.response.statusCode === 404){
 			console.info('validationError');	
@@ -685,7 +687,7 @@ export default class renderWidget {
 		let dragger = document.getElementById('cencilio-importer');	
 		dragger.className = 'dragger';
 		//dragger.id = 'xls_dragger';
-		dragger.style = 'position: relative; margin-left: 766px; z-index: -1; height: 200px; width: 300px;';
+		dragger.style = 'position: absolute;margin-left: 860px;z-index: -1;height: 200px;width: 300px; /* top: 50%; *//* transform: translateY(-50%); */-ms-transform: translateY(-50%);';
 		let draggerForm = document.createElement('form');	
 		draggerForm.className = 'pimg';
 		draggerForm.id = 'pimg';
@@ -714,11 +716,12 @@ export default class renderWidget {
 		draggerImg2.id='importer-img';
 		draggerImg2.style='height: 78px; width: 65px; margin-left: -135px; margin-top: 244px; position: absolute;';
 		dragger.appendChild(draggerImg2);
-		draggerInput.addEventListener("dragover", function(event) {
+		draggerInput.ondragover = function(event) {
+			console.info('DRAGGED ELEMENT');
   			event.preventDefault();
-		});
-		draggerInput.addEventListener("drop", function(event) {
-			//console.info(ev.dataTransfer.items[0].getAsFile());
+		};
+		draggerInput.ondrop = function(event) {
+			console.info(ev.dataTransfer.items[0].getAsFile());
   			if (ev.dataTransfer.items) {
     			var file = ev.dataTransfer.items[0].getAsFile();
     			document.getElementById('cencilio_file_name').innerHTML = file.name;
@@ -726,9 +729,9 @@ export default class renderWidget {
     			var file = ev.dataTransfer.files[0];
     			document.getElementById('cencilio_file_name').innerHTML = file.name;
   			}			
-  			//console.info(config);
+  			console.info(config);
 			renderFun(file,config);    		
-		});
+		};
 		let excelButton = document.createElement('button'); 			
 		excelButton.id = 'ppbutton'; 		
 		draggerInput.onclick = function (e) {
@@ -748,7 +751,7 @@ export default class renderWidget {
 		dataExportDiv.id = 'data_exported';
 		dataExportDiv.name = 'data_exported';
 		dataExportDiv.className = 'data_exported'; 	
-		dataExportDiv.style='background-color: rgb(138, 82, 231);box-shadow: rgb(138, 82, 231) 0px 2px 8px 5px;position: absolute;display: none;z-index: 7;margin-left: 396px;width: 512px;margin-top: 166px;border-radius: 4px;';
+		dataExportDiv.style='background-color: rgb(180, 178, 183);box-shadow: rgb(138, 82, 231) 0px 2px 8px 5px;position: absolute;display: block;z-index: 7;margin-left: 396px;width: 458px;margin-top: 166px;border-radius: 4px;color: rgba(101, 0, 211, 0.82);';
 		let dataExportSpan = document.createElement('span');
 		dataExportSpan.style = 'max-height: 144px;margin-left: 56px;font-size: 20px;';
 		dataExportSpan.innerHTML = 'Datos cargados exitosamente';
@@ -785,7 +788,7 @@ export default class renderWidget {
 		let headerDiv = document.createElement('div');
 		headerDiv.className = 'raw_response_header';
 		headerDiv.id = 'raw_response_header';
-		headerDiv.style = 'position: absolute; display: none; justify-content:center;margin-left: 0px;width: 273px;margin-top: -190px;height: 42px;background-color: #b05cc5b8;border-radius: 4px;margin-left: 8px;box-shadow: rgb(231 82 220 / 44%) 0px 2px 8px 5px;';		
+		headerDiv.style = 'position: absolute; display: none; justify-content:center;margin-left: 0px;width: 273px;margin-top: 8px;height: 42px;background-color: #b05cc5b8;border-radius: 4px;margin-left: 8px;box-shadow: rgb(231 82 220 / 44%) 0px 2px 8px 5px;';		
 		let headerLabel = document.createElement('label');
 		headerLabel.style = 'background: transparent;height: 240px;width: 208px;border-width: 0px;margin-top: 10px;margin-left: 56px;';		
 		headerLabel.innerHTML = 'Raw response header';
@@ -800,7 +803,7 @@ export default class renderWidget {
 		progressBarDiv.className = 'progress_bar';
 		progressBarDiv.id = 'progress_bar';		
 		progressBarDiv.name = 'progress_bar';		
-		progressBarDiv.style = 'display: none; margin-top: 20px;background-color: rgb(142, 53, 53);height: 40px;width: 400px;border-radius: 12px;position: absolute;margin-left: 594px;opacity: 1;';	
+		progressBarDiv.style = 'display: block;/* margin-top: 20px; */background-color: rgb(142, 53, 53);height: 40px;width: 400px;border-radius: 12px;position: absolute;margin-left: 480px;opacity: 1;top: 8%;/* margin: 0; */-ms-transform: translateY(-50%);transform: translateY(-50%);';	
 		let progressBarLabel = document.createElement('label'); 	
 		progressBarLabel.className = 'pmsg';
 		progressBarLabel.id = 'pmsg';		
@@ -941,47 +944,38 @@ export default class renderWidget {
 							//console.info(row_vals.childNodes[a].childNodes[0]);		
        	  				//APPLIES
        	  				let tooltip = document.createElement('span');
-       	  				tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       	  				tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 316px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        	  				tooltip.style.left = '0px';
        	  				tooltip.style.top = '0px';
-       	  				tooltip.innerHTML = this.dom_factor[a-1][0][0].error;
+       	  				console.info(this.dom_factor);
+       	  				console.info(this.dom_factor[a]);
+       	  				console.info(this.dom_factor[a][0][0].error);
+       	  				tooltip.innerHTML = this.dom_factor[a][0][0].error;
        	  				tooltip.displayed = false;
     						row_vals.childNodes[a].appendChild(tooltip);	
+    						//console.info(row_vals.childNodes[a]);
        	  				row_vals.childNodes[a].onmouseover = function(e){ //DEPENDENCY === no parenting
-    							//console.info('HOVERING');
     							try{
-    								console.info(e.target.parentElement.childNodes[1].childNodes[0].falsable);
     								if (e.target.parentElement.childNodes[1].childNodes[0].falsable === true){
-    									console.info('ENABLING INVALID ARGUMENT');
-						        		if (e.target.parentElement.childNodes[1].displayed === false){
-						        			console.info(e.target.parentElement.childNodes[1].displayed);
-            							e.target.parentElement.childNodes[1].style.display = "block";
-           								e.target.parentElement.childNodes[1].animate({"opacity" : 1});
-           								e.target.parentElement.childNodes[1].displayed = true;
+    									if (typeof e.target.parentElement.childNodes[1].displayed === 'undefined'){
+											  this.absent = e.target.childNodes[1];  									
+    									}
+    									else{
+    										this.absent = e.target.parentElement.childNodes[1];
+    									}
+    									//console.info(this.absent.displayed);
+						        		if (this.absent.displayed === false){
+            							this.absent.style.display = "block";
+            							this.absent.displayed = true;
         								}
         								else{
-            							e.target.parentElement.childNodes[1].animate({"opacity" : 0});
-            							setTimeout(function (){
-                    						e.target.parentElement.childNodes[1].style.display = "none";
-                						}, 
-                						400);
-                						e.target.parentElement.childNodes[1].displayed = false;
-                						console.info('IS ARGUMENT DISPLAYED?', e.target.parentElement.childNodes[1].displayed);
-                						e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
-                						console.info(e.target.parentElement.childNodes[1].style.transition);
+                						this.absent.displayed = false;
+            							this.absent.style.display = "none";
         								}
-        							}	        	  					
-									else if (e.target.parentElement.childNodes[1].childNodes[0].falsable === false){ //TRANSVERSALLY NULLIFIED 
-										//console.info('DISABLING INVALID ARGUMENT');
-										console.info(e.target.parentElement.childNodes[1].childNodes[0].isinvalid);
-										if (e.target.parentElement.childNodes[1].childNodes[0].isinvalid === false){								
-											e.target.parentElement.childNodes[1].childNodes[0].style.display = "none";	//SPAN IS CHILD OF TD		
-										}					
-									}      										        	  					
-									row_vals.childNodes[a].childNodes[0].falsable = true;		
+        							}	        	  						
     							}
     							catch(error){
-    								//console.info(e.target.parentElement.childNodes[1].childNodes[0]); CHILD IS MUTUAL AS CHILD OF NODE
+    								//CHILD IS MUTUAL AS CHILD OF NODE
     							}
     						}	
 						}				
@@ -996,7 +990,7 @@ export default class renderWidget {
 					//SHIFT DTYPE
 				}
 				catch (error){
-					 console.info(error); //TRAVERSES NODES WITHOUT CHILDS
+					 //console.info(error); //TRAVERSES NODES WITHOUT CHILDS
 				}
 			}
 		}			
@@ -1211,7 +1205,7 @@ export default class renderWidget {
        	  				this.textbox.col = C;
        	  				this.textbox.row = R;
        		  			if (0 === C){
-       		  				this.textbox.style.marginLeft = '-16px';
+       		  				this.textbox.style.marginLeft = '-40px';
        		  			}
 	       	  			this.textbox.onchange = function (e){
 								renderer.excel_data[renderer.page][e.target.col][e.target.row] = e.target.value;
@@ -1227,11 +1221,11 @@ export default class renderWidget {
        	  					}
        	  					if (0<parseInt(C)){
        	  						document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
-									document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
+									document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C)*16)+'px';
        	  					}   
        	  					else{
        	  						document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
-									document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
+									document.getElementById('dtype_'+String(C)).style.paddingLeft = '0px';
        	  					}   
        	  				//}
        	  				//catch(error){
@@ -1251,7 +1245,7 @@ export default class renderWidget {
        			  			this.textbox.type = 'text';
        			  			this.textbox.style = 'width: 150px;';
        		  				if (0 === C){
-       		  					this.textbox.style.marginLeft = '-16px';
+       		  					this.textbox.style.marginLeft = '-40px';
        		  				}
 	       	  				errorCell(this.textbox); //coloriza campo crítico vacío
 	       	  				this.textbox.critical = 1;
@@ -1341,7 +1335,7 @@ export default class renderWidget {
        		  				this.textbox.type = 'text';
        		  				this.textbox.style = 'width: 150px;';
        		  				if (0 === C){
-       		  					this.textbox.style.marginLeft = '-16px';
+       		  					this.textbox.style.marginLeft = '-40px';
        		  				}
 	       	  				this.textbox.critical = 1;
        	  					if (typeof this.textbox.trying === 'undefined'){
@@ -1397,7 +1391,7 @@ export default class renderWidget {
        	  						this.textbox.col = C;
        	  						this.textbox.row = R;
        		  					if (0 === C){
-       		  						this.textbox.style.marginLeft = '-16px';
+       		  						this.textbox.style.marginLeft = '-40px';
        		  					}
 	         					this.textbox.onchange = function (e){
 										renderer.prove(e, e.target.col, e.target.row, renderer.page);	       	  				
@@ -1487,7 +1481,7 @@ export default class renderWidget {
        	  						this.textbox.col = C;
        	  						this.textbox.row = R;
        		  					if (0 === C){
-       		  						this.textbox.style.marginLeft = '-16px';
+       		  						this.textbox.style.marginLeft = '-40px';
        		  					}
 	         					this.textbox.onchange = function (e){
 										renderer.prove(e, e.target.col, e.target.row,renderer.page);	       	  				
@@ -1538,7 +1532,7 @@ export default class renderWidget {
        	  						this.textbox.col = C;
        	  						this.textbox.row = R;
        		  					if (0 === C){
-       		  						this.textbox.style.marginLeft = '-16px';
+       		  						this.textbox.style.marginLeft = '-40px';
        		  					}
        	  						if (typeof this.textbox.trying === 'undefined'){
 										this.textbox.trying = [];       	  						
@@ -1636,7 +1630,7 @@ export default class renderWidget {
 									}	
        	  					}
        		  				if (0 === C){
-       		  					this.textbox.style.marginLeft = '-16px';
+       		  					this.textbox.style.marginLeft = '-40px';
        		  				}
 	       	  				//console.info('ADDING VALID REGEX');
        	  					this.textbox.onfocus = function(e){
@@ -1679,7 +1673,7 @@ export default class renderWidget {
        	  				this.textbox.col = C;
        	  				this.textbox.row = R;
        		  			if (0 === C){
-       		  				this.textbox.style.marginLeft = '-16px';
+       		  				this.textbox.style.marginLeft = '-40px';
        		  			}
 	       	  			this.textbox.onchange = function (e){
 								renderer.excel_data[renderer.page][e.target.col][e.target.row] = e.target.value;
@@ -1729,6 +1723,7 @@ export default class renderWidget {
 		}
 		document.getElementById('error_sheets').innerHTML = errors_sum;
 		document.getElementById('total_sheets').innerHTML = cells_sum;
+		document.getElementById('select_all');
 		return this.trs;	
   	}
 
@@ -1748,22 +1743,22 @@ export default class renderWidget {
        	idx.isinvalid = true;	      	
        	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
        		let tooltip = document.createElement('span');
-       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 168px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        		tooltip.style.left = '0px';
        		tooltip.style.top = '0px';
        		tooltip.innerHTML = this.dom_factor[C][0][0].error;
        		tooltip.displayed = false;
-    			console.info(idx);
-    			console.info(idx.falsable);
-    			idx.appendChild(tooltip);	
+    			//console.info(idx);
+    			//console.info(idx.falsable);
+    			idx.parentElement.appendChild(tooltip);	
     			idx.parentElement.onmouseover = function(e){
     				//console.info('HOVERING');
     				//console.info('IS FALSABLE', e.target.parentElement.childNodes[0].falsable);
     				try{
 	    				if (e.target.parentElement.childNodes[0].falsable === true){
-   	 					console.info('ENABLING INVALID ARGUMENT');
-    						console.info(e.target.parentElement);
-    						console.info(e.target.parentElement.childNodes[1]);
+   	 					//console.info('ENABLING INVALID ARGUMENT');
+    						//console.info(e.target.parentElement);
+    						//console.info(e.target.parentElement.childNodes[1]);
 							if (e.target.parentElement.childNodes[1].displayed === false){
 							   //	console.info(e.target);
             				e.target.parentElement.childNodes[1].style.display = "block";
@@ -1790,13 +1785,13 @@ export default class renderWidget {
 						} 
 					}
 					catch (error){
-						 console.info(error);
+						 //console.info(error);
 					}   
 				}	        								        	  					
     		}
     		else{
-    			console.info(idx);
-    			console.info(idx.falsable);
+    			//console.info(idx);
+    			//console.info(idx.falsable);
     			if (idx.falsable === false){
     				idx.falsable = true;
     			}
@@ -1829,14 +1824,14 @@ export default class renderWidget {
     		console.info(idx.falsable);
        	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
        		let tooltip = document.createElement('span');
-       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 168px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        		tooltip.style.left = '0px';
        		tooltip.style.top = '0px';
        		tooltip.innerHTML = this.dom_factor[C][0][0].error;
        		tooltip.displayed = false;
     			console.info(idx);
     			console.info(idx.falsable);
-    			idx.appendChild(tooltip);	
+    			idx.parentElement.appendChild(tooltip);	
     			idx.parentElement.onmouseover = function(e){
     				//console.info('HOVERING');
     				//console.info('IS FALSABLE', e.target.parentElement.childNodes[0].falsable);
@@ -1907,14 +1902,14 @@ export default class renderWidget {
     		//console.info(idx.falsable);
        	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
        		let tooltip = document.createElement('span');
-       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 168px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        		tooltip.style.left = '0px';
        		tooltip.style.top = '0px';
        		tooltip.innerHTML = this.dom_factor[C][0][0].error;
        		tooltip.displayed = false;
     			//console.info(idx);
     			//console.info(idx.falsable);
-    			idx.appendChild(tooltip);	
+    			idx.parentElement.appendChild(tooltip);	
     			idx.parentElement.onmouseover = function(e){
     				//console.info('HOVERING');
     				//console.info('IS FALSABLE', e.target.parentElement.childNodes[0].falsable);
