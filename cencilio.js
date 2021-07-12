@@ -97,8 +97,8 @@ function table_maker(Options, workbook){
    xhr.open('GET', 'https://app.cencilio.com/api/1.1/obj/account/'+Options['apiKey'], true); 	
    xhr.setRequestHeader('Content-Type', 'application/json');	
    xhr.onload = function (data) {
-   	//console.info(data.currentTarget.response);
-   	//console.info(data.target.response);
+   	console.info(data.currentTarget.response);
+   	console.info(data.target.response);
    	let resp = data.currentTarget.response;
 		if (resp.id !== null) {
    		if (Options['userId'] !== null){	
@@ -716,6 +716,10 @@ export default class renderWidget {
 		draggerImg2.id='importer-img';
 		draggerImg2.style='height: 78px; width: 65px; margin-left: -135px; margin-top: 244px; position: absolute;';
 		dragger.appendChild(draggerImg2);
+		draggerInput.ondragstart = function (event) {
+			console.info('DRAG STARTS');
+    		event.dataTransfer.setData('application/vnd.ms-excel', null); //cannot be empty string
+		}
 		draggerInput.ondragover = function(event) {
 			console.info('DRAGGED ELEMENT');
   			event.preventDefault();
@@ -742,7 +746,7 @@ export default class renderWidget {
 			renderFun(this.files[0], config);
 		}; 					
 		excelButton.onclick = function (e) { 
-			uploadimg();
+			uploadxls();
 		}; 				
 		excelButton.style = 'width: 465px;height: 282px;margin-top: 140px;position: absolute;opacity: 0.3;border: 2px dashed lightyellow;margin-left: -340px;'; 	
 		dragger.appendChild(draggerLabel);
@@ -751,7 +755,7 @@ export default class renderWidget {
 		dataExportDiv.id = 'data_exported';
 		dataExportDiv.name = 'data_exported';
 		dataExportDiv.className = 'data_exported'; 	
-		dataExportDiv.style='background-color: rgb(180, 178, 183);box-shadow: rgb(138, 82, 231) 0px 2px 8px 5px;position: absolute;display: block;z-index: 7;margin-left: 396px;width: 458px;margin-top: 166px;border-radius: 4px;color: rgba(101, 0, 211, 0.82);';
+		dataExportDiv.style='background-color: rgb(180, 178, 183);box-shadow: rgb(138, 82, 231) 0px 2px 8px 5px;position: absolute;display: none; z-index: 7;margin-left: 396px;width: 458px;margin-top: 166px;border-radius: 4px;color: rgba(101, 0, 211, 0.82);';
 		let dataExportSpan = document.createElement('span');
 		dataExportSpan.style = 'max-height: 144px;margin-left: 56px;font-size: 20px;';
 		dataExportSpan.innerHTML = 'Datos cargados exitosamente';
@@ -1984,7 +1988,7 @@ export default class renderWidget {
 
 	//XLSX.writeFile(workbook, fname, write_opts) write file back
 }
-function uploadimg(){
+function uploadxls(){
 	document.getElementById('pIn').click();
 };
 
