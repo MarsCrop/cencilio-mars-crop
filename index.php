@@ -391,8 +391,8 @@ div.scrollmenu a:hover {
         				global: {
               			backgroundColor: '#B4B2B7',
               			textColor: '#6500d3d1',
-              			primaryTextColor: '#9400d3',
-              			primaryButtonColor: '#0000ff',
+              			primaryTextColor: '#ffffffff',
+              			primaryButtonColor: '#d6d6e029',
               			errorColor: '#ff0000'
             		}
     				},          		
