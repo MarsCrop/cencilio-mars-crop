@@ -19,8 +19,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "xlsx": "^0.17.0",
-    "shim": "*",
-    "fs": "*",
+    "shim": "*"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
