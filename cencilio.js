@@ -78,6 +78,46 @@ function renderDOM(instance,theme,h,w){
  	}
 }
 
+//got from https://stackoverflow.com/questions/5783969/how-to-get-child-element-by-id-in-javascript by Gil Epshtain and marc_s to remove jquery dependency
+var _Utils = function ()
+{
+    this.findChildById = function (element, childID, isSearchInnerDescendant) // isSearchInnerDescendant <= true for search in inner childern 
+    {
+        var retElement = null;
+        var lstChildren = isSearchInnerDescendant ? Utils.getAllDescendant(element) : element.childNodes;
+
+        for (var i = 0; i < lstChildren.length; i++)
+        {
+            if (lstChildren[i].id == childID)
+            {
+                retElement = lstChildren[i];
+                break;
+            }
+        }
+
+        return retElement;
+    }
+
+    this.getAllDescendant = function (element, lstChildrenNodes)
+    {
+        lstChildrenNodes = lstChildrenNodes ? lstChildrenNodes : [];
+
+        var lstChildren = element.childNodes;
+
+        for (var i = 0; i < lstChildren.length; i++) 
+        {
+            if (lstChildren[i].nodeType == 1) // 1 is 'ELEMENT_NODE'
+            {
+                lstChildrenNodes.push(lstChildren[i]);
+                lstChildrenNodes = Utils.getAllDescendant(lstChildren[i], lstChildrenNodes);
+            }
+        }
+
+        return lstChildrenNodes;
+    }        
+}
+var Utils = new _Utils;
+
 //AS THREAD
 function table_maker(Options, workbook){
 	//Usando los campos del objeto en JSON
@@ -115,7 +155,7 @@ function table_maker(Options, workbook){
 	  		renderer.sheetDiv = document.createElement('div');
 			renderer.sheetDiv.className='sheet_div'; 
 			renderer.sheetDiv.id='sheet_div'; 
-			renderer.sheetDiv.style='position: absolute;z-index: 4;top: 50%;padding: 16px;width: 72%;margin-left: 194px;border-radius: 4px;height: 80%;overflow-y: scroll;/* margin: 0; */-ms-transform: translateY(-50%);transform: translateY(-50%);border: 1px solid #DEDEDE;box-sizing: border-box;box-shadow: 0px 4px 38px rgba(0, 0, 0, 0.4);border-radius: 4px;';
+			renderer.sheetDiv.style='overflow-x: hidden; position: absolute;z-index: 4;top: 50%;padding: 16px;width: 72%;margin-left: 194px;border-radius: 4px;height: 80%;overflow-y: scroll;/* margin: 0; */-ms-transform: translateY(-50%);transform: translateY(-50%);border: 1px solid #DEDEDE;box-sizing: border-box;box-shadow: 0px 4px 38px rgba(0, 0, 0, 0.4);border-radius: 4px;';
 			//cencilio default background color
 			if (typeof Options['theme']['global']['backgroundColor'] === 'undefined'){
 				renderer.sheetDiv.style.backgroundColor = 'rgb(180, 178, 183)';
@@ -234,7 +274,7 @@ function table_maker(Options, workbook){
 				json_string += '}';
 				let jsonData = json_string;
 				document.getElementById('js_data').innerHTML = jsonData;
-				console.info(JSON.parse(jsonData));
+				//console.info(JSON.parse(jsonData));
 				//document.getElementById('js_data').innerHTML = jsonData; //copy data to HTML			
 				fs.writeFile(renderer.file_name+".json", jsonData, (err) => {
     				if (err) {
@@ -367,21 +407,24 @@ function table_maker(Options, workbook){
 				//console.info('PAGE IS', workbook.SheetNames.indexOf(e.target.value));
 				let sheet = renderer.loadTable(workbook.SheetNames.indexOf(e.target.value));
 				renderer.page = 0;	
+				//console.info('DONE LOADING SHEET');
 				for(var c = 2; c <= document.getElementById('sheet_div').length; ++c){
 					//console.info(sheet[c-2]);
 					//console.info(document.getElementById('sheet_div').childNodes[c]);
 					document.getElementById('sheet_div').childNodes[c] = sheet[c-2];		
 				}
+				renderer.page_shift = false;
 			}			
 			let sheetDivTable = document.createElement('table');  
+			sheetDivTable.style = 'position: relative;';
 			let sheetDivHead = document.createElement('thead');  
 			let sheetDivTableBody = document.createElement('tbody');  
          sheetDivTableBody.id='sheet_rows';
 			let sheetFieldSelector = document.createElement('tr');  
-			sheetFieldSelector.style = 'margin-top: 32px;position: absolute;';
+			sheetFieldSelector.style = 'position: relative;';
 			sheetDivTableBody.appendChild(sheetFieldSelector);			
 			let sheetDivDtypeRow = document.createElement('tr');  
-			sheetDivDtypeRow.style = 'margin-top: 150px;';
+			sheetDivDtypeRow.style = 'position: relative;';
 			sheetDivTableBody.appendChild(sheetDivDtypeRow);
 			sheetDivTable.appendChild(sheetDivTableBody);
 			sheetDivTable.appendChild(sheetDivHead);
@@ -454,7 +497,7 @@ function table_maker(Options, workbook){
 						}
 						catch(error){
 							//console.info(renderer.dom_factor);
-							//console.info(error);
+							console.info(error);
 						}	
    				}		
 				}
@@ -492,7 +535,7 @@ function table_maker(Options, workbook){
 	  				//dtype checkbox 
 					let sheetDivTableD = document.createElement('td');  
 					let sheetDivTableDIn = document.createElement('input'); 
-					sheetDivTableDIn.id='select_all'; 
+					sheetDivTableDIn.id='select_all'; //place selector in ground empty
 					sheetDivTableDIn.onchange = function(e){
 						if (e.target.incoming === 'show_changed'){
 							renderer.render_edited_page(e.target.checked);
@@ -502,8 +545,12 @@ function table_maker(Options, workbook){
 						}
 					}; 
 					sheetDivTableDIn.type='checkbox'; 
-					sheetDivTableDIn.style='width: 24px;height: 24px;margin-left: 32px;margin-bottom: 16px;margin-right: 16px;margin-top: 32px;';					 
-					sheetDivTableD.appendChild(sheetDivTableDIn);	
+					sheetDivTableDIn.style='width: 24px;height: 24px;margin: 68px 16px 16px 32px;position: relative;margin-top: -47px;';	
+					//getElementById returns null!
+					//child is added to structure before substracting another 
+					if (Utils.findChildById(sheetDivDtypeRow,'select_all',true) === null){				 
+						sheetDivTableD.appendChild(sheetDivTableDIn);	
+					}
 					sheetDivDtypeRow.appendChild(sheetDivTableD);
 					//dtype labels		
 					let colsize = range.e.c;	
@@ -512,11 +559,15 @@ function table_maker(Options, workbook){
 					//console.info(sheet);
 	  				for(var vtypei = 0; vtypei <= colsize; ++vtypei) {
 						let tdLabelShiftDiv = document.createElement('div');  
-						tdLabelShiftDiv.style = 'max-height: 144px;font-size: 12px;margin-right: 16px;margin-top: -80px;position: absolute;width: 80px;margin-left: 748px;';
-						tdLabelShiftDiv.style.marginLeft = String(selectorIncrement)+'px';
-						selectorIncrement += 150;
+						tdLabelShiftDiv.style = 'max-height: 144px;font-size: 12px;margin-right: 16px;position: relative;width: 80px;margin-left: 54px; margin-top: -16px';
+						if (vtypei !== 0){
+							tdLabelShiftDiv.style.marginLeft = '54px';					
+						}
+						else{
+							tdLabelShiftDiv.style.marginLeft = '125px';							
+						}
 						let tdLabelSelector = document.createElement('select');  
-						tdLabelSelector.id='select_all_selector'; 
+						tdLabelSelector.id='select_all_selector_'+String(vtypei); 
 						tdLabelSelector.style='width: 150px;height: 24px;margin: 32px 16px 16px 32px;margin-left: 16px;';	
 						tdLabelSelector.onchange = function (e){
 							let children = e.target.choices;
@@ -532,6 +583,7 @@ function table_maker(Options, workbook){
 							try{
 								//console.info(renderer.dom_factor[vtypec]);
 								selectOption.value = renderer.dom_factor[vtypec][0][0].key;
+								//console.info('VERTICAL COLUMN TRAVERSE', selectOption.value);
 								tdLabelSelector.choices.push(renderer.dom_factor[vtypec][0][0].key);
 								selectOption.innerHTML = renderer.dom_factor[vtypec][0][0].label;
 								if (vtypei === vtypec){
@@ -542,38 +594,53 @@ function table_maker(Options, workbook){
 							}
 							catch (error){
 								//console.info('Faltan argumentos para renderizar columnas'); //no hay argumentos === no hay columnas
-								//console.info(error);
+								console.info(error);
 							}
 						};  	
 						vtypec = 0;
 						selector_size = range.e.c;	
 						tdLabelShiftDiv.appendChild(tdLabelSelector);
 						tdFieldSelector.appendChild(tdLabelShiftDiv);	
+						tdFieldSelector.id='selectortd_'+vtypei;
+						//CHILDS WITH TDS OUTSIDE			
+						if (Utils.findChildById(sheetFieldSelector,tdLabelSelector.id,true) !== null){	
+							//console.info(tdFieldSelector.id);
+							continue;			
+						}														
 						sheetFieldSelector.appendChild(tdFieldSelector);	
 						let tdDtypeCol = document.createElement('td');  
 						let dtypeColSpan = document.createElement('span');  
 						dtypeColSpan.id = 'dtype_'+String(vtypei);  
-						dtypeColSpan.style = 'max-height: 144px;font-size: 12px;margin-right: 16px;margin-top: -4px;position: absolute;';
+						if (document.getElementById(dtypeColSpan.id) !== null){
+							//console.info('DTYPE SPAN ALREADY EXISTS');
+						}														
+						dtypeColSpan.style = 'max-height: 144px;font-size: 12px;margin-right: 16px;/* margin-top: 16px; */position: relative;display: block;padding-left: 16px; margin-left: -32px';
 						//dtypeColSpan.innerHTML = vtypei;
-						tdDtypeCol.appendChild(dtypeColSpan);	
-						sheetDivDtypeRow.appendChild(tdDtypeCol);	
+						sheetDivDtypeRow.appendChild(tdDtypeCol);							
+						tdDtypeCol.appendChild(dtypeColSpan);							
 					}  		
 	  				for(var R = range.s.r; R <= range.e.r; ++R) { //R = row   
+	  					if (typeof renderer.falsable_cells[sh] === 'undefined'){
+	  						renderer.falsable_cells.push([]);					
+	  					}
 	  					page_data.push([]);
+	  					renderer.falsable_cells[sh].push([]);
 	      			for(var C = range.s.c; C <= range.e.c; ++C) { //C = col
 	         			/* find the cell object */
 	            		var cellref = XLSX.utils.encode_cell({c:C, r:R}); // construct A1 reference for cell
 		         		if(!sheet[cellref]) continue; // if cell doesn't exist, move on
 	   	      		var cell = sheet[cellref];
 	   	      		let v = String(cell.v); //string parse the value in cell
-	   	      		page_data[R].push(v);  
+	   	      		page_data[R].push(v);
+	   	      		//renderer.falsable_cells[sh].push([]);  
+	   	      		renderer.falsable_cells[sh][R][C] = false;
          			}	       	
 	   			}
 	   			renderer.excel_data[sh] = page_data; //element-wise
-	   			//console.info(renderer.excel_data);
+	   			//console.info(renderer.excel_data);	   			
 				}
 				catch (error){ //looping sums 1
-					//console.info(error);
+					console.info(error);
 				}
 	   	}
 	   	renderer.page = 0;
@@ -589,7 +656,7 @@ function table_maker(Options, workbook){
 			renderer.sheetDiv.appendChild(renderer.sheetDivChildDiv);
 			renderer.sheetDiv.appendChild(renderer.sheetDivTable); 
 			let closeRenderer = document.createElement('button');
-			closeRenderer.style = 'position: absolute;/* margin-left: 208px; */margin-top: -212px;z-index: 1000;border-radius: 8px;background-color: white;border: 0px;width: 27px;height: 27px;';
+			closeRenderer.style = 'position: absolute;margin-top: -442px;z-index: 1000;border-radius: 8px;background-color: white;border: 0px;width: 27px;height: 27px;';
 			closeRenderer.onclick = function(e){
 				document.getElementById('sheet_div').remove();			
 			}
@@ -597,16 +664,23 @@ function table_maker(Options, workbook){
 			let closeImg = document.createElement('img');
 			closeImg.src='close.png';
 			closeImg.style='width: 20px;height: 26px;height: 20px;margin-left: -3px;';
+			let tableScrollDiv = document.createElement('div');
+			tableScrollDiv.style = 'overflow-x: scroll; height: 300px; overflow-y: scroll;max-width: 930px;table-layout: fixed;';
+			tableScrollDiv.id = 'page_table';
+			tableScrollDiv.appendChild(renderer.sheetDivTable);
+			renderer.sheetDiv.appendChild(tableScrollDiv);		
 			closeRenderer.appendChild(closeImg);			
 			document.body.appendChild(renderer.sheetDiv);
-			document.getElementById('sheet_div').appendChild(closeRenderer);			
+			document.getElementById('sheet_div').appendChild(closeRenderer);	
+			renderer.prev_exp = 0; //start transversal		
 	   	let sheet1 = renderer.loadTable(0);	
 	   	for (var s = 0; s < sheet1.length; s++) {
-	   		renderer.sheetDiv.appendChild(sheet1[s]);	
+	   		document.getElementById('page_table').appendChild(sheet1[s]);	
 	   	}
 	   	renderer.sheetDivChildStrong.innerHTML = renderer.file_name;
 			//CONSENT BEFORE DATA STRUCTURE BEFORE VALIDITY	
 			renderer.complete = true;   	
+			renderer.set_virtual = false;
 			return renderer.split_resp;
 		}				
 		else if (data.currentTarget.response.statusCode === 404){
@@ -625,6 +699,7 @@ function renderFun(file, config){
 	//console.info(config);
 	//console.info(typeof config);
 	renderer.excel_data = [];
+	renderer.falsable_cells = [] //virtual structure that responds with an error
 	//console.info(document.getElementById('profpic'));
 	try{
 		//console.info(document.getElementById('pIn'));
@@ -697,6 +772,8 @@ export default class renderWidget {
 		this.nselected = 0;
 		this.sizeIncrement = 0;
 		this.complete = false;
+		this.page_shift = false;
+		this.set_virtual = true;
 		let dragger = document.getElementById('cencilio-importer');	
 		dragger.className = 'dragger';
 		//dragger.id = 'xls_dragger';
@@ -715,7 +792,7 @@ export default class renderWidget {
 				renderFun(file,config);  
   			} else {
     			var file = ev.dataTransfer.files[0];
-  				console.info(config);
+  				//console.info(config);
 				renderFun(file,config);    	
   			}				
 		};
@@ -809,7 +886,7 @@ export default class renderWidget {
 		headerLabel.innerHTML = 'Raw response header';
 		let headerHR = document.createElement('hr');
 		let headerLabel2 = document.createElement('label');
-		headerLabel2.style = 'height: 226px;width: 270px;border-width: 0px;margin-top: -247px;position: absolute;border-radius: 8px;margin-left: 2px;font-size: 12px;padding: 16px;overflow-y: scroll;';		
+		headerLabel2.style = 'height: 226px;width: 270px;border-width: 0px;margin-top: -247px;position: absolute;border-radius: 8px;margin-left: 2px;font-size: 12px;padding: 16px; overflow-y: scroll;';		//overflow-y: scroll; overflow-x: hidden;
 		headerLabel2.id = 'js_data';
 		headerDiv.appendChild(headerLabel);
 		headerDiv.appendChild(headerHR);
@@ -854,9 +931,11 @@ export default class renderWidget {
 		renderer.cells_names_selected.push(event.target); 		
   		event.target.style.backgroundColor = 'aliceblue';
 		if (1 < renderer.cells_names_selected.length){
-			console.info(renderer.cells_names_selected[0]);
+			//console.info(renderer.cells_names_selected[0]);
 			renderer.cells_names_selected[0].value += renderer.cells_names_selected[1].value; 
 			renderer.excel_data[renderer.page][renderer.cells_names_selected[0].col][renderer.cells_names_selected[0].row] = renderer.cells_names_selected[0].value;
+			//console.info(renderer.falsable_cells[renderer.page][renderer.cells_names_selected[0].col][renderer.cells_names_selected[0].row]);
+			renderer.falsable_cells[renderer.page][renderer.cells_names_selected[0].col][renderer.cells_names_selected[0].row] = false;
 			renderer.cells_names_selected[1].value = ''; 
 			renderer.excel_data[renderer.page][renderer.cells_names_selected[1].col][renderer.cells_names_selected[1].row] = '';
 			//if (renderer.cells_names_selected[0].row !== renderer.cells_names_selected[1].row){ //column combined
@@ -918,71 +997,70 @@ export default class renderWidget {
 	}
 
 	swap_columns(Page,a,b,empty) {
-		//TODO: DATA STRUCTURE OF SWAPPED COLUMNS
+		//DATA STRUCTURE OF SWAPPED COLUMNS
 		let a_idx= [];	
 		//let b_idx= [];		
-		if (this.complete === false){
-			this.col = 2;		
-		}
-		else{
-			this.col = 3;		
-		}
+		this.col = 2;		
   		for (var row = 0; row < renderer.excel_data[Page].length; row++) {
-			for (var col = this.col; col < document.getElementById('sheet_div').childNodes.length; col++){
-				let row_vals = document.getElementById('sheet_div').childNodes[col];
-				//console.info(row_vals.childNodes[b]);
-				//console.info(row_vals.childNodes[b].childNodes[0]);
+			for (var col = 1; col < document.getElementById('page_table').childNodes.length; col++){
+				let row_vals = document.getElementById('page_table').childNodes[col];
 				if (a_idx.includes(row_vals.childNodes[b].childNodes[0].value) === false){
-					//console.info(row_vals.childNodes[b]);
 					if (typeof row_vals.childNodes[b].childNodes[0].value !== 'undefined'){
 						a_idx.push(row_vals.childNodes[b].childNodes[0]);
+						//console.info(a_idx);
+	       	  		//console.info('VALUE IN SWAPPING', renderer.excel_data[Page][col-2][this.a-1]);
+	       	  		//console.info('VALUE IN SWAPPED', renderer.excel_data[Page][col-2][b-1]);
 					}
 				}				
 			}
 		}			
+		this.a = a;		
+		//console.info('A IDX',  a_idx);
   		for (var row = 0; row < renderer.excel_data[Page].length; row++) {
-			for (var col = this.col-1; col < document.getElementById('sheet_div').childNodes.length; col++){
-				let row_vals = document.getElementById('sheet_div').childNodes[col];
+			for (var col = this.col-1; col < document.getElementById('page_table').childNodes.length; col++){
+				let row_vals = document.getElementById('page_table').childNodes[col];
 				try{
-					row_vals.childNodes[a].childNodes[0].value = a_idx[col-2].value;
+					//console.info('CURRENT A', row_vals.childNodes[a].childNodes[0]);
+					//console.info('VALUE OF A', a_idx[col-1]);
+					//console.info('COL',col-1);
+					//this.col
+					row_vals.childNodes[a].childNodes[0].value = a_idx[col-1].value;
+					//FINDS A TRAVERSED NODE
 					if (row_vals.childNodes[a].childNodes[0].isinvalid === true){
-						if (a_idx[col-2].isinvalid === false){
+						if (a_idx[col-1].isinvalid === false){
 							row_vals.childNodes[a].childNodes[0].isinvalid = false;
 							row_vals.childNodes[a].childNodes[0].isedited = true;
 							row_vals.childNodes[a].childNodes[0].style.backgroundColor = renderer.errorColor;					
 						}				
 					}
 					else if (row_vals.childNodes[a].childNodes[0].isinvalid === false){ //BOTH INVALID AFTER TRANSFER
-						if (a_idx[col-2].isinvalid === true){
+						if (a_idx[col-1].isinvalid === true){
 							row_vals.childNodes[a].childNodes[0].isinvalid = true;
-							row_vals.childNodes[a].childNodes[0].trying = a_idx[col-2].trying;
-							//console.info('PIVOT TRIAL', row_vals.childNodes[a].childNodes[0].trying);
+							row_vals.childNodes[a].childNodes[0].trying = a_idx[col-1].trying;
 							row_vals.childNodes[a].childNodes[0].isedited = true;
+							renderer.falsable_cells[Page][row][col] = true;
 							//ALL EMPTY ROWS SHOULD CONTAIN AN ERROR
 							row_vals.childNodes[a].childNodes[0].falsable = true;
 							row_vals.childNodes[a].childNodes[0].style.backgroundColor = renderer.errorColor;	
 							//console.info(row_vals.childNodes[a].childNodes[0]);		
        	  				//APPLIES
        	  				let tooltip = document.createElement('span');
-       	  				tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       	  				tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s; margin-top: -40px;';	
        	  				tooltip.style.left = '0px';
        	  				tooltip.style.top = '0px';
-       	  				//console.info('VIRTUAL POS B', b+1);
-       	  				//console.info(158*(b+1));
        	  				if (empty !== true){
-								this.tooltip_center = 158;       	  				
+								this.tooltip_center = 157;       	  				
        	  				}
        	  				else{
-								this.tooltip_center = 152;       	
-								//console.info('VIRTUAL CENTERING');  				
+								this.tooltip_center = 151;   //332px    			
        	  				}
-       	  				tooltip.style.marginLeft = String(this.tooltip_center*(Math.max.apply(null,[a,b])))+'px';
+       	  				tooltip.style.marginLeft = '24px'; //relative
        	  				tooltip.innerHTML = this.dom_factor[b-1][0][0].error;
        	  				tooltip.displayed = false;
     						row_vals.childNodes[a].appendChild(tooltip);	
-    						//console.info(row_vals.childNodes[a]);
        	  				row_vals.childNodes[a].onmouseover = function(e){ //DEPENDENCY === no parenting
     							try{
+									//console.info('INVALID AS CHILD', e.target.parentElement.childNodes[1].childNodes[0].isinvalid);    								
     								if (e.target.parentElement.childNodes[1].childNodes[0].isinvalid === false){ //falsable as child
     									return null;
     								}
@@ -994,21 +1072,20 @@ export default class renderWidget {
     								else if (typeof e.target.falsable !== 'undefined'){ //falsable as target
     									this.falsability = e.target;
     								}
-    								//console.info('IS INVALID FALSABLE', this.falsability.falsable);
+    								//console.info('FALSABLE AS', this.falsability);
     								if (this.falsability.falsable === true){
-    									//console.info('ENABLING INVALID ARGUMENT');
     									if (typeof e.target.parentElement.childNodes[1].displayed === 'undefined'){
 											  this.absent = e.target.childNodes[1];  									
     									}
     									else{
     										this.absent = e.target.parentElement.childNodes[1];
     									}
+    									//console.info('IS ABSENT SHOWN?', this.absent.displayed);
 						        		if (this.absent.displayed === false){
             							this.absent.style.display = "block";
             							this.absent.displayed = true;
         								}
         								else{
-        									//console.info(this.absent.style.display);
                 						this.absent.displayed = false;
             							this.absent.style.display = "none";
         								}
@@ -1020,7 +1097,7 @@ export default class renderWidget {
 									}             							    	  						
     							}
     							catch(error){
-    								//console.info(error);//CHILD IS MUTUAL AS CHILD OF NODE
+    								console.info(error);//CHILD IS MUTUAL AS CHILD OF NODE
     							}
     						}	
 						}				
@@ -1030,18 +1107,19 @@ export default class renderWidget {
     						row_vals.childNodes[a].childNodes[0].falsable = false;
     					}	
 	       	  	}					
-					renderer.excel_data[Page][col-2][a-1] = renderer.excel_data[Page][col-2][b-1];
+	       	  	//console.info('VALUE IN SWAPPED', renderer.excel_data[Page][col-1][b-1]);
+					renderer.excel_data[Page][col-1][a] = renderer.excel_data[Page][col-1][b-1];
 					//SHIFT DTYPE
 				}
 				catch (error){
-					 //console.info(error); //TRAVERSES NODES WITHOUT CHILDS
+					 console.info(error); //TRAVERSES NODES WITHOUT CHILDS
 				}
 			}
 		}			
 	}	
 
 	render_invalid_page(state) {
-  		let rows = document.getElementById('sheet_rows').childNodes;
+  		let rows = document.getElementById('page_table').childNodes;
   		for (var i = 0; i < rows.length; i++) {
   			try{
   				document.getElementById('render_row_'+String(i)).incoming = 'show_errors';
@@ -1049,7 +1127,7 @@ export default class renderWidget {
 				document.getElementById('render_row_'+String(i)).checked = state;
 			}
 			catch (error){
-				//console.info(error);
+				//INDEX IS OF ANOTHER CHILD
 			}
 		}			
 	}	
@@ -1071,9 +1149,11 @@ export default class renderWidget {
 					if (grandchildren[k].isinvalid === true){
 						if (grandchildren[k].style.backgroundColor === 'black'){
 							grandchildren[k].style.backgroundColor = this.errorColor;
+							grandchildren[k].parentElement.childNodes[1].style.backgroundColor = 'black';
 						}
 						else if (grandchildren[k].style.color === 'black'){
 							grandchildren[k].style.color = document.getElementById('sheet_div').style.color;
+							grandchildren[k].parentElement.childNodes[1].style.backgroundColor = 'black';
 						}
 					}  
 					else{
@@ -1083,8 +1163,14 @@ export default class renderWidget {
 							}
 						}	
 						grandchildren[k].style.backgroundColor = 'black';	
-						grandchildren[k].style.color = 'black';
-					}  
+						if (document.getElementById('sheet_div').style.color !== 'black'){
+							grandchildren[k].style.color = 'black';
+						}
+						else{
+							grandchildren[k].style.color = document.getElementById('sheet_div').style.color;						
+							grandchildren[k].parentElement.childNodes[1].style.backgroundColor = 'black';
+						}
+					}
 				}
 			}			
 		}
@@ -1095,13 +1181,22 @@ export default class renderWidget {
   			for (var j = 0; j < children.length; j++) {
   				let grandchildren = children[j].childNodes;
   				//console.info(grandchildren);
-  				for (var k = 0; k < grandchildren.length; k++) {
+  				for (var k = 0; k < grandchildren.length; k++) {		
 					if (grandchildren[k].style.backgroundColor === 'black'){
-						grandchildren[k].style.backgroundColor = null;
-						grandchildren[k].style.backgroundColor = 'none';
+						//grandchildren[k].style.backgroundColor = null;
+						//grandchildren[k].style.backgroundColor = 'none';
+						grandchildren[k].style.backgroundColor = 'white';
+						grandchildren[k].style.color = document.getElementById('sheet_div').style.color;						
+						//color exceptions to display error 
+						try{
+							grandchildren[k].parentElement.childNodes[1].style.backgroundColor = 'black'; 
+							grandchildren[k].parentElement.childNodes[1].style.color = 'yellow'; 
+						}
+						catch (error) {
+						}  	
 					}
 					else if (grandchildren[k].style.color === 'black'){
-						grandchildren[k].style.color = null;
+						//grandchildren[k].style.color = null;
 						grandchildren[k].style.color = document.getElementById('sheet_div').style.color;
 					} 					
 				}
@@ -1110,7 +1205,7 @@ export default class renderWidget {
 	}		
 
 	render_edited_page(state) {
-  		let rows = document.getElementById('sheet_rows').childNodes;
+  		let rows = document.getElementById('page_table').childNodes;
   		for (var i = 0; i < rows.length; i++) {
   			if (document.getElementById('render_row_'+String(i)) !== null){
   				if (state === true){
@@ -1141,7 +1236,7 @@ export default class renderWidget {
   					}
 					if (grandchildren[k].isedited === true){
 						if (grandchildren[k].style.backgroundColor === 'black'){
-							grandchildren[k].style.backgroundColor = 'none';
+							grandchildren[k].style.backgroundColor = 'white';
 						}
 						else if (grandchildren[k].style.color === 'black'){
 							grandchildren[k].style.color = document.getElementById('sheet_div').style.color;
@@ -1172,16 +1267,15 @@ export default class renderWidget {
   					for (var l = 0; l < greatgrandchildren.length; l++){
   						//console.info(greatgrandchildren[l]);
 						if (greatgrandchildren[l].style.backgroundColor === 'black'){
-							greatgrandchildren[l].style.backgroundColor = null;
+							greatgrandchildren[l].style.backgroundColor = 'white';
 							if (greatgrandchildren[l].isinvalid !== true){
-								greatgrandchildren[l].style.backgroundColor = 'none';
+								greatgrandchildren[l].style.backgroundColor = 'white';
 							}
 							else{
 								greatgrandchildren[l].style.backgroundColor = renderer.errorColor;
 							}
 						}
 						else if (greatgrandchildren[l].style.color === 'black'){
-							greatgrandchildren[l].style.color = null;
 							greatgrandchildren[l].style.color = document.getElementById('sheet_div').style.color;
 						}
 					} 					
@@ -1192,10 +1286,13 @@ export default class renderWidget {
 
 	loadTable(idx) {
 		let ipage = renderer.excel_data[idx];
+		//console.info('CURRENT PAGE',ipage);
 		let cells_sum = 0;
 		let errors_sum = 0;
 		this.trs = [];
 		renderer.page = idx;
+		//console.info('LOADING PAGE', renderer.page);
+		//console.info('CAN SHIFT PAGE', renderer.page_shift);
   		for (var R = 0; R < ipage.length; R++) {
 	      let trDiv = document.createElement('tr');
 	      let tdDiv = document.createElement('td');
@@ -1215,14 +1312,14 @@ export default class renderWidget {
 	      checkbox.style = 'width: 24px;height: 24px;margin-left: 32px;margin-right: 124px;';
 	      tdDiv.appendChild(checkbox);
 	      trDiv.appendChild(tdDiv);
-	      trDiv.style = 'position: absolute;';
+	      trDiv.style = 'position: relative;';
 	      trDiv.style.marginTop = String(renderer.sizeIncrement)+'px';
 	      //console.info(trDiv.style.marginTop);
 	      renderer.sizeIncrement += 32;
 	      tdDiv.style = 'width: 110px;';
 			if (renderer.dom_factor.length < ipage[R].length){
 				this.tableSize = ipage[R].length; //doc based
-				console.info('USING USER PARAMS FOR SIZE');
+				//console.info('USING USER PARAMS FOR SIZE');
 			}
 			else if (ipage[R].length < renderer.dom_factor.length){
 				this.tableSize = renderer.dom_factor.length; //user based
@@ -1240,8 +1337,8 @@ export default class renderWidget {
   				 //console.info(this.dom_factor[C][0]);
   				 //console.info(this.dom_factor[C]);
 	   	    try{
-	   	    	//console.info('CURRENT PAGE', idx);
-	   	    	if (idx === 0){
+	   	    	//if not, prepare context to show virtual information
+	   	    	if (this.set_virtual === true){
 						if (typeof v === 'undefined'){
 							//console.info('TRAVERSING EMPTY VALUE');
        		 			this.textbox = document.createElement('input');
@@ -1267,7 +1364,7 @@ export default class renderWidget {
 									renderer.prove(e.target, e.target.col, e.target.row, renderer.page);									
 								}											
 								else{
-									console.info('VALUE IS UNDEFINED');								
+									//console.info('VALUE IS UNDEFINED');								
 								}		
 	       	  			}
        	  				this.textbox.onfocus = function(e){
@@ -1278,36 +1375,46 @@ export default class renderWidget {
 									this.abstract_c = C;         					
          					}
 								let tdLabelShiftDiv = document.createElement('div');  
-								tdLabelShiftDiv.style = 'max-height: 144px;font-size: 12px;margin-right: 16px;margin-top: -80px;position: absolute;width: 80px;';
-								tdLabelShiftDiv.style.marginLeft = String((150 * (C+1))-25)+'px';
+								tdLabelShiftDiv.style = 'max-height: 144px; margin-top: -16px; font-size: 12px; margin-right: 16px; position: relative; width: 80px; margin-left: 54px;';
+								//tdLabelShiftDiv.style.marginLeft = '54px';
+								if (0<parseInt(C)){
+									//tdLabelShiftDiv.style.marginLeft = (parseInt(tdLabelShiftDiv.style.marginLeft)-72)+'px';
+								}
+								if (C === this.abstract_c){
+									//tdLabelShiftDiv.style.marginLeft = String((150 * (C+1))-25)+'px';
+								}
 								let tdLabelSelector = document.createElement('select');  
-								tdLabelSelector.id='select_all_selector'; 
+								tdLabelSelector.id='select_all_selector_'+String(C); 
 								tdLabelSelector.style='width: 150px;height: 24px;margin: 32px 16px 16px 32px;margin-left: 16px;';		 
-								tdLabelSelector.choices = [];
-								tdLabelShiftDiv.appendChild(tdLabelSelector);					
+								tdLabelSelector.choices = [];		
+								//tdLabelShiftDiv.appendChild(tdLabelSelector);					
 								let tdFieldSelector = document.createElement('td'); 
 								this.textbox.trying = [null]; 
 								let selector_size = this.tableSize;
+								this.abstract_empty = null;
 	  							for(var vtypec = 0; vtypec <= this.tableSize; ++vtypec) {
 									let selectOption = document.createElement('option'); 
 									try{
+										//applies for abstract options
 										if (this.abstract_c <= vtypec){
-											this.abstract_key	= 'empty';	
+											this.abstract_key	= 'empty_'+String(vtypec);	
 											this.abstract_label = 'empty'; 		
 											this.abstract_empty = true;						
+											//console.info(this.abstract_key);		
 										}
-										else{
+										else if (this.abstract_empty !== true){ //get recognized values
 											this.abstract_key	= renderer.dom_factor[vtypec][0][0].key;	
+											//console.info('CURRENT COL', vtypec);
 											this.abstract_label = renderer.dom_factor[vtypec][0][0].label; 
 											this.abstract_empty = false;														
 										}
-										if (this.abstract_empty === false){
-											//console.info(document.getElementById('sheet_div').childNodes[1].childNodes[0].childNodes[R].childNodes[vtypec].childNodes[0].childNodes[0]);
-											document.getElementById('sheet_div').childNodes[1].childNodes[0].childNodes[R].childNodes[vtypec].childNodes[0].childNodes[0].choices.push('empty');
+										//add abstract option in a column that is in the table
+										if (this.abstract_empty === false){									
+											document.getElementById('page_table').parentElement.childNodes[1].childNodes[0].childNodes[0].childNodes[R].childNodes[vtypec].childNodes[0].childNodes[0].choices.push('empty_'+String(vtypec));
 											let padTrue = document.createElement('option'); 
-											padTrue.value = 'empty';
+											padTrue.value = 'empty_'+String(vtypec);
 											padTrue.innerHTML = 'empty';
-											document.getElementById('sheet_div').childNodes[1].childNodes[0].childNodes[R].childNodes[vtypec].childNodes[0].childNodes[0].appendChild(padTrue);
+											document.getElementById('page_table').parentElement.childNodes[1].childNodes[0].childNodes[0].childNodes[R].childNodes[vtypec].childNodes[0].childNodes[0].appendChild(padTrue);
 										}
 										selectOption.value = this.abstract_key;
 										tdLabelSelector.choices.push(this.abstract_key);
@@ -1316,7 +1423,11 @@ export default class renderWidget {
 											selectOption.defaultSelected = true;	
 											tdLabelSelector.prev = this.abstract_key;							
 										}
-										tdLabelSelector.appendChild(selectOption);
+										tdLabelSelector.appendChild(selectOption);						
+										//empty cell in traversed page can be proven false after leave				
+										if (typeof renderer.falsable_cells[idx][R][C] === 'undefined'){
+											renderer.falsable_cells[idx][R][C] = false; 									
+										}
 									}
 									catch (error){
 										console.info(error);
@@ -1329,25 +1440,39 @@ export default class renderWidget {
 								}			
 								tdLabelShiftDiv.appendChild(tdLabelSelector);
 								tdFieldSelector.appendChild(tdLabelShiftDiv);
-								document.getElementById('sheet_div').childNodes[1].childNodes[0].childNodes[R].appendChild(tdFieldSelector);	
+								tdFieldSelector.id='selectortd_empty';
+								//CHILDS WITH TDS OUTSIDE	
+								document.getElementById('page_table').childNodes[0].childNodes[0].childNodes[0].appendChild(tdFieldSelector);	
 								let tdDtypeCol = document.createElement('td');  
 								let dtypeColSpan = document.createElement('span');  
-								dtypeColSpan.id = 'dtype_'+String(C);  
-								dtypeColSpan.style = 'max-height: 144px;font-size: 12px;margin-right: 16px;margin-top: -4px;position: absolute;';
-								dtypeColSpan.style.marginLeft = String(parseInt(dtypeColSpan.style.marginLeft)-24)+'px';
-								tdDtypeCol.appendChild(dtypeColSpan);	
-								document.getElementById('sheet_div').childNodes[1].childNodes[0].childNodes[R+1].appendChild(tdDtypeCol);			
+								dtypeColSpan.id = 'dtype_'+String(C);  								
+								dtypeColSpan.style = 'margin-left: -192px; max-height: 144px;font-size: 12px;margin-right: 16px;/* margin-top: 32px; */position: relative;display: block;padding-left: 16px;';
+								if (parseInt(C) === (this.tableSize-1)){
+									dtypeColSpan.style.marginLeft = 'margin-left: -32px';
+								}
+								tdDtypeCol.appendChild(dtypeColSpan);				
+								document.getElementById('page_table').childNodes[0].childNodes[R].childNodes[1].appendChild(tdDtypeCol);	
        	  				}
        	  				else {
        	  					if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
        	  						document.getElementById('dtype_'+String(C)).innerHTML = String(typeof this.textbox.value);
        	  					}
        	  					if (0<parseInt(C)){
-       	  						document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
-									document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C)*16)+'px';
+       	  						if (typeof this.abstract_c !== 'undefined'){
+       	  							if (this.abstract_c === C){
+       	  								//document.getElementById('dtype_'+String(C)).style.marginLeft = '54px';
+       	  							}
+       	  							else if (this.abstract_c < C){
+       	  								//document.getElementById('dtype_'+String(C)).style.marginLeft = '54px';
+       	  							}
+       	  						}	
+       	  						else{
+       	  							document.getElementById('dtype_'+String(C)).style.marginLeft = '-32px';
+       	  						}
+									document.getElementById('dtype_'+String(C)).style.paddingLeft = '-32px';
        	  					}   
        	  					else{
-       	  						document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
+       	  						document.getElementById('dtype_'+String(C)).style.marginLeft = '-64px';
 									document.getElementById('dtype_'+String(C)).style.paddingLeft = '0px';
        	  					}   
        	  				}        	  				  
@@ -1361,12 +1486,15 @@ export default class renderWidget {
 	       	  			continue;  
 					   } 	
 		         	else if (renderer.dom_factor[C][0][0].critical === true){            	
-							if (v === ''){             	
+							if (v === ''){           
       		 	  			this.textbox = document.createElement('input');
        			  			this.textbox.type = 'text';
        			  			this.textbox.style = 'width: 150px;';
        		  				if (0 === C){
        		  					this.textbox.style.marginLeft = '-40px';
+       		  					if (0 === R){
+       		  						this.textbox.style.marginTop = '16px';
+       		  					}
        		  				}
 	       	  				errorCell(this.textbox); //coloriza campo crítico vacío
 	       	  				this.textbox.critical = 1;
@@ -1389,25 +1517,18 @@ export default class renderWidget {
 									renderer.tdCombined(e);       	  		
        	  					}	
        	  					this.textbox.isinvalid = true;
+								renderer.falsable_cells[idx][R][C] = true;       	  					
        	  					this.textbox.falsable = true;
        	  					this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
        	  					this.textbox.selecting = false;			
        	  					if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
        	  						document.getElementById('dtype_'+String(C)).innerHTML = 'Exception';
        	  					}
-       	  					if (0<C){
-       	  						//console.info((C+1)*128);
-       	  						document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
-       	  						document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
-       	  					}    
-       	  					else{
-       	  						document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
-       	  						document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
-       	  					}           	  
+       	  					document.getElementById('dtype_'+String(C)).style.marginLeft = '-32px';
        	  					errors_sum += 1;	
        	  					cells_sum += 1;
        	  					let tooltip = document.createElement('span');
-       	  					tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       	  					tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: -12px; margin-top: -40px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        	  					tooltip.style.left = '0px';
        	  					tooltip.style.top = '0px';
        	  					tooltip.innerHTML = renderer.dom_factor[C][0][0].error;
@@ -1452,11 +1573,16 @@ export default class renderWidget {
 	       	  				continue;  
 							}
 							else{
+								//console.info('CURRENT R', R); 
+								//console.info('CURRENT C', C);  								
       	 	  				this.textbox = document.createElement('input');
        		  				this.textbox.type = 'text';
        		  				this.textbox.style = 'width: 150px;';
        		  				if (0 === C){
        		  					this.textbox.style.marginLeft = '-40px';
+       		  					if (0 === R){
+       		  						this.textbox.style.marginTop = '16px';
+       		  					}       		  					
        		  				}
 	       	  				this.textbox.critical = 1;
        	  					if (typeof this.textbox.trying === 'undefined'){
@@ -1470,14 +1596,7 @@ export default class renderWidget {
        	  					if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
        	  						document.getElementById('dtype_'+String(C)).innerHTML = String(typeof this.textbox.value);
        	  					}
-       	  					if (0<parseInt(C)){
-       	  						document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
-									document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
-       	  					}    
-       	  					else{
-       	  						document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
-									document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
-       	  					}           	  					   	  					
+       	  					document.getElementById('dtype_'+String(C)).style.marginLeft = '-32px'; 	  					
        	  					this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
        	  					this.textbox.isinvalid = false;
        	  					this.textbox.falsable = false;
@@ -1506,6 +1625,8 @@ export default class renderWidget {
 		         		if (renderer.dom_factor[C][0][1].unique !== false){	
 		         			//console.info(renderer.dom_factor[C][0][0].childs);	         			   	    		           	
 								if (renderer.dom_factor[C][0][0].childs.includes(v)){            	
+									//console.info('CURRENT R', R); 
+									//console.info('CURRENT C', C);  
        							this.textbox = document.createElement('input');
        	  						this.textbox.type = 'text';
        	  						this.textbox.style = 'width: 150px;';    	  						
@@ -1514,6 +1635,9 @@ export default class renderWidget {
        	  						this.textbox.row = R;
        		  					if (0 === C){
        		  						this.textbox.style.marginLeft = '-40px';
+       		  						if (0 === R){
+       		  							this.textbox.style.marginTop = '16px';
+       		  						}       		  						
        		  					}
 	         					this.textbox.onchange = function (e){
 	         						//console.info('PROVING');
@@ -1534,25 +1658,18 @@ export default class renderWidget {
        	  						//console.info(renderer.dom_factor[C][0][0].error);
        	  						this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
        	  						this.textbox.isinvalid = true;
+       	  						renderer.falsable_cells[idx][R][C] = true;       
        	  						this.textbox.falsable = true;
 	       	  					this.textbox.unique = 1;       	  				
        	  						errorCell(this.textbox); //coloriza campo contenido duplicado   
        	  						if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
        	  							document.getElementById('dtype_'+String(C)).innerHTML = 'Exception';
        	  						}
-       	  						//console.info(C);
-       	  						if (0<C){
-       	  							document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
-										document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
-       	  						}    
-       	  						else{
-       	  							document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
-										document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
-       	  						}           	  
+       	  						document.getElementById('dtype_'+String(C)).style.marginLeft = '-32px';
 	       	  					errors_sum += 1;		       	
 	       	  					cells_sum += 1;	  					
        	  						let tooltip = document.createElement('span');
-       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-top: -40px; margin-left: -12px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        	  						tooltip.style.left = '0px';
        	  						tooltip.style.top = '0px';
        	  						tooltip.innerHTML = renderer.dom_factor[C][0][0].error;
@@ -1605,6 +1722,9 @@ export default class renderWidget {
        	  						this.textbox.row = R;
        		  					if (0 === C){
        		  						this.textbox.style.marginLeft = '-40px';
+       		  						if (0 === R){
+       		  							this.textbox.style.marginTop = '16px';
+       		  						}       		  						
        		  					}
 	         					this.textbox.onchange = function (e){
 	         						//console.info('PROVING');
@@ -1625,14 +1745,7 @@ export default class renderWidget {
 	       	  					if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
    	    	  						document.getElementById('dtype_'+String(C)).innerHTML = String(typeof this.textbox.value);
       	 	  					}
-       		  					if (0<parseInt(C)){
-       	  							document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
-										document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
-       	  						}           
-       		  					else{
-       	  							document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
-										document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
-       	  						}                  	  							 	  					
+       		  					document.getElementById('dtype_'+String(C)).style.marginLeft = '-32px';							 	  					
          						this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
          						this.textbox.isinvalid = false;
          						this.textbox.falsable = false;
@@ -1650,6 +1763,8 @@ export default class renderWidget {
                			//console.info(renderer.dom_factor[C]);
                			let matching = v.match(renderer.dom_factor[C][0][0].re);    
 								if (matching === null){        	
+									//console.info('CURRENT R', R); 
+									//console.info('CURRENT C', C);  
        			 				this.textbox = document.createElement('input');
        	  						this.textbox.type = 'text';
        	  						this.textbox.style = 'width: 150px;';
@@ -1657,6 +1772,9 @@ export default class renderWidget {
        	  						this.textbox.row = R;
        		  					if (0 === C){
        		  						this.textbox.style.marginLeft = '-40px';
+       		  						if (0 === R){
+       		  							this.textbox.style.marginTop = '16px';
+       		  						}       		  						
        		  					}
        	  						if (typeof this.textbox.trying === 'undefined'){
 										this.textbox.trying = [];       	  						
@@ -1679,23 +1797,16 @@ export default class renderWidget {
        	  						errors_sum += 1;
        	  						cells_sum += 1;	
        	  						this.textbox.isinvalid = true;
+       	  						renderer.falsable_cells[idx][R][C] = true;       
        	  						this.textbox.falsable = true;
       	 	  					this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
 	       	  					this.textbox.re = renderer.dom_factor[C][0][0].re;		
        	  						if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
        	  							document.getElementById('dtype_'+String(C)).innerHTML = 'Exception';
        	  						}
-       	  						
-       	  						if (0< C){
-       	  							document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
-										document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
-       	  						}    
-       	  						else{
-       	  							document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
-										document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
-       	  						}           	  
+       	  						document.getElementById('dtype_'+String(C)).style.marginLeft = '-32px';
        	  						let tooltip = document.createElement('span');
-       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 26px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: -12px; margin-top: -40px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        	  						tooltip.style.left = '0px';
        	  						tooltip.style.top = '0px';
        	  						tooltip.innerHTML = renderer.dom_factor[C][0][0].error;
@@ -1757,6 +1868,9 @@ export default class renderWidget {
        	  					}
        		  				if (0 === C){
        		  					this.textbox.style.marginLeft = '-40px';
+       		  					if (0 === R){
+       		  						this.textbox.style.marginTop = '16px';
+       		  					}       		  					
        		  				}
 	       	  				//console.info('ADDING VALID REGEX');
        	  					this.textbox.onfocus = function(e){
@@ -1775,14 +1889,7 @@ export default class renderWidget {
        	  						document.getElementById('dtype_'+String(C)).innerHTML = String(typeof this.textbox.value);
        	  					}
        	  					//console.info(C);
-       	  					if (0<parseInt(C)){
-       	  						document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
-									document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
-       	  					}     
-       	  					else{
-       	  						document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
-									document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
-       	  					}    
+       	  					document.getElementById('dtype_'+String(C)).style.marginLeft = '-32px';
        	  					cells_sum += 1;	
 	       	  				this.textbox.re = renderer.dom_factor[C][0][0].re;		      	  													
        	  					let tdDiv = document.createElement('td');
@@ -1801,6 +1908,9 @@ export default class renderWidget {
        	  				this.textbox.trying = [null];
        		  			if (0 === C){
        		  				this.textbox.style.marginLeft = '-40px';
+       		  				if (0 === R){
+       		  					this.textbox.style.marginTop = '16px';
+       		  				}       		  				
        		  			}
 	       	  			this.textbox.onchange = function (e){
 								renderer.excel_data[renderer.page][e.target.col][e.target.row] = e.target.value;
@@ -1817,14 +1927,7 @@ export default class renderWidget {
        	  				if (document.getElementById('dtype_'+String(C)).innerHTML === ''){
        	  					document.getElementById('dtype_'+String(C)).innerHTML = String(typeof this.textbox.value);
        	  				}
-       	  				if (0<parseInt(C)){
-       	  					document.getElementById('dtype_'+String(C)).style.marginLeft = String((C+1)*128)+'px';
-								document.getElementById('dtype_'+String(C)).style.paddingLeft = String((C+1)*16)+'px';
-       	  				}   
-       	  				else{
-       	  					document.getElementById('dtype_'+String(C)).style.marginLeft = '128px';
-								document.getElementById('dtype_'+String(C)).style.paddingLeft = '16px';
-       	  				}           	  				  
+       	  				document.getElementById('dtype_'+String(C)).style.marginLeft = '-32px';			  
          				this.textbox.isinvalid = false;
          				this.textbox.falsable = false;
       	  				this.textbox.selecting = false;
@@ -1836,41 +1939,61 @@ export default class renderWidget {
 					  }
 					 }
 					 else{
-						//console.info(v);					 
-						for (var page_row = 1; page_row < document.getElementById('sheet_div').childNodes.length; page_row++){
-							//console.info(document.getElementById('sheet_div').childNodes[page_row].childNodes[0]);
-							let page_td = document.getElementById('sheet_div').childNodes[page_row];
-							for (var page_col = 1; page_col < page_td.childNodes.length; page_col++){
-								if (ipage[R][C] === null){
-									continue;
-								}	
-								else if (typeof ipage[R][C] === 'undefined'){
-									continue;
-								}	
-								//console.info('PAGE ROW', page_row);	
-								//console.info('TRAVERSING VIRTUAL COL', C);
-								if (page_td.childNodes[C].childNodes[0].trying !== null){   
-									renderer.prove(page_td.childNodes[C].childNodes[0], page_td.childNodes[C].childNodes[0].col, page_td.childNodes[C].childNodes[0].row, idx);
-								} 
-								page_td.childNodes[C].childNodes[0].value = ipage[R][C];
-								page_td.childNodes[C].childNodes[0].innerHTML = ipage[R][C];
-								if (page_td.childNodes[C].childNodes[0].isinvalid === false){
-       	  						page_td.childNodes[C].childNodes[0].isinvalid = true;
-       	  					}
-								if (page_td.childNodes[C].childNodes[0].falsable === false){
-       	  						page_td.childNodes[C].childNodes[0].falsable = true;
-       	  					}
-       	  					page_td.childNodes[C].childNodes[0].err_msg = renderer.dom_factor[C][0][0].error;			
+						//console.info(v);		
+						if (this.page_shift === false){	
+							//skip things in table		 
+							for (var page_row = 1; page_row < document.getElementById('page_table').childNodes.length; page_row++){
+								//console.info(document.getElementById('sheet_div').childNodes[page_row].childNodes[0]);
+								let page_td = document.getElementById('page_table').childNodes[page_row];
+								for (var page_col = 1; page_col < page_td.childNodes.length; page_col++){ //seek cells
+									try{			
+										//traversing all virtual values		
+										if (ipage[page_row-1][page_col-1] === null){
+											continue;
+										}	
+										else if (typeof ipage[page_row-1][page_col-1] === 'undefined'){
+											continue;
+										}		
+										//console.info('SHIFTING PAGE', ipage);
+										//add virtual values in page columns
+										page_td.childNodes[page_col].childNodes[0].value = ipage[page_row-1][page_col-1];
+										page_td.childNodes[page_col].childNodes[0].innerHTML = ipage[page_row-1][page_col-1];																			
+										//set invalid attribute using the attribute with error
+										if (renderer.prev_exp < idx){
+											this.check_transversal = renderer.prev_exp;	//user did									
+										}
+										else{
+											this.check_transversal = idx; //user wants again
+										}
+										if (renderer.falsable_cells[this.check_transversal][page_row-1][page_col-1] === true){ //traversed value in field must be invalid
+											if (renderer.falsable_cells[idx][page_row-1][page_col-1] === false){
+       	  									page_td.childNodes[page_col].childNodes[0].isinvalid = false;
+       	  									page_td.childNodes[page_col].childNodes[0].falsable = false;											
+											}
+											else{
+												//VIRTUALLY UNFINISHED AT REQUESTING TRANSVERSAL
+       	  									page_td.childNodes[page_col].childNodes[0].isinvalid = true;
+       	  									page_td.childNodes[page_col].childNodes[0].falsable = true;
+       	  								}
+											renderer.prove(page_td.childNodes[page_col].childNodes[0], page_td.childNodes[page_col].childNodes[0].col, page_td.childNodes[page_col].childNodes[0].row, idx);
+       	  							}
+       	  						}
+       	  						catch (error){
+       	  							console.info(error);
+       	  						}				
+								}
 							}
+							this.page_shift = true;
+							this.prev_exp = idx;
 						}
 					 }   						  	
    	       }	
       		 catch (error){
       			console.info(error);
       		 }	  	  			
-       	 }
-       	 this.trs.push(trDiv); 
-			 if (trDiv.bad_row === true){
+       	}
+       	this.trs.push(trDiv); 
+			if (trDiv.bad_row === true){
 				for (var col = 0; col < trDiv.childNodes.length; col++){
 					if (trDiv.childNodes[col].isinvalid === false){
 						trDiv.childNodes[col].style.marginTop = '-16px';	
@@ -1881,11 +2004,10 @@ export default class renderWidget {
 						trDiv.childNodes[col].style.position = 'relative';				
 					}		
 				}		
-			 }       	 
+			}       	 
 		}
 		document.getElementById('error_sheets').innerHTML = errors_sum;
 		document.getElementById('total_sheets').innerHTML = cells_sum;
-		document.getElementById('select_all');
 		return this.trs;	
   	}
 
@@ -1895,21 +2017,24 @@ export default class renderWidget {
   			idx.style.backgroundColor = null;
   			idx.critical = 0;
   			idx.falsable = false;
-  			//console.info('VALID FIELD');
-			this.excel_data[Page][C][R] = idx.value;	 
+			this.excel_data[Page][R][C] = idx.value;	 
 			idx.isinvalid = false;
+			idx.isedited = false;
 			document.getElementById('error_sheets').innerHTML = String(parseInt(document.getElementById('error_sheets').innerHTML-1));
   		}
   		else{
 			idx.critical = 1;  		
 			errorCell(idx);  		
        	idx.falsable = true;
-       	this.excel_data[Page][C][R] = idx.value;	 
+       	//console.info('VALUE TO BE SWAPPED', this.excel_data[Page][R][C]);
+       	//console.info('VALUE', idx.value);       	
+       	renderer.falsable_cells[Page][R][C] = true;  
+       	this.excel_data[Page][R][C] = idx.value;	
+       	//console.info(this.excel_data); 
        	idx.isinvalid = true;	  
-       	//console.info('INVALID FIELD');    	
        	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
        		let tooltip = document.createElement('span');
-       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 168px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       		tooltip.style = 'margin-top: -40px; display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: -12px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        		tooltip.style.left = '0px';
        		tooltip.style.top = '0px';
        		tooltip.innerHTML = this.dom_factor[C][0][0].error;
@@ -1951,7 +2076,7 @@ export default class renderWidget {
 						} 
 					}
 					catch (error){
-						 //console.info(error);
+						 console.info(error);
 					}   
 				}	        								        	  					
     		}
@@ -1960,6 +2085,7 @@ export default class renderWidget {
     			//console.info(idx.falsable);
     			if (idx.falsable === false){
     				idx.falsable = true;
+    				renderer.falsable_cells[Page][R][C] = true;  
     			}
     		}
 			document.getElementById('error_sheets').innerHTML = String(parseInt(document.getElementById('error_sheets').innerHTML+1));
@@ -1983,22 +2109,23 @@ export default class renderWidget {
 			idx.unique = 1;  		
 			errorCell(idx);  
        	//idx.value = idx.err_msg;
-       	this.excel_data[Page][C][R] = idx.value;	 
+       	this.excel_data[Page][R][C] = idx.value;	 
        	idx.falsable = true;
+       	renderer.falsable_cells[Page][R][C] = true;  
        	idx.isinvalid = true;		
 			document.getElementById('error_sheets').innerHTML = String(parseInt(document.getElementById('error_sheets').innerHTML+1));       		
-       	console.info(typeof idx.parentElement.childNodes[1]);
-    		console.info(idx);
-    		console.info(idx.falsable);
+       	//console.info(typeof idx.parentElement.childNodes[1]);
+    		//console.info(idx);
+    		//console.info(idx.falsable);
        	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
        		let tooltip = document.createElement('span');
-       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 168px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: -12px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s; margin-top: -40px';	
        		tooltip.style.left = '0px';
        		tooltip.style.top = '0px';
        		tooltip.innerHTML = this.dom_factor[C][0][0].error;
        		tooltip.displayed = false;
-    			console.info(idx);
-    			console.info(idx.falsable);
+    			//console.info(idx);
+    			//console.info(idx.falsable);
     			idx.parentElement.appendChild(tooltip);	
     			idx.parentElement.onmouseover = function(e){
     				//console.info('HOVERING');
@@ -2042,15 +2169,17 @@ export default class renderWidget {
     			//console.info(idx.falsable);
     			if (idx.falsable === false){
     				idx.falsable = true;
+    				renderer.falsable_cells[Page][R][C] = true;  
     			}
     		}
   		}
   		else{
   			idx.style.backgroundColor = null;
   			idx.unique = 0;					
-			this.excel_data[Page][C][R] = idx.value;	 
+			this.excel_data[Page][R][C] = idx.value;	 
 			idx.falsable = false; 
-			idx.isinvalid = false;  
+			idx.isinvalid = false;
+			idx.isedited = false;  
 			document.getElementById('error_sheets').innerHTML = String(parseInt(document.getElementById('error_sheets').innerHTML-1));
   		}
 	}
@@ -2063,16 +2192,17 @@ export default class renderWidget {
 			idx.unique = 1;  		
 			errorCell(idx);  
        	//idx.value = idx.err_msg;	
-       	this.excel_data[Page][C][R] = idx.value;	 	
+       	this.excel_data[Page][R][C] = idx.value;	 	
        	idx.isinvalid = true;
        	idx.falsable = true;	
+       	renderer.falsable_cells[Page][R][C] = true;  
 			document.getElementById('error_sheets').innerHTML = String(parseInt(document.getElementById('error_sheets').innerHTML+1));
        	//console.info(typeof idx.parentElement.childNodes[1]);
     		//console.info(idx);
     		//console.info(idx.falsable);
        	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
        		let tooltip = document.createElement('span');
-       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: absolute; z-index: 100; left: 0px; top: 0px; margin-left: 168px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: -12px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s; margin-top: -40px';	
        		tooltip.style.left = '0px';
        		tooltip.style.top = '0px';
        		tooltip.innerHTML = this.dom_factor[C][0][0].error;
@@ -2123,15 +2253,17 @@ export default class renderWidget {
     			//console.info(idx.falsable);
     			if (idx.falsable === false){
     				idx.falsable = true;
+    				renderer.falsable_cells[Page][R][C] = true;  
     			}
     		}
   		}
   		else{		
   			idx.unique = 0;					
 			document.getElementById('error_sheets').innerHTML = String(parseInt(document.getElementById('error_sheets').innerHTML+1));
-			this.excel_data[Page][C][R] = idx.value;	    
+			this.excel_data[Page][R][C] = idx.value;	    
 			idx.isinvalid = false;
 			idx.falsable = false;
+			idx.isedited = false;
   			idx.style.backgroundColor = 'white';  
   			//console.info(idx);
   			//console.info(idx.style.backgroundColor);
@@ -2139,8 +2271,6 @@ export default class renderWidget {
 	}
 
 	prove(idx,C,R,Page) {
-		//console.info(idx);
-		//console.info(idx.target);
 		if (typeof idx.target !== 'undefined'){ //PROOF IS AN EVENT
 			this.proving = idx.target;			
 		}
@@ -2150,6 +2280,7 @@ export default class renderWidget {
 		else{
 			return null;		
 		}
+		//console.info('PROVING', this.proving);
 		for (var j = 0; j < this.proving.trying.length; j++) {
 			//console.info('TRYING', this.proving.trying);
 			if (this.proving.trying[j] === 'critical'){
