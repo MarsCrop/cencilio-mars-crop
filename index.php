@@ -305,7 +305,7 @@ div.scrollmenu a:hover {
 		</div>	
 		<script src='https://oss.sheetjs.com/sheetjs/shim.js'></script>
 		<script src='https://oss.sheetjs.com/sheetjs/xlsx.full.min.js'></script>
-		<script type='text/javascript' src='https://raw.githubusercontent.com/bpedro/node-fs/master/lib/fs.js'></script>
+		<script src='https://raw.githubusercontent.com/nodejs/node/0e03c449e35e4951e9e9c962ff279ec271e62010/lib/fs.js'></script>
 		<div id='cencilio-importer'></div>
 		<script type='module' src='http://localhost:1989/cencilio.js'>
 		</script>
