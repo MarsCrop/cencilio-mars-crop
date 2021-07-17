@@ -9,7 +9,6 @@
   * El módulo requiere una clave de Cencilio para su uso.
   * **SheetJS**: se utiliza SheetJS para interpretar el excel con las diferentes estructuras de validez de datos
   * **Shim**: algunos navegadores no contienen funciones necesarias para usar SheetJS sin dependencias. En ese caso debe agregarse
-  * **fs**: utilizada para guardar los datos cargados una vez creada la estructura en JSON
 
 ### Parametros de API
   Estos parametros sirven solamente si se quiere validar el uso de la app con una base de datos. La respuesta retorna con codigo en PHP :)
@@ -37,4 +36,4 @@
   * Se puede editar, verificar datos y estilizar la interfaz para una mejor visibilidad con especificando los parametros de validacion de los datos
   y de visualizacion de la interfaz como argumento del modulo (es indispensable especificar los parametros ya que el renderizador se carga una vez que estan 
   dadas las opciones).
-  * Con eso ya se puede cargar el documento y subir un archivo al contenedor que se carga en el documento para empezar a usar el editor :)
+  * Con eso ya se puede cargar el documento en un nuevo archivo y subir un archivo al contenedor que se carga en el documento para empezar a usar el editor :)
