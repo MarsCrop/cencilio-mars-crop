@@ -38,7 +38,7 @@ function errorCell(idx) {
 	/*Función que coloriza en rojo una celda
 	con placeholder de required inválido*/
   	if(typeof renderer.errorColor === 'undefined'){
-		idx.style.backgroundColor = 'red';
+		idx.style.backgroundColor = ' #F97F7F';
   	}
   	else{
   		idx.style.backgroundColor = renderer.errorColor;  	
@@ -155,14 +155,18 @@ function table_maker(Options, workbook){
 	  		renderer.sheetDiv = document.createElement('div');
 			renderer.sheetDiv.className='sheet_div'; 
 			renderer.sheetDiv.id='sheet_div'; 
-			renderer.sheetDiv.style='overflow-x: hidden; position: absolute;z-index: 4;top: 50%;padding: 16px;width: 72%;margin-left: 194px;border-radius: 4px;height: 80%;overflow-y: scroll;/* margin: 0; */-ms-transform: translateY(-50%);transform: translateY(-50%);border: 1px solid #DEDEDE;box-sizing: border-box;box-shadow: 0px 4px 38px rgba(0, 0, 0, 0.4);border-radius: 4px;';
+			renderer.sheetDiv.style='overflow-x: hidden; position: absolute;z-index: 4;top: 50%;padding: 16px;width: 72%;margin-left: 194px;border-radius: 4px;height: 80%;overflow-y: scroll;/* margin: 0; */-ms-transform: translateY(-50%);transform: translateY(-50%);border: 1px solid #DEDEDE;box-sizing: border-box;box-shadow: 0px 4px 38px rgba(0, 0, 0, 0.4);border-radius: 4px;';				
+	  		renderer.sheetDivChildStrong = document.createElement('strong');
+	  		renderer.sheetDivChildStrong.id = 'cencilio_file_name';
+			renderer.sheetDivChildStrong.style='font-family: "Gotham Black";margin-left: 32px;font-size: 18px;position: absolute;margin-top: 6px; display: inline-block;text-overflow: ellipsis;overflow: hidden;width: 222px;white-space: nowrap;';
+			renderer.sheetDivChildStrong.innerHTML = '';
 			//cencilio default background color
 			if (typeof Options['theme']['global']['backgroundColor'] === 'undefined'){
-				renderer.sheetDiv.style.backgroundColor = 'rgb(180, 178, 183)';
-				document.getElementById('raw_response_header').style.backgroundColor = 'rgb(180, 178, 183)';
-				document.getElementById('data_exported').style.backgroundColor = 'rgb(180, 178, 183)';
+				renderer.sheetDiv.style.backgroundColor = '#FFFFFF';
+				document.getElementById('raw_response_header').style.backgroundColor = '#FFFFFF';
+				document.getElementById('data_exported').style.backgroundColor = '#FFFFFF';
 				//document.getElementById('cencilio-importer').style.backgroundColor = 'repeating-linear-gradient(90deg, #9c989b, #c7c7c7 51%, #8a00c7) var(--x, 0)/ 400%';
-				document.getElementById('ppbutton').style.backgroundColor = 'repeating-linear-gradient(90deg, #9c989b, #c7c7c7 51%, #8a00c7) var(--x, 0)/ 400%';
+				document.getElementById('ppbutton').style.backgroundColor = '#FFFFFF';
 			}
 			else{ //cencilio user background color
 				if (Options['theme']['global']['backgroundColor'].length <= 7){
@@ -177,10 +181,9 @@ function table_maker(Options, workbook){
 			}
 			//cencilio default text color
 			if (typeof Options['theme']['global']['textColor'] === 'undefined'){
-				renderer.sheetDiv.style.color = '#9400d3';
-				document.getElementById('raw_response_header').style.color = '#9400d3';
-				document.getElementById('data_exported').style.color = '#9400d3';
-				document.getElementById('cencilio-importer').style.color = '#9400d3';
+				renderer.sheetDiv.style.color = '#07288C';
+				document.getElementById('raw_response_header').style.color = '#07288C';
+				document.getElementById('data_exported').style.color = '#07288C';
 			}
 			else{ //cencilio user text color
 				if (7 <= Options['theme']['global']['textColor'].length <= 9){
@@ -188,7 +191,7 @@ function table_maker(Options, workbook){
 						renderer.sheetDiv.style.color = Options['theme']['global']['textColor'];
 						document.getElementById('raw_response_header').style.color = Options['theme']['global']['textColor'];
 						document.getElementById('data_exported').style.color = Options['theme']['global']['textColor'];
-						document.getElementById('cencilio-importer').style.color = Options['theme']['global']['textColor'];
+						renderer.sheetDivChildStrong.style.color = Options['theme']['global']['textColor'];
 					}
 				}
 			}
@@ -198,11 +201,8 @@ function table_maker(Options, workbook){
  				document.getElementById('raw_response_header').style.fontFamily = Options['theme']['global']['fontFamily'];
  				document.getElementById('data_exported').style.fontFamily = Options['theme']['global']['fontFamily'];
  				document.getElementById('cencilio-importer').style.fontFamily = Options['theme']['global']['fontFamily'];
- 			} 				
-	  		renderer.sheetDivChildStrong = document.createElement('strong');
-	  		renderer.sheetDivChildStrong.id = 'cencilio_file_name';
-			renderer.sheetDivChildStrong.style='font-family: "Gotham Black";margin-left: 32px;font-size: 18px;position: absolute;margin-top: 6px;color: rgb(148, 0, 211);display: inline-block;text-overflow: ellipsis;overflow: hidden;width: 222px;white-space: nowrap;';
-			renderer.sheetDivChildStrong.innerHTML = '';
+ 				renderer.sheetDivChildStrong.style.color = Options['theme']['global']['fontFamily'];
+ 			} 
 			//cencilio default shadow color
 			if (typeof Options['theme']['global']['shadowColor'] === 'undefined'){
 				renderer.sheetDiv.style.boxShadow = 'rgb(210, 191, 241) 0px 2px 8px 5px;';
@@ -228,10 +228,10 @@ function table_maker(Options, workbook){
 				}
 			}
 	  		renderer.sheetDivGrandChildSpan = document.createElement('span');
-			renderer.sheetDivGrandChildSpan.style='max-height: 144px;margin-left: 276px;margin-top: -106px;position: absolute;';
+			renderer.sheetDivGrandChildSpan.style='max-height: 144px;margin-left: 256px;margin-top: -106px;position: absolute;';
 			renderer.sheetDivGrandChildSpan.innerHTML='Total:';
 	  		renderer.sheetDivGrandChildLabel = document.createElement('label');
-			renderer.sheetDivGrandChildLabel.style='max-height: 144px;margin-left: 318px;margin-top: -106px;position: absolute;';
+			renderer.sheetDivGrandChildLabel.style='max-height: 144px;margin-left: 300px;margin-top: -106px;position: absolute;';
 			renderer.sheetDivGrandChildLabel.id='total_sheets';
 			renderer.sheetDivGrandChildLabel.innerHTML = '0';
 	  		renderer.sheetDivGrandChildSpan2 = document.createElement('span');
@@ -329,8 +329,8 @@ function table_maker(Options, workbook){
 			//default primary button color
 			//console.info(Options['theme']['global']['primaryButtonColor']);
 			if (typeof Options['theme']['global']['primaryButtonColor'] === 'undefined'){
-				renderer.sheetDivGrandChildButton.style.backgroundColor = 'blue';
-				document.getElementById('close_button').style.backgroundColor = 'blue';
+				renderer.sheetDivGrandChildButton.style.backgroundColor = '#07288C';
+				document.getElementById('close_button').style.backgroundColor = '#07288C';
 			}
 			else{ //user primary button color
 				if (7 <= Options['theme']['global']['primaryButtonColor'].length <= 9){
@@ -342,7 +342,7 @@ function table_maker(Options, workbook){
 			}
 			//cencilio default primary text color
 			if (typeof Options['theme']['global']['primaryTextColor'] === 'undefined'){
-				renderer.sheetDivGrandChildButtonLabel.style.color = 'darkviolet';
+				renderer.sheetDivGrandChildButtonLabel.style.color = '#FFFFFF';
 			}
 			else{ //cencilio user primary text color
 				if (7 <= Options['theme']['global']['primaryTextColor'].length <= 9){
@@ -593,12 +593,12 @@ function table_maker(Options, workbook){
 					//console.info(sheet);
 	  				for(var vtypei = 0; vtypei <= colsize; ++vtypei) {
 						let tdLabelShiftDiv = document.createElement('div');  
-						tdLabelShiftDiv.style = 'max-height: 144px;font-size: 12px;margin-right: 16px;position: relative;width: 80px;margin-left: 54px; margin-top: -16px';
+						tdLabelShiftDiv.style = 'max-height: 144px;font-size: 12px;margin-right: 16px;position: relative;width: 80px; margin-top: -16px';
 						if (vtypei !== 0){
 							tdLabelShiftDiv.style.marginLeft = '54px';					
 						}
 						else{
-							tdLabelShiftDiv.style.marginLeft = '125px';							
+							tdLabelShiftDiv.style.marginLeft = '50px';							
 						}
 						let tdLabelSelector = document.createElement('select');  
 						tdLabelSelector.id='select_all_selector_'+String(vtypei); 
@@ -692,7 +692,8 @@ function table_maker(Options, workbook){
 			let closeRenderer = document.createElement('button');
 			closeRenderer.style = 'position: absolute;margin-top: -442px;z-index: 1000;border-radius: 8px;background-color: white;border: 0px;width: 27px;height: 27px;';
 			closeRenderer.onclick = function(e){
-				document.getElementById('sheet_div').remove();			
+				document.getElementById('sheet_div').remove();		
+				renderer.set_virtual = true; //user decides to rebuild context	
 			}
 			closeRenderer.id = 'close_sheet';
 			let closeImg = document.createElement('img');
@@ -707,7 +708,9 @@ function table_maker(Options, workbook){
 			document.body.appendChild(renderer.sheetDiv);
 			document.getElementById('sheet_div').appendChild(closeRenderer);	
 			renderer.prev_exp = 0; //start transversal		
+			console.info('LOADING TABLE WITH FACTORS');
 	   	let sheet1 = renderer.loadTable(0);	
+	   	console.info(sheet1);
 	   	for (var s = 0; s < sheet1.length; s++) {
 	   		document.getElementById('page_table').appendChild(sheet1[s]);	
 	   	}
@@ -753,6 +756,7 @@ function renderFun(file, config){
 	  		//console.info(range);
 			//USER BASED
 			//console.info(config);			
+			console.info('MAKING TABLE');
 			table_maker(config, workbook);
 		};		
     	reader.onerror = function (e) {
@@ -798,6 +802,7 @@ function renderFun(file, config){
 
 export default class renderWidget {
   constructor(file,config) {
+  		console.info('CONFIGURING');
 		document.write('<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/​libs/xlsx/0.15.6/xlsx.full.min.js"></script>');
 		//this.file = document.getElementById('profpic').files[0];
 		this.config = config;	
@@ -828,9 +833,27 @@ export default class renderWidget {
   			} else {
     			var file = ev.dataTransfer.files[0];
   				//console.info(config);
+  				console.info('RENDERING');
 				renderFun(file,config);    	
   			}				
 		};
+		if (typeof config['theme'] === 'undefined'){
+			config['theme'] = {
+        				global: {
+              			backgroundColor: '#FFFFFF',
+              			textColor: '#07288C',
+              			primaryTextColor: '#FFFFFF',
+              			primaryButtonColor: '#07288C',
+              			errorColor: '#F97F7F'
+            		}
+    				}
+		}
+		if (typeof config['theme']['global']['textColor'] === 'undefined'){
+			document.getElementById('cencilio-importer').style.color = '#07288C';
+		}
+		else{
+			document.getElementById('cencilio-importer').style.color = config['theme']['global']['textColor'];
+		}	
 		let draggerForm = document.createElement('form');	
 		draggerForm.className = 'pimg';
 		draggerForm.id = 'pimg';
@@ -866,12 +889,19 @@ export default class renderWidget {
 		};
 		draggerInput.onchange = function (e) { 
 			renderer.file_name = this.files[0].name;
+			console.info('CONFIGURING');
 			renderFun(this.files[0], config);
 		}; 					
 		excelButton.onclick = function (e) { 
 			uploadxls();
 		}; 				
-		excelButton.style = 'width: 465px;height: 282px;margin-top: 140px;position: absolute;opacity: 0.3;border: 2px dashed lightyellow;margin-left: -340px;'; 	
+		excelButton.style = 'width: 465px;height: 282px;margin-top: 140px;position: absolute;opacity: 0.3; border: 2px dashed #31311b; margin-left: -340px;'; 	
+		if (typeof config['theme']['global']['backgroundColor'] === 'undefined'){
+			excelButton.style.backgroundColor = '#FFFFFF';
+		}
+		else{
+			excelButton.style.backgroundColor = config['theme']['global']['backgroundColor'];
+		}	
 		dragger.appendChild(draggerLabel);
 		dragger.appendChild(excelButton);		
 		let dataExportDiv = document.createElement('div');
@@ -954,6 +984,7 @@ export default class renderWidget {
 		document.body.appendChild(progressBarDiv);
 		document.body.appendChild(dragger);
 		document.body.appendChild(headerDiv);
+		console.info('DEFINING OTHER PARAMETERS');
 		//importer graphics are defined after the dragger
 		renderDOM(document, config['theme'], config['height'], config['width']); 
  		if (typeof config['theme']['global']['errorColor'] !== 'undefined'){
@@ -1344,8 +1375,9 @@ export default class renderWidget {
 		let errors_sum = 0;
 		this.trs = [];
 		renderer.page = idx;
-		//console.info('LOADING PAGE', renderer.page);
-		//console.info('CAN SHIFT PAGE', renderer.page_shift);
+		console.info('LOADING PAGE', renderer.page);
+		console.info('CAN SHIFT PAGE', renderer.page_shift);
+		console.info(ipage);
   		for (var R = 0; R < ipage.length; R++) {
 	      let trDiv = document.createElement('tr');
 	      let tdDiv = document.createElement('td');
@@ -1413,7 +1445,7 @@ export default class renderWidget {
        	  				this.textbox.col = C;
        	  				this.textbox.row = R;
        		  			if (0 === C){
-       		  				this.textbox.style.marginLeft = '-40px';
+       		  				this.textbox.style.marginLeft = '-114px';
        		  			}
 	       	  			this.textbox.onchange = function (e){
 								if (typeof e.value !== 'undefined'){
@@ -1571,7 +1603,7 @@ export default class renderWidget {
        			  			this.textbox.type = 'text';
        			  			this.textbox.style = 'width: 150px;';
        		  				if (0 === C){
-       		  					this.textbox.style.marginLeft = '-40px';
+       		  					this.textbox.style.marginLeft = '-114px';
        		  					if (0 === R){
        		  						this.textbox.style.marginTop = '16px';
        		  					}
@@ -1621,7 +1653,7 @@ export default class renderWidget {
        	  					errors_sum += 1;	
        	  					cells_sum += 1;
        	  					let tooltip = document.createElement('span');
-       	  					tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: 24px; margin-top: -40px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       	  					tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: -88px; margin-top: -40px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        	  					tooltip.style.left = '0px';
        	  					tooltip.style.top = '0px';
        	  					tooltip.innerHTML = renderer.dom_factor[C][0][0].error;
@@ -1672,7 +1704,7 @@ export default class renderWidget {
        		  				this.textbox.type = 'text';
        		  				this.textbox.style = 'width: 150px;';
        		  				if (0 === C){
-       		  					this.textbox.style.marginLeft = '-40px';
+       		  					this.textbox.style.marginLeft = '-114px';
        		  					if (0 === R){
        		  						this.textbox.style.marginTop = '16px';
        		  					}       		  					
@@ -1740,7 +1772,7 @@ export default class renderWidget {
        	  						this.textbox.col = C;
        	  						this.textbox.row = R;
        		  					if (0 === C){
-       		  						this.textbox.style.marginLeft = '-40px';
+       		  						this.textbox.style.marginLeft = '-114px';
        		  						if (0 === R){
        		  							this.textbox.style.marginTop = '16px';
        		  						}       		  						
@@ -1788,7 +1820,7 @@ export default class renderWidget {
 	       	  					errors_sum += 1;		       	
 	       	  					cells_sum += 1;	  					
        	  						let tooltip = document.createElement('span');
-       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-top: -40px; margin-left: 24px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-top: -40px; margin-left: -88px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        	  						tooltip.style.left = '0px';
        	  						tooltip.style.top = '0px';
        	  						tooltip.innerHTML = renderer.dom_factor[C][0][0].error;
@@ -1840,7 +1872,7 @@ export default class renderWidget {
        	  						this.textbox.col = C;
        	  						this.textbox.row = R;
        		  					if (0 === C){
-       		  						this.textbox.style.marginLeft = '-40px';
+       		  						this.textbox.style.marginLeft = '-114px';
        		  						if (0 === R){
        		  							this.textbox.style.marginTop = '16px';
        		  						}       		  						
@@ -1910,7 +1942,7 @@ export default class renderWidget {
        	  						this.textbox.col = C;
        	  						this.textbox.row = R;
        		  					if (0 === C){
-       		  						this.textbox.style.marginLeft = '-40px';
+       		  						this.textbox.style.marginLeft = '-114px';
        		  						if (0 === R){
        		  							this.textbox.style.marginTop = '16px';
        		  						}       		  						
@@ -1960,7 +1992,7 @@ export default class renderWidget {
        	  							document.getElementById('dtype_'+String(C)).style.marginLeft = '-32px';
        	  						}
        	  						let tooltip = document.createElement('span');
-       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: 24px; margin-top: -40px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       	  						tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: -88px; margin-top: -40px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        	  						tooltip.style.left = '0px';
        	  						tooltip.style.top = '0px';
        	  						tooltip.innerHTML = renderer.dom_factor[C][0][0].error;
@@ -2022,7 +2054,7 @@ export default class renderWidget {
 									}	
        	  					}
        		  				if (0 === C){
-       		  					this.textbox.style.marginLeft = '-40px';
+       		  					this.textbox.style.marginLeft = '-114px';
        		  					if (0 === R){
        		  						this.textbox.style.marginTop = '16px';
        		  					}       		  					
@@ -2074,7 +2106,7 @@ export default class renderWidget {
        	  				this.textbox.row = R;
        	  				this.textbox.trying = [null];
        		  			if (0 === C){
-       		  				this.textbox.style.marginLeft = '-40px';
+       		  				this.textbox.style.marginLeft = '-114px';
        		  				if (0 === R){
        		  					this.textbox.style.marginTop = '16px';
        		  				}       		  				
@@ -2221,7 +2253,7 @@ export default class renderWidget {
        	idx.isinvalid = true;	  
        	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
        		let tooltip = document.createElement('span');
-       		tooltip.style = 'margin-top: -40px; display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: 24px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
+       		tooltip.style = 'margin-top: -40px; display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: -88px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s;';	
        		tooltip.style.left = '0px';
        		tooltip.style.top = '0px';
        		tooltip.innerHTML = this.dom_factor[C][0][0].error;
@@ -2306,7 +2338,7 @@ export default class renderWidget {
     		//console.info(idx.falsable);
        	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
        		let tooltip = document.createElement('span');
-       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: 24px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s; margin-top: -40px';	
+       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: -88px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s; margin-top: -40px';	
        		tooltip.style.left = '0px';
        		tooltip.style.top = '0px';
        		tooltip.innerHTML = this.dom_factor[C][0][0].error;
@@ -2390,7 +2422,7 @@ export default class renderWidget {
     		//console.info(idx.falsable);
        	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
        		let tooltip = document.createElement('span');
-       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: 24px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s; margin-top: -40px';	
+       		tooltip.style = 'display: none; border: 2px solid rgb(49, 71, 84); border-radius: 5px; box-shadow: rgb(51, 51, 51) 5px 5px 5px; color: rgb(248, 250, 135); padding: 3px; width: 100px; position: relative; z-index: 100; left: 0px; top: 0px; margin-left: -88px; background-color: black; height: 30px; overflow: hidden; font-size: 7px; transition: opacity 6s ease-in-out 0s; margin-top: -40px';	
        		tooltip.style.left = '0px';
        		tooltip.style.top = '0px';
        		tooltip.innerHTML = this.dom_factor[C][0][0].error;
@@ -2489,4 +2521,4 @@ function uploadxls(){
 	document.getElementById('pIn').click();
 };
 
-let renderer = new renderWidget(document.getElementById('cecilio-importer'), options);				
+let renderer = new renderWidget(document.getElementById('cecilio-importer'), options);		
