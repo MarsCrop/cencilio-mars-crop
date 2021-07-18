@@ -387,15 +387,14 @@ div.scrollmenu a:hover {
               			]
               		},
           		],
-    				theme: {
-        				global: {
-              			backgroundColor: '#B4B2B7',
-              			textColor: '#6500d3d1',
-              			primaryTextColor: '#ffffffff',
-              			primaryButtonColor: '#d6d6e029',
-              			errorColor: '#ff0000'
-            		}
-    				},          		
+    				//theme: {
+        			//	global: {
+              	//		backgroundColor: '#B4B2B7',
+              	//		primaryTextColor: '#ffffffff',
+              	//		primaryButtonColor: '#d6d6e029',
+              	//		errorColor: '#ff0000'
+            	//	}
+    				//},          		
     				height: 200,
     				width: 300,
   				};
