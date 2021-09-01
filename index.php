@@ -293,16 +293,6 @@ div.scrollmenu a:hover {
     <title>Cencilio</title>
 </head>
 	<body class='profile_body' style=background-repeat: no-repeat; background-attachment: fixed; background-size: 100% 100%;'>
-		<font color = 'white'>			
-		<div class='umenu' style='display:none; justify-content:center;margin-left: -870px;max-width: 500px;margin-top: 16px;'>
-			<div id='player'>
-				<div class= 'vtitle' style='background-color: rgb(138, 82, 231);box-shadow: rgb(138, 82, 231) 0px 2px 8px 5px;position: absolute;z-index: 4;display: block;width: 20%;margin-top: -20px;margin-left: 620px;height: 80px;'>
-					<img src='lista.png' style='height: 36px;width: 36px;margin-top: 16px;margin-left: 40px;'>
-					<button type='button' id='contact' name='contact' class='contact' style='background: transparent;height: 52px;width: 52px;border-width: 0px;margin-top: 12px;margin-left: 816px;'></button>				
-   				<hr style='margin-top: -64px;/* background-color: #ebe6f3; */background-color: #737275f5;border-width: 0px;height: 8px;/* margin-bottom: 3%; */width: 16%;margin-left: 19px;position: absolute;' class='perfil_hr'></hr>
-				</div>	
-			<!--TAGS FROM MODULE-->
-		</div>	
 		<script src='https://oss.sheetjs.com/sheetjs/shim.js'></script>
 		<script src='https://oss.sheetjs.com/sheetjs/xlsx.full.min.js'></script>
 		<script src='https://raw.githubusercontent.com/nodejs/node/0e03c449e35e4951e9e9c962ff279ec271e62010/lib/fs.js'></script>
@@ -352,40 +342,88 @@ div.scrollmenu a:hover {
     			//	width: 300,
   				//};
   				var options = {
+  					//apiKey: '0303456',
     				apiKey: '1625962363888x457774068936559500',
     				userId: 'miusuari',
     				fields:[
-            		{ label: 'Paqueteria', key: 'paqueteria',
-              			validators:[
+            		{ label: 'Fecha de orden', key: 'fecha',
+            		   validators:[
                 			{
                   			validate: 'required',
-                  			error: 'Error de valor: la empresa no puede ser desconocida'
+                  			error: 'Error de valor: la fecha no puede ser desconocida'
                 			}
-              			]},
-            		{ label: 'Precio de guia', key: 'precio'},
-            		{ label: 'Precio de entrega en zona extendida', key: 'precio_entrega' },
-            		{ label: 'Precio de recoleccion en zona extendida', key: 'precio_recoleccion' },
-            		{ label: 'Precio de sobrepeso', key: 'precio_sobrepeso' },
-            		{ label: 'Precio de asegurar', key: 'precio_asegurar' },
-            		{ label: 'Fecha de creacion', key: 'creada' },
-            		{ label: 'Nombre del cliente', key: 'cliente'},
-            		{ label: 'Codigo postal', key: 'postal', 
+              			]                    		
+            		},
+            		{ label: 'Region', key: 'region',
+              			//validators:[
+                		//	{
+                  	//		validate: 'unique',
+                  	//		error: 'Error de destino unico.'
+                		//	}
+              			//]               		
+            		},
+            		{ label: 'Representa', key: 'rep',
+              			//validators:[
+                		//	{
+                  	//		validate: 'unique',
+                  	//		error: 'Error de correspondencia: no puede haber igual'
+                		//	}
+              			//]            		
+            		},
+            		{ label: 'Item', key: 'item' },
+            		{ label: 'Unidades', key: 'unidades'},
+            		{ label: 'Costo de unidades', key: 'unit_cost',
+              			//validators:[
+              			//	{
+                  	//		validate: 'required',
+                  	//		error: 'Falta informacion: no puede faltar el costo de unidad.'
+                		//	}
+              			//]
               			validators:[
-                			{
-                  			validate: 'regex_match',
-                  			regex: '^\\d{1,10}$',
-                  			error: 'Error de sintaxis: direccion postal erronea'
-                			}
-              			]
-              		},            		
-            		{ label: 'Numero de rastreo', key: 'rastreo',
-              			validators:[
-                			{
+              				{
                   			validate: 'unique',
-                  			error: 'Error de correspondencia: el rastreo esta asociado a otra persona'
+                  			error: 'Error de correspondencia: esta columna no guarda precios fijos.'
                 			}
               			]
+              			//validators:[
+              			//	{
+                  	//		validate: 'regex_match',
+                  	//		regex: '^\d+(\.\d+)?$',
+                  	//		error: 'Error de sintaxis: el costo no se expresa en numeros.'
+                		//	}
+              			//]
               		},
+            		{ label: 'Costo', key: 'cost',
+              			validators:[
+              				{
+                  			validate: 'regex_match',
+                  			regex: '(.*)USD(.*)',
+                  			error: 'Error de sintaxis: el costo no se expresa como precio.'
+                			}
+              			]
+              			//validators:[
+                		//	{
+                  	//		validate: 'required',
+                  	//		error: 'Error de costo total: el valor esta ausente'
+                		//	}
+              			//]   
+              		},
+            		//{ label: 'Codigo postal', key: 'postal'},            		
+            		//{ label: 'Numero de rastreo', key: 'rastreo'},
+            		//{ label: 'Lugar de envio', key: 'lugar'},
+            		//{ label: 'Vista de bulto', key: 'bulto_view'},
+            		//{ label: 'Edad de emisorx', key: 'edad' },
+            		//{ label: 'Altura de bulto (pies)', key: 'pieshpi',
+              		//	validators:[
+                	//		{
+                  //			validate: 'regex_match',
+                  //			regex: '^\d+(\.\d+)?$',
+                  //			error: 'Error de sintaxis: el valor debe estar en pies.'
+                	//		}
+              		//	]
+              		//},
+            		//{ label: 'Altura de bulto (en pulgadas)', key: 'pieshpu'},
+            		//{ label: 'BMI', key: 'imc' },
           		],
     				//theme: {
         			//	global: {
@@ -397,6 +435,8 @@ div.scrollmenu a:hover {
     				//},          		
     				height: 200,
     				width: 300,
+    				//timestamps: [0],
+    				//timestamps: [1],
   				};
 		</script>
 	</body>
