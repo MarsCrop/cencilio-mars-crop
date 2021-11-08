@@ -3,7 +3,9 @@
 	ini_set('session.cookie_httponly', 0);
 	ini_set('session.cookie_secure', 1);
 	ini_set('session.cookie_samesite', 'Strict');
-
+  // header('Access-Control-Allow-Origin: *');
+   //header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+   //header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
 echo "<!DOCTYPE html><html class='perfil_html' lang='en'>
 <script>
   function addActive(x) {
@@ -258,11 +260,6 @@ div.scrollmenu a:hover {
     <script src='https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.3.4/wavesurfer.min.js'></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.3.4/wavesurfer.js'></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.3.4/plugin/wavesurfer.regions.min.js'></script>
-    <link rel='stylesheet' type='text/css' href='vendors/css/normalize.css'>
-    <link rel='stylesheet' type='text/css' href='vendors/css/ionicons.min.css'>
-    <link rel='stylesheet' type='text/css' href='resources/css/layout.css'>
-    <link rel='stylesheet' type='text/css' href='resources/css/style.css'>
-    <link rel='stylesheet' href='resources/css/queries.css'>
     <link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,300italic' rel='stylesheet' type='text/css'>
     <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.5.0/nouislider.css'>
@@ -275,17 +272,11 @@ div.scrollmenu a:hover {
 		@font-face {font-family: 'Gotham';
     		src: url('https://db.onlinewebfonts.com/t/3a47f5f06b5484abfeee9eac90348a9c.eot'); /* IE9*/
     		src: url('https://db.onlinewebfonts.com/t/3a47f5f06b5484abfeee9eac90348a9c.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-    		url('https://db.onlinewebfonts.com/t/3a47f5f06b5484abfeee9eac90348a9c.woff2') format('woff2'), /* chrome firefox */
-    		url('https://db.onlinewebfonts.com/t/3a47f5f06b5484abfeee9eac90348a9c.woff') format('woff'), /* chrome firefox */
-    		url('https://db.onlinewebfonts.com/t/3a47f5f06b5484abfeee9eac90348a9c.ttf') format('truetype'), /* chrome firefox opera Safari, Android, iOS 4.2+*/
     		url('https://db.onlinewebfonts.com/t/3a47f5f06b5484abfeee9eac90348a9c.svg#Gotham') format('svg'); /* iOS 4.1- */
 		}
 		@font-face {font-family: 'IXOXQV Gotham-Bold';
     		src: url('https://db.onlinewebfonts.com/t/bccb40f0cd0dc224c4f507aec17396b0.eot'); /* IE9*/
     		src: url('https://db.onlinewebfonts.com/t/bccb40f0cd0dc224c4f507aec17396b0.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-    		url('https://db.onlinewebfonts.com/t/bccb40f0cd0dc224c4f507aec17396b0.woff2') format('woff2'), /* chrome firefox */
-    		url('https://db.onlinewebfonts.com/t/bccb40f0cd0dc224c4f507aec17396b0.woff') format('woff'), /* chrome firefox */
-    		url('https://db.onlinewebfonts.com/t/bccb40f0cd0dc224c4f507aec17396b0.ttf') format('truetype'), /* chrome firefox opera Safari, Android, iOS 4.2+*/
     		url('https://db.onlinewebfonts.com/t/bccb40f0cd0dc224c4f507aec17396b0.svg#IXOXQV Gotham-Bold') format('svg'); /* iOS 4.1- */
 		}		
     </style>
@@ -297,147 +288,123 @@ div.scrollmenu a:hover {
 		<script src='https://oss.sheetjs.com/sheetjs/xlsx.full.min.js'></script>
 		<script src='https://raw.githubusercontent.com/nodejs/node/0e03c449e35e4951e9e9c962ff279ec271e62010/lib/fs.js'></script>
 		<div id='cencilio-importer'></div>
-		<script type='module' src='http://localhost:1989/cencilio.js'>
+		<script type='module' src='http://localhost:10000/cencilio.js'>
 		</script>
 		<script>	
-				//* Dev example	
-  				//var options = {
-    			//	apiKey: '6c6fc060b8be905fbf81537fe19b161c',
-    			//	fields:[
-            //		{ label: 'Activos', key: 'acciones',
-            //  			validators:[
-            //    			{
-            //      			validate: 'required',
-            //      			error: 'Error de valor: el valor de los activos no puede quedar vacío'
-            //    			}
-            //  			]},
-            //		{ label: 'Nombre de accionista', key: 'accionista' ,
-            //  			validators:[
-            //    			{
-            //      			validate: 'unique',
-            //      			error: 'Error de tipo: el nombre no puede pertenecer a otro que produce activos'
-            //    			}
-            //  			]},
-            //		{ label: 'Edad', key: 'edad' },
-            //		{ label: 'Profesion', key: 'profesion',
-            //  			validators:[
-            //    			{
-            //      			validate: 'regex_match',
-            //      			regex: '^\\d{1,10}$',
-            //      			error: 'Error de correspondencia: la profesion no se ejerce para producir los activos'
-            //    			}
-            //  			]},
-            //		{ label: 'Carrera universitaria', key: 'carrera' },
-          	//	],
-    			//	theme: {
-        		//		global: {
-            //  			backgroundColor: '#B4B2B7',
-            //  			textColor: '#6500d3d1',
-            //  			primaryTextColor: '#9400d3',
-            //  			primaryButtonColor: '#0000ff',
-            //  			errorColor: '#ff0000'
-            //		}
-    			//	},          		
-    			//	height: 200,
-    			//	width: 300,
-  				//};
-  				var options = {
-  					//apiKey: '0303456',
-    				apiKey: '1625962363888x457774068936559500',
-    				userId: 'miusuari',
-    				fields:[
-            		{ label: 'Fecha de orden', key: 'fecha',
-            		   validators:[
-                			{
-                  			validate: 'required',
-                  			error: 'Error de valor: la fecha no puede ser desconocida'
-                			}
-              			]                    		
-            		},
-            		{ label: 'Region', key: 'region',
-              			//validators:[
-                		//	{
-                  	//		validate: 'unique',
-                  	//		error: 'Error de destino unico.'
-                		//	}
-              			//]               		
-            		},
-            		{ label: 'Representa', key: 'rep',
-              			//validators:[
-                		//	{
-                  	//		validate: 'unique',
-                  	//		error: 'Error de correspondencia: no puede haber igual'
-                		//	}
-              			//]            		
-            		},
-            		{ label: 'Item', key: 'item' },
-            		{ label: 'Unidades', key: 'unidades'},
-            		{ label: 'Costo de unidades', key: 'unit_cost',
-              			//validators:[
-              			//	{
-                  	//		validate: 'required',
-                  	//		error: 'Falta informacion: no puede faltar el costo de unidad.'
-                		//	}
-              			//]
-              			validators:[
-              				{
-                  			validate: 'unique',
-                  			error: 'Error de correspondencia: esta columna no guarda precios fijos.'
-                			}
-              			]
-              			//validators:[
-              			//	{
-                  	//		validate: 'regex_match',
-                  	//		regex: '^\d+(\.\d+)?$',
-                  	//		error: 'Error de sintaxis: el costo no se expresa en numeros.'
-                		//	}
-              			//]
-              		},
-            		{ label: 'Costo', key: 'cost',
-              			validators:[
-              				{
-                  			validate: 'regex_match',
-                  			regex: '(.*)USD(.*)',
-                  			error: 'Error de sintaxis: el costo no se expresa como precio.'
-                			}
-              			]
-              			//validators:[
-                		//	{
-                  	//		validate: 'required',
-                  	//		error: 'Error de costo total: el valor esta ausente'
-                		//	}
-              			//]   
-              		},
-            		//{ label: 'Codigo postal', key: 'postal'},            		
-            		//{ label: 'Numero de rastreo', key: 'rastreo'},
-            		//{ label: 'Lugar de envio', key: 'lugar'},
-            		//{ label: 'Vista de bulto', key: 'bulto_view'},
-            		//{ label: 'Edad de emisorx', key: 'edad' },
-            		//{ label: 'Altura de bulto (pies)', key: 'pieshpi',
-              		//	validators:[
-                	//		{
-                  //			validate: 'regex_match',
-                  //			regex: '^\d+(\.\d+)?$',
-                  //			error: 'Error de sintaxis: el valor debe estar en pies.'
-                	//		}
-              		//	]
-              		//},
-            		//{ label: 'Altura de bulto (en pulgadas)', key: 'pieshpu'},
-            		//{ label: 'BMI', key: 'imc' },
-          		],
-    				//theme: {
-        			//	global: {
-              	//		backgroundColor: '#B4B2B7',
-              	//		primaryTextColor: '#ffffffff',
-              	//		primaryButtonColor: '#d6d6e029',
-              	//		errorColor: '#ff0000'
-            	//	}
-    				//},          		
-    				height: 200,
-    				width: 300,
-    				//timestamps: [0],
-    				//timestamps: [1],
-  				};
+				//* Dev example: notice how backlash is used as part of the options instance and not as argument of RegExp	
+				//try{
+  					var options = {
+  						//apiKey: '0303456',
+    					apiKey: '1625962363888x457774068936559500',
+    					userId: 'miusuari',
+    					fields:[
+            			{ label: 'Fecha de orden', key: 'fecha',
+              				validators:[
+              					{
+                  				validate: 'regex_match', //numeros decimales positivos y negativos
+                  				regex: 'd{1,2}-d{1,2})-d{2})',
+                  				error: 'Formato invalido de fecha (dd-mm-yy)'
+                				}
+              				]             		
+            			},
+            			{ label: 'Region', key: 'zona',          		
+              				validators:[
+              					{
+                  				validate: 'regex_match', //numeros enteros
+                  				regex: 'd+',
+                  				error: 'Solo numeros enteros'
+                				}
+              				]     
+            			},
+            			{ label: 'Representa', key: 'rep',          		
+              				validators:[
+              					{
+                  				validate: 'regex_match', //secuencias alfanumericas espaciadas
+                  				regex: '[A-Za-z0-9s]',
+                  				error: 'El nombre del representante debe estar completo'
+                				}
+              				]     
+            			},
+            			{ label: 'Item', key: 'item',
+              				validators:[
+              					{
+                  				validate: 'regex_match', //secuencias alfanumericas sin espacio
+                  				regex: '[A-Za-z0-9]',
+                  				error: 'Solo caracteres alfanumericos'
+                				}
+              				]                 		 
+            			},
+            			{ label: 'Valido fechas', key: 'valida_fechas',
+              				validators:[
+              					{
+                  				validate: 'regex_match', //fecha en formato de barras: distingase entre la barra secuencial de expresion regular y la que convierte la cadena en argumento de expresion
+                  				regex: '-+d',
+                  				error: 'Solo strings de floats'
+                				}
+              				]     
+            			},
+            			{ label: 'Unidades', key: 'unidades',
+              				validators:[
+              					{
+                  				validate: 'regex_match', //fecha en formato de guiones: se distingue mejor el transcriptor literal
+                  				regex: 'd{1,2}-d{1,2})-d{2})',
+                  				error: 'Formato invalido de fecha (dd-mm-yy)'
+                				}
+              				]     
+            			},
+            			{ label: 'Costo de unidades', key: 'unit_cost',
+              				validators:[
+              					{
+                  				validate: 'regex_match', //secuencias de rango fijo de 8 a 16 caracteres
+                  				regex: '^(?=.{8,16}$)[a-zA-Z0-9._]',
+                  				error: 'Solo admite texto de 8 a 16 caracteres'
+  		              			}
+      	        			]     
+         	     		},
+            			{ label: 'Origen/Destino en Argentina', key: 'ar_zip',
+              				validators:[
+              					{
+                  				validate: 'regex_match', //codigos postales de argentina
+                  				regex: '^([A-HJ-NP-Z])?d{4}([A-Z]{3})?',
+                  				error: 'Error de sintaxis: necesita un codigo postal de Argentina'
+	                			}
+   	           			]     
+      	        		},
+            			{ label: 'Origen/Destino en Mexico', key: 'mx_zip',
+              				validators:[
+              					{
+                  				validate: 'regex_match', //codigos postales de mexico
+                  				regex: 'd5',
+                  				error: 'Error de sintaxis: necesita un codigo postal de Mexico'
+	                			}
+   	           			]     
+      	        		},
+            			{ label: 'Origen/Destino en Colombia', key: 'col_zip',
+              				validators:[
+              					{
+                  				validate: 'regex_match', //codigos postales de mexico
+                  				regex: 'd{6}',
+                  				error: 'Error de sintaxis: necesita un codigo postal de Colombia'
+	                			}
+   	           			]     
+      	        		},
+            			{ label: 'Correo de destinatario', key: 'col_zip',
+              				validators:[
+              					{
+                  				validate: 'regex_match', //correo electronico
+                  				regex: '^w+@+w.+w-{2,4}',
+                  				error: 'Necesita ingresar un correo electronico'
+	                			}
+   	           			]     
+      	        		},
+         	 		],       		
+    					height: 200,
+    					width: 300,
+  					}
+  				//}	
+  				//catch(error){
+				//	alert('Un operador mal utilizado genera expresiones regulares inutilizables');  				
+  				//}
 		</script>
 	</body>
 </html>";
