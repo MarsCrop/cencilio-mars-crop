@@ -1,7 +1,6 @@
 /*Please notice this module uses SheetJS to process xls and xlsx.
 You should include both CDNs (as script or in a different way) https://oss.sheetjs.com/sheetjs/shim.js
 and https://oss.sheetjs.com/sheetjs/xlsx.full.min.js before importing this module*/
-
 class DOMNodeFactors {
   constructor(critical, label, key) {
     this.childs = [];
@@ -12,7 +11,6 @@ class DOMNodeFactors {
     this.key = key;
   }
 }
-
 class ElReqs {
   constructor() {
     this.required = false;
@@ -21,36 +19,31 @@ class ElReqs {
     this.regex = false;
   }
 }
-
 function invalidUnknown() {
   	//Message to show if value is not in database
   	alert('INVALID SESSION');
 }
-
 var isFirefox = {
     that: function() {
     		console.info(navigator.userAgent);
         return navigator.userAgent.match(/Firefox/i);
     },
 };	
-
 function regexFromString (string) {
   var match = /^\/(.*)\/([a-z]*)$/.exec(string)
   return new RegExp(match[1], match[2])
 }
-
 function errorCell(idx) {
 	/*Función que coloriza en rojo una celda
 	con placeholder de required inválido*/
 	//console.info('COLORING CELL');
   	if(typeof renderer.errorColor === 'undefined'){
-		idx.style.backgroundColor = ' #F97F7F';
+		idx.style.backgroundColor = '#F97F7F';
   	}
   	else{
   		idx.style.backgroundColor = renderer.errorColor;  	
 	}
 }
-
 //got from https://stackoverflow.com/questions/5783969/how-to-get-child-element-by-id-in-javascript by Gil Epshtain and marc_s to remove jquery dependency
 var _Utils = function ()
 {
@@ -58,7 +51,6 @@ var _Utils = function ()
     {
         var retElement = null;
         var lstChildren = isSearchInnerDescendant ? Utils.getAllDescendant(element) : element.childNodes;
-
         for (var i = 0; i < lstChildren.length; i++)
         {
             if (lstChildren[i].id == childID)
@@ -67,16 +59,12 @@ var _Utils = function ()
                 break;
             }
         }
-
         return retElement;
     }
-
     this.getAllDescendant = function (element, lstChildrenNodes)
     {
         lstChildrenNodes = lstChildrenNodes ? lstChildrenNodes : [];
-
         var lstChildren = element.childNodes;
-
         for (var i = 0; i < lstChildren.length; i++) 
         {
             if (lstChildren[i].nodeType == 1) // 1 is 'ELEMENT_NODE'
@@ -85,25 +73,21 @@ var _Utils = function ()
                 lstChildrenNodes = Utils.getAllDescendant(lstChildren[i], lstChildrenNodes);
             }
         }
-
         return lstChildrenNodes;
     }        
 }
 var Utils = new _Utils;
-
 //AS THREAD
 function table_maker(Options, workbook){
 	//Usando los campos del objeto en JSON
 	//devuelve un objeto que contiene la
 	//representación de esos datos en el DOM
-	
 	//user without setting options
 	if (typeof Options !== 'object'){
 		document.getElementById('api_error').style.display = 'block';   
 		document.getElementById('spinner').style.display = 'none';
 		return 'validationError';
 	}
-	
 	//user without key
 	if (typeof Options['apiKey'] === 'undefined'){
 		document.getElementById('api_error').style.display = 'block'; 
@@ -121,7 +105,7 @@ function table_maker(Options, workbook){
    xhr.setRequestHeader('Content-Type', 'application/json');	
    xhr.onload = function (data) {
    	//since response is of a different dtype we know where is key 
-   	let resp = data.currentTarget.response;
+   		let resp = data.currentTarget.response;
 		if (resp.split('_')[1].split(':')[1].split('"')[1] === Options['apiKey']) {
    		if (Options['userId'] !== null){	
 				renderer.split_resp = resp.split('}');
@@ -143,35 +127,49 @@ function table_maker(Options, workbook){
 			renderer.dom_factor = [];
 	  		renderer.sheetDiv = document.createElement('div');
 			renderer.sheetDiv.className='sheet_div'; 
-			renderer.sheetDiv.id='sheet_div'; 
-			renderer.sheetDiv.style='overflow-x: hidden; position: absolute;z-index: 1000;top: 50%;padding: 16px;width: 72%;margin-left: 194px;border-radius: 4px;height: 80%;overflow-y: scroll;/* margin: 0; */-ms-transform: translateY(-50%);transform: translateY(-50%);border: 1px solid #DEDEDE;box-sizing: border-box;box-shadow: 0px 4px 38px rgba(0, 0, 0, 0.4);border-radius: 4px;';				
-	  		
+			renderer.sheetDiv.id='sheet_div'; 			
+			document.body.appendChild(renderer.sheetDiv);
 			// Contenedor de HEADER de tabla
 			renderer.sheetDivChildDiv = document.createElement('div');
 			renderer.sheetDivChildDiv.id='header_xlsx';
-			renderer.sheetDivChildDiv.style='padding: 10px 0;';
-			
 		    //Prime fila de HEADER
 			renderer.sheetHeaderChildRow1 = document.createElement('div');
-			renderer.sheetHeaderChildRow1.class = 'cencilio_row';
-			renderer.sheetHeaderChildRow1.style = 'margin-bottom: 50px;';
-
+			renderer.sheetHeaderChildRow1.className = 'cencilio_row';
 			renderer.sheetHeaderChildCol1 = document.createElement('div');
-			renderer.sheetHeaderChildCol1.class = 'cencilio-col';
-			renderer.sheetHeaderChildCol1.style = 'width: 50%; float:left;';
-
+			renderer.sheetHeaderChildCol1.className = 'cencilio-col';
 			renderer.sheetHeaderChildCol2 = document.createElement('div');
-			renderer.sheetHeaderChildCol2.class = 'cencilio-col';
-			renderer.sheetHeaderChildCol2.style = 'position:relative; width: 50%; float:left;';
-
+			renderer.sheetHeaderChildCol2.className = 'cencilio-col';	
+			// Nombre de archivo
+			renderer.sheetDivChildStrong = document.createElement('strong');
+	  		renderer.sheetDivChildStrong.id = 'cencilio_file_name';
+			renderer.sheetDivChildStrong.innerHTML = '';
+			renderer.sheetHeaderChildCol1.appendChild(renderer.sheetDivChildStrong);
+			//SELECT DE HOJAS
+			let sheetDivChildInput = document.createElement('select');
+			sheetDivChildInput.id='sheet_select';
+			sheetDivChildInput.placeholder='Nombre de hoja'; 
+			//change page
+			sheetDivChildInput.onchange = function(e){
+				let sheet = renderer.loadTable(workbook.SheetNames.indexOf(e.target.value));
+				renderer.page = 0;	
+				for(var c = 2; c <= document.getElementById('sheet_div').length; ++c){
+					document.getElementById('sheet_div').childNodes[c] = sheet[c-2];		
+				}
+				renderer.page_shift = false;
+			}
+			//Label Select de hojas
+			let selectSheetsLabel = document.createElement('strong');
+	  		selectSheetsLabel.id = 'select_sheet_label';
+			selectSheetsLabel.innerHTML = '  |  Hojas:  ';
+			renderer.sheetHeaderChildCol1.appendChild(selectSheetsLabel);
+			renderer.sheetHeaderChildCol1.appendChild(sheetDivChildInput);
 			//Boton de cerrar
 			let closeRenderer = document.createElement('button');
-			closeRenderer.style = 'background-color: white;border: 0px;';
+			closeRenderer.id = 'close_sheet';
 			closeRenderer.onclick = function(e){
 				document.getElementById('sheet_div').remove();		
 				renderer.set_virtual = true; //user decides to rebuild context	
 			}
-			closeRenderer.id = 'close_sheet';
 			let closeImg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 			let iconClosePath = document.createElementNS('http://www.w3.org/2000/svg','path');
 			closeImg.setAttribute('fill', Options['theme']['global']['primaryButtonColor']);
@@ -185,124 +183,175 @@ function table_maker(Options, workbook){
 			);	
 			closeImg.appendChild(iconClosePath);	
 			closeRenderer.appendChild(closeImg);			
-			document.body.appendChild(renderer.sheetDiv);
-			renderer.sheetHeaderChildCol1.appendChild(closeRenderer);
-			//document.getElementById('sheet_div').appendChild(closeRenderer);	
-
-			// Nombre de archivo
-			renderer.sheetDivChildStrong = document.createElement('strong');
-	  		renderer.sheetDivChildStrong.id = 'cencilio_file_name';
-			renderer.sheetDivChildStrong.style='font-size: 18px;text-overflow: ellipsis;overflow: hidden; white-space: nowrap; display: inline-grid; max-width: 200px;';
-			renderer.sheetDivChildStrong.innerHTML = '';
-			renderer.sheetHeaderChildCol1.appendChild(renderer.sheetDivChildStrong);
-
-			//SELECT DE HOJAS
-			let sheetDivChildInput = document.createElement('select');
-			sheetDivChildInput.id='sheet_select';
-			sheetDivChildInput.placeholder='Nombre de hoja'; 
-			sheetDivChildInput.style='width: 136px; border-radius: 2px;height: 32px; display: inline-block; margin: 0 10px;';
-			//change page
-			sheetDivChildInput.onchange = function(e){
-				let sheet = renderer.loadTable(workbook.SheetNames.indexOf(e.target.value));
-				renderer.page = 0;	
-				for(var c = 2; c <= document.getElementById('sheet_div').length; ++c){
-					document.getElementById('sheet_div').childNodes[c] = sheet[c-2];		
-				}
-				renderer.page_shift = false;
-			}
-			renderer.sheetDivChildInput = sheetDivChildInput;
-			renderer.sheetHeaderChildCol1.appendChild(renderer.sheetDivChildInput);
-
-			// Texto de total de filas con y sin errores
-			renderer.sheetHeaderSelectsContainer = document.createElement('div');
-			renderer.sheetHeaderSelectsContainer.style ='position: absolute; top: 50%; transform: translateY(-50%);';
-			renderer.sheetDivGrandChildSpan = document.createElement('span');
-			renderer.sheetDivGrandChildSpan.id = 'total_sheets';
-			renderer.sheetDivGrandChildSpan.innerHTML = 'Total: 0 | ';
-	  		renderer.sheetDivGrandChildSpan2 = document.createElement('span');
-			renderer.sheetDivGrandChildSpan2.id = 'error_sheets'; 
-			renderer.sheetDivGrandChildSpan2.innerHTML = 'Con errores:'; 
-			renderer.sheetHeaderSelectsContainer.appendChild(renderer.sheetDivGrandChildSpan);
-			renderer.sheetHeaderSelectsContainer.appendChild(renderer.sheetDivGrandChildSpan2);
-			renderer.sheetHeaderChildCol2.appendChild(renderer.sheetHeaderSelectsContainer);
-
-			//Boton de cargar
-	  		renderer.sheetDivGrandChildButton = document.createElement('button');
-			renderer.sheetDivGrandChildButton.id='cargar'; 
-			renderer.sheetDivGrandChildButton.type = 'button';
-			renderer.sheetDivGrandChildButton.name='cargar';
-			renderer.sheetDivGrandChildButton.class='cargar'; 
-			renderer.sheetDivGrandChildButton.style='height: 36px; width: 122px; border-width: 0px; border-radius: 5px; padding: 8px;  background-color: rgb(7, 40, 140); color: #FFFFFF; float: right;';
-			renderer.sheetDivGrandChildButton.innerHTML = 'CARGAR DATOS';
-			renderer.sheetHeaderChildCol2.appendChild(renderer.sheetDivGrandChildButton);
-
+			renderer.sheetHeaderChildCol2.appendChild(closeRenderer);
 			//SEGUNDA FILA de Header
 			renderer.sheetHeaderChildRow2 = document.createElement('div');
-			renderer.sheetHeaderChildRow2.class = 'cencilio_row';
-			renderer.sheetHeaderChildRow2.style = 'margin-bottom: 50px;';
-
+			renderer.sheetHeaderChildRow2.className = 'cencilio_row';
 			renderer.sheetHeaderChildCol3 = document.createElement('div');
-			renderer.sheetHeaderChildCol3.class = 'cencilio-col';
-			renderer.sheetHeaderChildCol3.style = 'width: 50%; float:left;';
-
+			renderer.sheetHeaderChildCol3.className = 'cencilio-col-70';
 			renderer.sheetHeaderChildCol4 = document.createElement('div');
-			renderer.sheetHeaderChildCol4.class = 'cencilio-col';
-			renderer.sheetHeaderChildCol4.style = 'position:relative; width: 50%; float:left;';
-
+			renderer.sheetHeaderChildCol4.className = 'cencilio-col-30';
 			//Instrucciones
-
-			renderer.sheetDivGrandChildOptionsDivSpan = document.createElement('p');  
-			renderer.sheetDivGrandChildOptionsDivSpan.style='font-weight: 700;';
-			renderer.sheetDivGrandChildOptionsDivSpan.innerHTML = 'Instrucciones:'; 
-			renderer.sheetDivGrandChildOptionsDivLabel = document.createElement('span');  
-			renderer.sheetDivGrandChildOptionsDivLabel.style='font-weight: 400; ';
-			renderer.sheetDivGrandChildOptionsDivLabel.innerHTML = 'Selecciona la página que necesites validar y corrobora que no hayan errores.';
-			renderer.sheetHeaderChildCol3.appendChild(renderer.sheetDivGrandChildOptionsDivSpan);
-			renderer.sheetHeaderChildCol3.appendChild(renderer.sheetDivGrandChildOptionsDivLabel);
-
-
-			//Filtros de checkbox
-			renderer.sheetDivCheckChanged = document.createElement('input');  
-			renderer.sheetDivCheckChanged.id = 'show_changed'; 
-			renderer.sheetDivCheckChanged.type='checkbox'; 
-			//view changed
-			renderer.sheetDivCheckChanged.onchange = function(e){
-				renderer.render_edited_page(e.target.checked);
-			}; 
-			
-			renderer.sheetDivCheckChangedLabel = document.createElement('label');  
-			renderer.sheetDivCheckChangedLabel.style='font-size: 14px; top: -2px; position: relative; margin-right: 10px;';
-			renderer.sheetDivCheckChangedLabel.id = 'show_changed_label'; 
-			renderer.sheetDivCheckChangedLabel.htmlFor = 'show_changed';
-			renderer.sheetDivCheckChangedLabel.innerHTML = ' Mostrar filas editadas';
-
-			renderer.sheetDivCheckInvalid = document.createElement('input');  
-			renderer.sheetDivCheckInvalid.id = 'show_errors'; 
-			renderer.sheetDivCheckInvalid.name = 'show_errors'; 
-			renderer.sheetDivCheckInvalid.type='checkbox'; 
-			//view errors
-			renderer.sheetDivCheckInvalid.onchange = function(e){
-				renderer.render_invalid_page(e.target.checked);			
-			}; 
-			renderer.sheetDivCheckInvalidLabel = document.createElement('label');  
-			renderer.sheetDivCheckInvalidLabel.style='font-size: 14px; top: -2px; position: relative; margin-right: 10px;';
-			renderer.sheetDivCheckInvalidLabel.id = 'show_errors_label'; 
-			renderer.sheetDivCheckInvalidLabel.htmlFor = 'show_errors';
-			renderer.sheetDivCheckInvalidLabel.innerHTML = ' Mostrar filas con errores';
-			
-			renderer.sheetHeaderChildCol4.appendChild(renderer.sheetDivCheckChanged);
-			renderer.sheetHeaderChildCol4.appendChild(renderer.sheetDivCheckChangedLabel);
-			renderer.sheetHeaderChildCol4.appendChild(renderer.sheetDivCheckInvalid);
-			renderer.sheetHeaderChildCol4.appendChild(renderer.sheetDivCheckInvalidLabel);
-
+			renderer.sheetDivInstructionTitle = document.createElement('p');  
+			renderer.sheetDivInstructionTitle.id = 'cencilio_title_instructions';
+			renderer.sheetDivInstructionTitle.innerHTML = 'Instrucciones:'; 
+			renderer.sheetDivInstructions = document.createElement('ol'); 
+			renderer.sheetDivInstructions.id = 'cencilio_instructions';
+			renderer.sheetDivInstructions.innerHTML = `<li>Empareja el campo que coincide con cada columna y corrobora que no quede ninguna celda con errores</li>
+			<li>Deselecciona las filas que NO quieres cargar</li>
+			<li>Cuando estés listo, haz click en cargar datos</li>`;
+			renderer.sheetHeaderChildCol3.appendChild(renderer.sheetDivInstructionTitle);
+			renderer.sheetHeaderChildCol3.appendChild(renderer.sheetDivInstructions);
 			renderer.sheetHeaderChildRow1.appendChild(renderer.sheetHeaderChildCol1); 
 			renderer.sheetHeaderChildRow1.appendChild(renderer.sheetHeaderChildCol2); 
 			renderer.sheetDivChildDiv.appendChild(renderer.sheetHeaderChildRow1);
 			renderer.sheetHeaderChildRow2.appendChild(renderer.sheetHeaderChildCol3); 
 			renderer.sheetHeaderChildRow2.appendChild(renderer.sheetHeaderChildCol4); 
 			renderer.sheetDivChildDiv.appendChild(renderer.sheetHeaderChildRow2);
-
-
+			//Mensaje de Sólo fila invalida
+			renderer.sheetDivSpan2 = document.createElement('span');  
+			renderer.sheetDivSpan2.innerHTML = 'Sólo fila inválida';
+			renderer.sheetDivSpan2.style = 'margin-top: -140px;position: absolute;margin-left: 32px;font-size: 80%;';
+			 //Contenedor de MENSAJE
+			renderer.sheetDivGrandChildOptionsDiv2 = document.createElement('div');  
+			renderer.sheetDivGrandChildOptionsDiv2.style='overflow-y: scroll; overflow-x: hidden; max-height: 144px;';
+			renderer.sheetDivGrandChildOptionsDiv2.id = 'mensajes';	
+			renderer.sheetDiv.appendChild(renderer.sheetDivChildDiv); 
+			// Page_Table Container
+			renderer.sheetPageTableContainer = document.createElement('div');
+			renderer.sheetPageTableContainer.id = 'page_table_container';
+			//FILA de PAGE_TABLE
+			renderer.sheetPageTableChildRow = document.createElement('div');
+			renderer.sheetPageTableChildRow.className = 'cencilio_row';
+			renderer.sheetPageTableChildRow.id = 'page_table_row';
+			renderer.sheetPageTableChildCol1 = document.createElement('div');
+			renderer.sheetPageTableChildCol1.className = 'cencilio-col';
+			renderer.sheetPageTableChildCol2 = document.createElement('div');
+			renderer.sheetPageTableChildCol2.className = 'cencilio-col';
+			renderer.sheetPageTableChildCol2.style = "text-align:right;";
+			// Texto de total de filas con y sin errores
+			renderer.sheetHeaderSelectsContainer = document.createElement('div');
+			renderer.sheetHeaderSelectsContainer.id = "rows_counter_container";
+			renderer.sheetDivGrandChildSpan = document.createElement('span');
+			renderer.sheetDivGrandChildSpan.id = 'total_sheets';
+			renderer.sheetDivGrandChildSpan.innerHTML = 'Total celdas: 0 | ';
+			renderer.sheetDivGrandChildSpan2 = document.createElement('span');
+			renderer.sheetDivGrandChildSpan2.id = 'error_sheets'; 
+			renderer.sheetDivGrandChildSpan2.innerHTML = 'Con errores:'; 
+			renderer.sheetHeaderSelectsContainer.appendChild(renderer.sheetDivGrandChildSpan);
+			renderer.sheetHeaderSelectsContainer.appendChild(renderer.sheetDivGrandChildSpan2);			
+			renderer.sheetPageTableChildCol2.appendChild(renderer.sheetHeaderSelectsContainer);
+			renderer.sheetPageTableChildRow.appendChild(renderer.sheetPageTableChildCol1); 
+			renderer.sheetPageTableChildRow.appendChild(renderer.sheetPageTableChildCol2); 
+			// Filter button
+			let filtersButton = document.createElement('button');
+			filtersButton.id = 'filter_rows_btn';
+			filtersButton.onclick = function(e){
+				var content = document.getElementById("filters_rows_container");;
+				if (content.style.display === "block") {
+				  content.style.display = "none";
+				} else {
+				  content.style.display = "block";
+				}
+				console.log("filters containers show");	
+			}
+			let filterSVG = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			let filterPath = document.createElementNS('http://www.w3.org/2000/svg','path');
+			filterSVG.setAttribute('fill', Options['theme']['global']['primaryButtonColor']);
+			filterSVG.setAttribute('viewBox', '0 0 20 20');
+			filterSVG.setAttribute('width', '20px');
+			filterSVG.setAttribute('height', '20px');
+			filterPath.setAttribute(
+			'd',
+			'M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z'
+			);	
+			filterPath.setAttribute('fill-rule','evenodd');
+			filterPath.setAttribute('clip-rule','evenodd');
+			filterSVG.appendChild(filterPath);	
+			filtersButton.appendChild(filterSVG);	
+			filterSVG.insertAdjacentText("afterend","FILTRAR");	
+			renderer.sheetHeaderSelectsContainer.appendChild(filtersButton);
+			//renderer.sheetPageTableChildCol2.appendChild();
+			//Filters for rows container
+			let filtersRowsContainer = document.createElement('div');
+			filtersRowsContainer.id = "filters_rows_container";
+			renderer.sheetPageTableChildCol2.appendChild(filtersRowsContainer);
+			let filtersRowsTitle = document.createElement('p');
+			filtersRowsTitle.innerText = "Filas:";
+			let filtersRowsDivisor = document.createElement('hr');
+			filtersRowsContainer.appendChild(filtersRowsTitle);
+			filtersRowsContainer.appendChild(filtersRowsDivisor);
+			//Filtros de checkbox
+			let sheetDivCheckChangedContainer = document.createElement('div');
+			let sheetDivCheckInvalidContainer = document.createElement('div');
+			renderer.sheetDivCheckChanged = document.createElement('input');  
+			renderer.sheetDivCheckChanged.id = 'show_changed'; 
+			renderer.sheetDivCheckChanged.type='checkbox'; 
+			//view changed
+			renderer.sheetDivCheckChanged.onclick = function(e){
+				renderer.render_edited_page(e.target.checked);
+			}; 
+			renderer.sheetDivCheckChangedLabel = document.createElement('label');  
+			renderer.sheetDivCheckChangedLabel.id = 'show_changed_label'; 
+			renderer.sheetDivCheckChangedLabel.htmlFor = 'show_changed';
+			renderer.sheetDivCheckChangedLabel.innerHTML = ' Editadas';
+			renderer.sheetDivCheckInvalid = document.createElement('input');  
+			renderer.sheetDivCheckInvalid.id = 'show_errors'; 
+			renderer.sheetDivCheckInvalid.name = 'show_errors'; 
+			renderer.sheetDivCheckInvalid.type='checkbox'; 
+			//view errors
+			renderer.sheetDivCheckInvalid.onclick = function(e){
+				renderer.render_invalid_page(e.target.checked);			
+			}; 
+			renderer.sheetDivCheckInvalidLabel = document.createElement('label');  
+			renderer.sheetDivCheckInvalidLabel.id = 'show_errors_label'; 
+			renderer.sheetDivCheckInvalidLabel.htmlFor = 'show_errors';
+			renderer.sheetDivCheckInvalidLabel.innerHTML = ' Con errores';
+			sheetDivCheckChangedContainer.appendChild(renderer.sheetDivCheckChangedLabel);
+			sheetDivCheckChangedContainer.appendChild(renderer.sheetDivCheckChanged);
+			sheetDivCheckInvalidContainer.appendChild(renderer.sheetDivCheckInvalidLabel);
+			sheetDivCheckInvalidContainer.appendChild(renderer.sheetDivCheckInvalid);			
+			filtersRowsContainer.appendChild(sheetDivCheckChangedContainer);
+			filtersRowsContainer.appendChild(sheetDivCheckInvalidContainer);
+			//TABLA DE RENDERIZADO DE EXCEL
+			renderer.sheetDivTable = document.createElement('table');  
+			renderer.sheetDivHead = document.createElement('thead');  
+			renderer.sheetDivTableBody = document.createElement('tbody');  
+			renderer.sheetDivHead.id = 'sheet_headers'
+         	renderer.sheetDivTableBody.id='sheet_rows';
+			//Contenedor de tabla
+			renderer.tableScrollDiv = document.createElement('div');
+			renderer.tableScrollDiv.id = 'page_table';
+			renderer.tableScrollDiv.appendChild(renderer.sheetDivTable);
+			renderer.sheetPageTableContainer.appendChild(renderer.sheetPageTableChildRow);
+			renderer.sheetPageTableContainer.appendChild(renderer.tableScrollDiv);
+			renderer.sheetDiv.appendChild(renderer.sheetPageTableContainer);
+			//Footer_sheetDiv
+			renderer.sheetFooterDiv = document.createElement('div');
+			renderer.sheetFooterDiv.id = 'footer_sheetdiv';
+			//PRIMER FILA de Footer
+			renderer.sheetFooterChildRow1 = document.createElement('div');
+			renderer.sheetFooterChildRow1.className = 'cencilio_row';
+			renderer.sheetFooterChildCol1 = document.createElement('div');
+			renderer.sheetFooterChildCol1.className = 'cencilio-col';
+			renderer.sheetFooterChildCol2 = document.createElement('div');
+			renderer.sheetFooterChildCol2.className = 'cencilio-col';
+			//Boton de cargar
+			renderer.sheetDivGrandChildButton = document.createElement('button');
+			renderer.sheetDivGrandChildButton.id='cargar_btn_cencilio'; 
+			renderer.sheetDivGrandChildButton.type = 'button';
+			renderer.sheetDivGrandChildButton.name='cargar';
+			renderer.sheetDivGrandChildButton.className='cargar_cencilio'; 
+			renderer.sheetDivGrandChildButton.innerHTML = 'CARGAR DATOS';
+			renderer.sheetDivGrandChildButton.onclick = function (e){
+				document.getElementById('export_confirmation_cencilio').style.display = 'block';
+				renderer.set_virtual = true;	
+			}
+			renderer.sheetFooterChildCol2.appendChild(renderer.sheetDivGrandChildButton);
+			renderer.sheetFooterChildRow1.appendChild(renderer.sheetFooterChildCol1); 
+			renderer.sheetFooterChildRow1.appendChild(renderer.sheetFooterChildCol2); 
+			renderer.sheetFooterDiv.appendChild(renderer.sheetFooterChildRow1);
+			renderer.sheetDiv.appendChild(renderer.sheetFooterDiv);
 			//default primary button color
 			//console.info(Options['theme']['global']['primaryButtonColor']);
 			if (typeof Options['theme']['global']['primaryButtonColor'] === 'undefined'){
@@ -320,30 +369,26 @@ function table_maker(Options, workbook){
 			//cencilio default primary text color
 			if (typeof Options['theme']['global']['primaryTextColor'] === 'undefined'){
 				renderer.sheetDivGrandChildButton.style.color = '#FFFFFF';
+				document.getElementById('close_button').style.color = '#FFFFFF';
 			}
 			else{ //cencilio user primary text color
 				if (7 <= Options['theme']['global']['primaryTextColor'].length <= 9){
 					if (Options['theme']['global']['primaryTextColor'].includes('#')){
 						renderer.sheetDivGrandChildButton.style.color = Options['theme']['global']['primaryTextColor'];
+						document.getElementById('close_button').style.color = Options['theme']['global']['primaryTextColor'];
 					}
 				}
 			}
-
 			//cencilio default background color
 			if (typeof Options['theme']['global']['backgroundColor'] === 'undefined'){
 				renderer.sheetDiv.style.backgroundColor = '#FFFFFF';
-				//document.getElementById('raw_response_header').style.backgroundColor = '#FFFFFF';
-				document.getElementById('data_exported').style.backgroundColor = '#FFFFFF';
-				//document.getElementById('cencilio-importer').style.backgroundColor = 'repeating-linear-gradient(90deg, #9c989b, #c7c7c7 51%, #8a00c7) var(--x, 0)/ 400%';
 				document.getElementById('ppbutton').style.backgroundColor = '#FFFFFF';
 			}
 			else{ //cencilio user background color
 				if (Options['theme']['global']['backgroundColor'].length <= 7){
 					if (Options['theme']['global']['backgroundColor'].includes('#')){
 						renderer.sheetDiv.style.backgroundColor = Options['theme']['global']['backgroundColor'];
-						//document.getElementById('raw_response_header').style.backgroundColor = Options['theme']['global']['backgroundColor'];
 						document.getElementById('data_exported').style.backgroundColor = Options['theme']['global']['backgroundColor'];
-						//document.getElementById('cencilio-importer').style.backgroundColor = Options['theme']['global']['backgroundColor'];
 						document.getElementById('ppbutton').style.backgroundColor = Options['theme']['global']['backgroundColor'];
 					}
 				}
@@ -351,8 +396,8 @@ function table_maker(Options, workbook){
 			//cencilio default text color
 			if (typeof Options['theme']['global']['textColor'] === 'undefined'){
 				renderer.sheetDiv.style.color = '#07288C';
-				//document.getElementById('raw_response_header').style.color = '#07288C';
 				document.getElementById('data_exported').style.color = '#07288C';
+				//document.getElementById('dragger-icon').style.stroke = '#07288C';
 			}
 			else{ //cencilio user text color
 				if (7 <= Options['theme']['global']['textColor'].length <= 9){
@@ -372,38 +417,30 @@ function table_maker(Options, workbook){
  				document.getElementById('cencilio-importer').style.fontFamily = Options['theme']['global']['fontFamily'];
  				renderer.sheetDivChildStrong.style.color = Options['theme']['global']['fontFamily'];
  			} 
-			//cencilio default shadow color
-			if (typeof Options['theme']['global']['shadowColor'] === 'undefined'){
-				renderer.sheetDiv.style.boxShadow = 'rgb(210, 191, 241) 0px 2px 8px 5px;';
-				//document.getElementById('raw_response_header').style.boxShadow = 'rgb(210, 191, 241) 0px 2px 8px 5px;';
-			}
-			else{ //cencilio user shadow color
-				if (7 <= Options['theme']['global']['shadowColor'].length <= 9){
-					if (Options['theme']['global']['shadowColor'].includes('#')){
-						renderer.sheetDiv.style.boxShadow = Options['theme']['global']['shadowColor'];
-						//document.getElementById('raw_response_header').style.boxShadow = Options['theme']['global']['shadowColor'];
-					}
-				}
-			}
-			//cencilio default JSON background color
-			if (typeof Options['theme']['global']['jsDataColor'] === 'undefined'){
-				//document.getElementById('js_data').style.boxShadow = 'rgb(0 0 0 / 16%)';
-			}
-			else{ //cencilio user JSON background color
-				if (7 <= Options['theme']['global']['jsDataColor'].length <= 9){
-					if (Options['theme']['global']['jsDataColor'].includes('#')){
-						//document.getElementById('js_data').style.boxShadow = Options['theme']['global']['jsDataColor'];
-					}
-				}
-			}
-				
-
 			//DIV contenedor de respueta JSON
-			renderer.sheetDivGrandChildButton.onclick = function(e){
+			document.getElementById('confirm_export_btn').onclick = function(e){
 				/* add to workbook */
+				let filename = document.getElementById('cencilio_file_name').innerHTML;
+				var fileInput = document.getElementById('pIn').files[0];
+				//console.info(typeof fileInput === 'undefined');
+				//console.info(fileInput === 'undefined');
+				//console.info(fileInput === null);
+				if (typeof fileInput !== 'undefined'){ //Upload file === storing file in an object
+					var fileInput = document.getElementById('pIn').files[0];
+				}
+				else{
+					var fileInput = renderer.file; //Dragging file === indexing the file as part of a request
+				}
+				renderer.fileInput = fileInput;
+				console.info('FILE OBJECT AFTER CONFIRMATION', fileInput);
+				document.getElementById('export_confirmation_cencilio').style.display = 'none';
+				document.getElementById('loading_data_cencilio').style.display = 'block';
+				document.getElementById('loading_subtitle_cencilio').innerHTML = filename;
 				var wb = XLSX.utils.book_new();
-				let xlsDoc = [];				
+				let xlsDoc = [];
+				var reader = new FileReader();			
 				let json_string = '{';
+				json_string += '"userId":"'+Options['userId']+'",';
 				this.await = true;
 				if (typeof renderer.check_transversal !== 'undefined'){
 					this.editing = renderer.check_transversal; //user basis
@@ -411,8 +448,9 @@ function table_maker(Options, workbook){
 				else{
 					this.editing = renderer.page; //program basis
 				}
+				console.info('EDITING', this.editing);
 				try{
-					json_string += '"Page '+ this.editing +'": ';
+					json_string += '"sheet'+ this.editing +'":';
 					let xlsTable = document.createElement('table');
 					this.total_rows = '';
 					this.total_cols = '';
@@ -420,6 +458,7 @@ function table_maker(Options, workbook){
 					let col_out = false;
 					let first_passed = false;						
 					for (var R = 0; R < renderer.excel_data[this.editing].length; R++){
+						console.info('EXCEL DATA', renderer.excel_data[this.editing]);
 						try{
 							if (document.getElementById('render_row_'+R).discarded === true){
 								if (R === 0){
@@ -427,6 +466,7 @@ function table_maker(Options, workbook){
 										first_out = true;
 									}
 								}
+								console.info('SKIPPING FIRST ROW');
 								continue;					
 							}
 							else if (document.getElementById('render_row_'+(R+1)) !== null){
@@ -440,6 +480,7 @@ function table_maker(Options, workbook){
 							}														
 							else{
 								//storing is irrelevant							
+								console.info('NOT STORING INFO');
 							}
 						}
 						catch (error){ //row with id does not exist
@@ -448,12 +489,12 @@ function table_maker(Options, workbook){
 						}
 						if (R === 0){
 							//open page
-							this.json_row = '[{';
+							this.json_row = '{"rows":[';
 							this.col = '[{';						
 						}
 						else if (first_out === true){
 								//start page without first row
-							this.json_row = '[{';
+							this.json_row = '{"rows":[';
 							this.col = '[{';	
 							first_out = false;	
 							first_passed = true;				
@@ -470,7 +511,7 @@ function table_maker(Options, workbook){
 						}
 						this.json_row += '';
 						//open row
-						this.row = '[';
+						this.row = '{';
 						for (var C = 0; C < renderer.excel_data[this.editing][R].length; C++){
 							this.process = document.getElementById('sheet_rows').childNodes[R].childNodes[C+1].childNodes[0].trying;
 							this.ground = true;		
@@ -524,7 +565,7 @@ function table_maker(Options, workbook){
 								this.data = renderer.excel_data[this.editing][R][C];								
 							}
 							//add row
-							this.row += '{"'+this.key+'": "'+this.data+'"}';
+							this.row += '"'+this.key+'": "'+this.data+'"';
 							this.col += '"'+this.key+'": "'+this.data+'"';
 							if (C+1 < renderer.excel_data[this.editing][R].length){
 								this.row += ',';			
@@ -532,7 +573,7 @@ function table_maker(Options, workbook){
 							}
 						}
 						//close row
-						this.row += ']';
+						this.row += '}';
 						if (R+1 < renderer.excel_data[this.editing].length){
 							//close column
 							this.col += '}';
@@ -556,69 +597,110 @@ function table_maker(Options, workbook){
 					XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(JSON.parse(this.total_cols)), renderer.page_names[this.editing]);	
 					this.json_row += this.total_rows;
 					//closes while not awaiting
-					this.json_row += '}]';		
+					this.json_row += ']';		
 					json_string += this.json_row;		
 					//annotates while not awaiting
-					if (this.editing+1 < renderer.excel_data.length){
-						json_string += ',';					
-					}
 					xlsDoc.push(xlsTable);
+					json_string += '}}';
+					let jsonData = json_string;
+					/* make the worksheet */
+					/* generate an XLSX file */
+					//XLSX.writeFile(wb, '[cencilio]'+document.getElementById('cencilio_file_name').innerHTML);					
+					var xhr = new XMLHttpRequest();
+					xhr.open("POST", 'https://app.cencilio.com/api/1.1/wf/save_file');
+					xhr.setRequestHeader("Accept", "application/json");
+					xhr.setRequestHeader("Authorization", "Bearer dce1d75924fcda75937d1641e71ddada");
+					xhr.setRequestHeader("Content-Type", "application/json");
+					console.info('DRAGGED FILE', renderer.fileInput);
+					try{
+						reader.readAsDataURL(renderer.fileInput);
+					}
+					catch (error){
+						reader.readAsDataURL(renderer.fileInput.response);
+					}
+					reader.onload = function () {
+						if(reader.readyState === 2){
+							var data = `{
+								"account":"${Options['apiKey']}",
+								"filename":"${filename}",
+								"user_id":"${Options['userId']}",
+								"key_file": {
+									"filename":"${filename}",
+									"contents":"${reader.result.split(',')[1]}"
+									}
+								}`;
+								xhr.send(data);
+						}
+					};
+					xhr.onreadystatechange = function () {
+						if (xhr.readyState === 4 && xhr.status === 200) {
+							console.log(xhr.status);
+							console.log(xhr.responseText);
+							console.log('Todo salio bien, se procesaron los datos con exito');
+							console.log('JSON RESPONSE:', jsonData);	
+							document.getElementById('sheet_div').remove();
+							document.getElementById('loading_data_cencilio').style.display = 'none';
+							document.getElementById('data_exported').style.display = 'block';
+							return jsonData;
+							//response is clean
+						} else if(xhr.readyState === 1 || xhr.readyState === 2 || xhr.readyState === 3 ){
+							console.log('Se estan procesando los datos, espera unos segundos');
+						} else{
+							console.log(xhr.responseText);
+							console.log('Hay un error al momento de procesar los datos');
+							return null;
+						}
+					};
+					xhr.upload.addEventListener("load", function () {
+						document.getElementById('loadng_progress_bar_cencilio').style.width = '100%';
+					});
+					xhr.upload.addEventListener("progress", function (event) {
+						if (event.lengthComputable) {
+							var complete = (event.loaded / event.total * 100 | 0);
+							document.getElementById('loadng_progress_bar_cencilio').style.width = complete+'%';
+						}
+					});
+					xhr.onerror = function (event) {
+						document.getElementById('loadng_progress_bar_cencilio').style.width = complete+'%';
+					};
 				}
 				catch (error){
-					console.info(error);
-					console.info('RESPONSE IS DAMAGED');						
-					//column is not transversal because it has damaged response
-					console.info('Info obtenida', this.total_cols); 
-					//independent damage occurs for all data in pages
-					console.info('Respuesta', this.total_rows); 
-					alert('No ha seleccionado filas para guardar sus datos.');						
+					//alert('No ha seleccionado filas para guardar sus datos.');
+					console.info('No ha seleccionado filas para guardar sus datos.',error);						
 					//console.info('La respuesta de pagina aun se puede guardar', JSON.parse('{ "Page 0": [{'+this.total_rows+'}]}'));
 					return null;					
 				}
-				json_string += '}';
-				let jsonData = json_string;
-				/* make the worksheet */
-				/* generate an XLSX file */
-				XLSX.writeFile(wb, '[cencilio]'+document.getElementById('cencilio_file_name').innerHTML);					
-            console.log('JSON RESPONSE:', jsonData);	
-            document.getElementById('sheet_div').remove();
-            document.getElementById('data_exported').style.display = 'block';
-            //response is clean
-            return jsonData;		
 			}
-			
-
-			//Mensaje de Sólo fila invalida
-			renderer.sheetDivSpan2 = document.createElement('span');  
-         renderer.sheetDivSpan2.innerHTML = 'Sólo fila inválida';
-         renderer.sheetDivSpan2.style = 'margin-top: -140px;position: absolute;margin-left: 32px;font-size: 80%;';
-			 
-			 //Contenedor de MENSAJE
-			renderer.sheetDivGrandChildOptionsDiv2 = document.createElement('div');  
-			renderer.sheetDivGrandChildOptionsDiv2.style='overflow-y: scroll; overflow-x: hidden; max-height: 144px;';
-			renderer.sheetDivGrandChildOptionsDiv2.id = 'mensajes';	
-
-			//TABLA DE RENDERIZADO DE EXCEL
-			let sheetDivTable = document.createElement('table');  
-			let sheetDivHead = document.createElement('thead');  
-			let sheetDivTableBody = document.createElement('tbody');  
-			sheetDivHead.id = 'sheet_headers'
-         sheetDivTableBody.id='sheet_rows';
-
 			let sheetFieldSelector = document.createElement('tr');  
 			sheetFieldSelector.id = 'sheetFieldSelector';
 			//Empty th for table structure
-			sheetFieldSelector.appendChild(document.createElement('th'));
-			sheetDivHead.appendChild(sheetFieldSelector);		
-
-			// DATA TYPES TEXTs
-			let sheetDivDtypeRow = document.createElement('tr');  
-			sheetDivDtypeRow.id = 'sheetDtype'
-			sheetDivHead.appendChild(sheetDivDtypeRow);
-			
-			sheetDivTable.appendChild(sheetDivHead);
-			sheetDivTable.appendChild(sheetDivTableBody);
-			
+			//dtype checkbox 
+			//avoid creating an extra option to store at new page
+			let sheetDivTableD = document.createElement('th'); 
+			sheetDivTableD.id = 'show_changed_container'; 
+			let sheetDivTableDIn = document.createElement('input'); 
+			sheetDivTableDIn.id='select_all'; 
+			//unclick or click all rows as a user option
+			sheetDivTableDIn.onchange = function(e){
+				if (renderer.excel_data.length === 0){
+					this.Size = this.range;							
+				}
+				else{
+					this.Size = renderer.excel_data[0].length;							
+				}
+				for (var i = 0; i < this.Size; i++) {
+					if (document.getElementById('render_row_'+String(i)) !== null){
+						document.getElementById('render_row_'+String(i)).click();
+					}
+				}		
+			}; 
+			sheetDivTableDIn.type='checkbox'; 
+			sheetDivTableDIn.click();
+			sheetDivTableD.appendChild(sheetDivTableDIn);	
+			sheetFieldSelector.appendChild(sheetDivTableD);
+			renderer.sheetDivHead.appendChild(sheetFieldSelector);	
+			renderer.sheetDivTable.appendChild(renderer.sheetDivHead);
+			renderer.sheetDivTable.appendChild(renderer.sheetDivTableBody);
 			let fields = Options['fields'];
 			for (var j = 0; j < fields.length; j++) {
 				//console.info(renderer.dom_factor);
@@ -647,7 +729,59 @@ function table_maker(Options, workbook){
 			   					renderer.ndata.error = fields[j]['validators'][set]['error'];
 	  	 						}
 								if (fields[j]['validators'][set]['validate'] === 'regex_match'){
-			   					renderer.ndata.re = fields[j]['validators'][set].regex;
+									renderer.ndata = new DOMNodeFactors(false, fields[j]['label'], fields[j]['key']);
+									if (typeof fields[j]['validators'][set]['error'] !== 'undefined'){
+			   						renderer.ndata.error = fields[j]['validators'][set]['error'];
+	  	 							}
+									if (fields[j]['validators'][set]['validate'] === 'regex_match'){
+										//zip_code_ar
+										if (fields[j]['validators'][set].regex === '^([A-HJ-NP-Z])?d{4}([A-Z]{3})?'){
+					   					renderer.ndata.re = new RegExp('^([A-HJ-NP-Z])?\\d{4}([A-Z]{3})?');
+										}		
+										else if (fields[j]['validators'][set].regex === 'd5'){ //zip_code_mex
+				   						renderer.ndata.re = new RegExp('\\d{5}');
+				   						console.info(renderer.ndata.re);
+										}	
+										else if (fields[j]['validators'][set].regex === 'd+'){ //int
+					   					renderer.ndata.re = new RegExp("^[0-9]+$");
+					   					console.info(renderer.ndata.re);
+										}							
+										else if (fields[j]['validators'][set].regex === 'w'){ //word
+				   						renderer.ndata.re = new RegExp('\\w');
+				   						console.info(renderer.ndata.re);
+										}			
+										else if (fields[j]['validators'][set].regex === '-+d'){ //float
+				   						renderer.ndata.re = new RegExp('-?\\d+(\\.\\d*)?');
+										}			
+										else if (fields[j]['validators'][set].regex === '[A-Za-z0-9]'){ //alpha (no space)
+					   					renderer.ndata.re = new RegExp('[A-Za-z0-9]');
+										}	
+										else if (fields[j]['validators'][set].regex === '[A-Za-z0-9s]'){ //alpha (w/space)
+				   						renderer.ndata.re = new RegExp('[A-Za-z0-9\\s]');
+										}	
+										else if (fields[j]['validators'][set].regex === '^w+@+w.+w-{2,4}'){ //@
+					   					renderer.ndata.re = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+					   					console.info(renderer.ndata.re);
+										}	
+										else if (fields[j]['validators'][set].regex === 'd{1,2}/d{1,2})/d{2})'){ 
+				   						renderer.ndata.re = /^(\d{1,2})\/(\d{1,2})\/(\d{2})$/; //dd/mm/yy
+										}	
+										else if (fields[j]['validators'][set].regex === 'd{1,2}-d{1,2})-d{2})'){ //dd-mm-yy
+				   						renderer.ndata.re = /^(\d{1,2})\-(\d{1,2})\-(\d{2})$/;
+										}	
+										else if (fields[j]['validators'][set].regex === 'd{6}'){ //zip_code_col
+					   					renderer.ndata.re = new RegExp('\\d{6}');
+					   					console.info(renderer.ndata.re);
+										}	
+										else if (fields[j]['validators'][set].regex === '^(?=.{8,16}$)[a-zA-Z0-9._]'){ //8-16 char
+				   						renderer.ndata.re = new RegExp('^(?=.{8,16}$)[a-zA-Z0-9._]');
+										}				
+										else{
+											alert('La opcion "' + fields[j]['validators'][set].regex + '" no puede ser interpretada como expresion. Por favor utilice una de las opciones que el modulo interprete.');									
+											renderer.ndata.re = false;
+											validators.regex = false;
+										}
+	   							}
 	  	 						}
 							}
 							else{
@@ -656,10 +790,55 @@ function table_maker(Options, workbook){
 			   					renderer.ndata.error = fields[j]['validators'][set]['error'];
 	  	 						}
 								if (fields[j]['validators'][set]['validate'] === 'regex_match'){
-			   					renderer.ndata.re = fields[j]['validators'][set].regex;
+										//zip_code_ar
+										if (fields[j]['validators'][set].regex === '^([A-HJ-NP-Z])?d{4}([A-Z]{3})?'){
+					   					renderer.ndata.re = new RegExp('^([A-HJ-NP-Z])?\\d{4}([A-Z]{3})?');
+										}		
+										else if (fields[j]['validators'][set].regex === 'd5'){ //zip_code_mex
+				   						renderer.ndata.re = new RegExp('\\d{5}');
+				   						console.info(renderer.ndata.re);
+										}	
+										else if (fields[j]['validators'][set].regex === 'd+'){ //int
+					   					renderer.ndata.re = new RegExp("^[0-9]+$");
+					   					console.info(renderer.ndata.re);
+										}							
+										else if (fields[j]['validators'][set].regex === 'w'){ //word
+				   						renderer.ndata.re = new RegExp('\\w');
+				   						console.info(renderer.ndata.re);
+										}			
+										else if (fields[j]['validators'][set].regex === '-+d'){ //float
+				   						renderer.ndata.re = new RegExp('-?\\d+(\\.\\d*)?');
+										}				
+										else if (fields[j]['validators'][set].regex === '[A-Za-z0-9]'){ //alpha (no space)
+					   					renderer.ndata.re = new RegExp('[A-Za-z0-9]');
+										}	
+										else if (fields[j]['validators'][set].regex === '[A-Za-z0-9s]'){ //alpha (w/space)
+				   						renderer.ndata.re = new RegExp('[A-Za-z0-9\\s]');
+										}	
+										else if (fields[j]['validators'][set].regex === '^w+@+w.+w-{2,4}'){ //@
+					   					renderer.ndata.re = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+					   					console.info(renderer.ndata.re);
+										}	
+										else if (fields[j]['validators'][set].regex === 'd{1,2}/d{1,2})/d{2})'){ 
+				   						renderer.ndata.re = /^(\d{1,2})\/(\d{1,2})\/(\d{2})$/; //dd/mm/yy
+										}	
+										else if (fields[j]['validators'][set].regex === 'd{1,2}-d{1,2})-d{2})'){ //dd-mm-yy
+				   						renderer.ndata.re = /^(\d{1,2})\-(\d{1,2})\-(\d{2})$/;
+										}	
+										else if (fields[j]['validators'][set].regex === 'd{6}'){ //zip_code_col
+					   					renderer.ndata.re = new RegExp('\\d{6}');
+					   					console.info(renderer.ndata.re);
+										}	
+										else if (fields[j]['validators'][set].regex === '^(?=.{8,16}$)[a-zA-Z0-9._]'){ //8-16 char
+				   						renderer.ndata.re = new RegExp('^(?=.{8,16}$)[a-zA-Z0-9._]');
+										}				
+										else{
+											alert('La opcion "' + fields[j]['validators'][set].regex + '" no puede ser interpretada como expresion. Por favor utilice una de las opciones que el modulo interprete.');									
+											renderer.ndata.re = false;
+											validators.regex = false;
+										}
 	   						}
 							}
-
 					   	if (typeof renderer.ndata !== 'undefined'){
 								if (renderer.dom_factor.length <= j){
 									renderer.dom_factor.push([]);
@@ -667,12 +846,18 @@ function table_maker(Options, workbook){
 								}  
 								else{
 									renderer.dom_factor.push([]);
-									renderer.dom_factor[j].push([renderer.ndata,validators]); 						
+									renderer.dom_factor[j].push([renderer.ndata,validators]); 	
+									console.info(renderer.dom_factor);					
 								}
 							}
 						}
 						catch(error){
-							console.info(error);
+							//throw new Error('ERROR: opcion no soportada por el modulo');
+							let validators = new ElReqs();
+							renderer.ndata = new DOMNodeFactors(false, fields[j]['label'], fields[j]['key']);
+							renderer.dom_factor.push([]);
+							renderer.dom_factor[j].push([renderer.ndata,validators]); 	
+							console.info('FAKE VALIDATOR FOUND', renderer.dom_factor);
 						}	
    				}		
 				}
@@ -693,7 +878,6 @@ function table_maker(Options, workbook){
 					let validators = null;   	
    			}
 			}
-
 			for(var sh = 0; sh <= workbook.SheetNames.length; ++sh){ 
 				try{
 					var sheet = workbook.Sheets[workbook.SheetNames[sh]]; // get the first worksheet
@@ -708,39 +892,7 @@ function table_maker(Options, workbook){
 	  				sheetDivChildInput.appendChild(pageOption);
 	  				var range = XLSX.utils.decode_range(sheet['!ref']); // get the range
 	  				let page_data = [];
-
-					//dtype checkbox 
-					//avoid creating an extra option to store at new page
-					if (sh === 0){					
-						let sheetDivTableD = document.createElement('th'); 
-						sheetDivTableD.id = 'show_changed_container'; 
-						let sheetDivTableDIn = document.createElement('input'); 
-						sheetDivTableDIn.id='select_all'; 
-						this.range = range.e.r;
-						//unclick or click all rows as a user option
-						sheetDivTableDIn.onchange = function(e){
-							if (renderer.excel_data.length === 0){
-								this.Size = this.range;							
-							}
-							else{
-								this.Size = renderer.excel_data[0].length;							
-							}
-  							for (var i = 0; i < this.Size; i++) {
-  								if (document.getElementById('render_row_'+String(i)) !== null){
-  									document.getElementById('render_row_'+String(i)).click();
-								}
-  							}		
-						}; 
-						sheetDivTableDIn.type='checkbox'; 
-						sheetDivTableDIn.click();
-						//getElementById returns null!
-						//child is added to structure before substracting another 
-						if (Utils.findChildById(sheetDivDtypeRow,'select_all',true) === null){				 
-							sheetDivTableD.appendChild(sheetDivTableDIn);	
-						} 
-						sheetDivDtypeRow.appendChild(sheetDivTableD);
-					}
-		
+	  				renderer.xcrange = range.e.c+1;
 	  				for(var R = range.s.r; R <= range.e.r; ++R) { //R = row   
 	  					if (typeof renderer.falsable_cells[sh] === 'undefined'){
 	  						renderer.falsable_cells.push([]);					
@@ -752,7 +904,7 @@ function table_maker(Options, workbook){
 	            		var cellref = XLSX.utils.encode_cell({c:C, r:R}); // construct A1 reference for cell
 		         		if(!sheet[cellref]) continue; // if cell doesn't exist, move on
 	   	      		var cell = sheet[cellref];
-	   	      		let v = String(cell.v); //string parse the value in cell
+	   	      		let v = String(cell.w).trim(); //string parse the value in cell and removes whitespace from both ends of a string.
 	   	      		page_data[R].push(v);
 	   	      		renderer.falsable_cells[sh][R][C] = false;
          			}	       	
@@ -765,25 +917,14 @@ function table_maker(Options, workbook){
 				}
 	   	}
 	   	renderer.page = 0;
-	   	renderer.sheetDivTable = sheetDivTable;
 	   	renderer.deep_excel_data = JSON.parse(JSON.stringify(renderer.excel_data));			
-			renderer.sheetDiv.appendChild(renderer.sheetDivChildDiv);
-			renderer.sheetDiv.appendChild(renderer.sheetDivTable); 
-			//Contenedor de tabla
-			let tableScrollDiv = document.createElement('div');
-			tableScrollDiv.id = 'page_table';
-			tableScrollDiv.style = 'overflow-x: scroll; height: 300px; overflow-y: scroll;width: 100%;table-layout: fixed;';
-			tableScrollDiv.appendChild(renderer.sheetDivTable);
-			renderer.sheetDiv.appendChild(tableScrollDiv);	
-			renderer.prev_exp = 0; //start transversal		
-	   	let sheet1 = renderer.loadTable(0);	
-			let selectorIncrement = 125;		
+		renderer.prev_exp = 0; //start transversal		
+	   	let sheet1 = renderer.loadTable(0);		
 	  		for (var vtypei = 0; vtypei < renderer.tableSize+1; ++vtypei) { //test inside (not from) table
 	  			if (renderer.tableSize+1 <= vtypei){
 					break;	  					
 	  			}
 				let tdLabelShiftDiv = document.createElement('div');
-				  
 				//Estilo de container de select de campos
 				let tdLabelSelector = document.createElement('select');  
 				tdLabelSelector.id='select_all_selector_'+String(vtypei); 
@@ -793,9 +934,17 @@ function table_maker(Options, workbook){
 					try{
 						let children = e.target.choices;
 						this.selectors = document.getElementById('sheetFieldSelector').childNodes;
+						this.great_col = 0;
+						this.great_col_prev = 0;
+						if (e.target.choices.indexOf(e.target.value) >= 10){
+							//this.great_col = 1;
+						}
+						if (e.target.choices.indexOf(e.target.prev) >= 10){
+							//this.great_col_prev = 1;
+						}						
 						for(var vtypec = 1; vtypec <= this.selectors.length-1; ++vtypec) {
-							this.selectors[vtypec].childNodes[0].childNodes[0].childNodes[e.target.choices.indexOf(e.target.value)].disabled = true; 
-							this.selectors[vtypec].childNodes[0].childNodes[0].childNodes[e.target.choices.indexOf(e.target.prev)].disabled = false;															
+							this.selectors[vtypec].childNodes[0].childNodes[0].childNodes[e.target.choices.indexOf(e.target.value)].setAttribute("disabled","disabled"); 
+							this.selectors[vtypec].childNodes[0].childNodes[0].childNodes[e.target.choices.indexOf(e.target.prev)].removeAttribute("disabled");															
 						}		
 						e.target.prev = e.target.value;	
 						if (typeof renderer.check_transversal === 'undefined'){
@@ -804,7 +953,6 @@ function table_maker(Options, workbook){
 						else{
 							this.editing = renderer.page; //program basis
 						}
-						
 						this.validating = false;	
 						this.pure = true;		
 						try{
@@ -818,7 +966,6 @@ function table_maker(Options, workbook){
 							renderer.swap_columns(this.editing, parseInt(e.target.id.split('select_all_selector_')[1])+1, 'pure', this.pure);	
 							return null;
 						}
-
 						if (this.validating === true){
 							this.pure = false;			
 						}						
@@ -831,21 +978,28 @@ function table_maker(Options, workbook){
 				tdLabelShiftDiv.appendChild(tdLabelSelector);					
 				let tdFieldSelector = document.createElement('th');
 				//user structure => unbiased test possibilities
-	  			for(var vtypec = 0; vtypec <= renderer.tableSize+1; ++vtypec) { 
+	  			for(var vtypec = 0; vtypec <= renderer.tableSize+2; ++vtypec) { 
 					let selectOption = document.createElement('option'); 
 					try{
 						if (renderer.tableSize+1 === vtypec){ //applies for user test
 							this.abstract_key	= '--';	
-							this.abstract_label = '--'; 		
+							this.abstract_label = 'Ignorar columna'; 		
 							this.abstract_empty = true;																		
 							selectOption.value = this.abstract_key;
 							tdLabelSelector.choices.push(this.abstract_key);
 							selectOption.innerHTML = this.abstract_label;
-							selectOption.defaultSelected = true;	
+							//selectOption.defaultSelected = true;	
 							tdLabelSelector.prev = this.abstract_key;							
-							tdLabelSelector.appendChild(selectOption);							
-						} 	
-						else{
+							tdLabelSelector.appendChild(selectOption);		
+						} else if(renderer.tableSize+2 === vtypec){																	
+							selectOption.value = "";
+							tdLabelSelector.choices.push("Campo "+(vtypei+1));
+							selectOption.innerHTML = "Campo "+(vtypei+1);
+							selectOption.defaultSelected = true;
+							selectOption.disabled = true;	
+							//tdLabelSelector.prev = this.abstract_key;							
+							tdLabelSelector.appendChild(selectOption);	
+						} else{
 							selectOption.value = renderer.dom_factor[vtypec][0][0].key;
 							tdLabelSelector.choices.push(renderer.dom_factor[vtypec][0][0].key);
 							selectOption.innerHTML = renderer.dom_factor[vtypec][0][0].label;
@@ -868,36 +1022,7 @@ function table_maker(Options, workbook){
 					//skip before unset testing 
 				}
 				else{
-					sheetFieldSelector.appendChild(tdFieldSelector);	
-					let tdDtypeCol = document.createElement('th');  
-					let dtypeColSpan = document.createElement('span');  
-					dtypeColSpan.id = 'dtype_'+String(vtypei);  
-					if (document.getElementById(dtypeColSpan.id) !== null){
-					}														
-					
-					//ghost dtype
-					dtypeColSpan.innerHTML = 'unset';	
-   	    	  	if (parseInt(renderer.excel_data[0][3][vtypei]) === Number.isNaN()){
-						dtypeColSpan.innerHTML = 'String';      						
-       		  	}
-	       		else if (renderer.excel_data[0][3][vtypei] === ''){    	  						
-   					dtypeColSpan.innerHTML = 'undef';	  						
-       	  		}
-	       		else if (renderer.excel_data[0][3][vtypei] === null){    	  						
-   					dtypeColSpan.innerHTML = 'undef';	  						
-       	  		}
-	       	  	else if (renderer.excel_data[0][3][vtypei].match(/\d+/g) === null){	  //string without numbers	  						
-   					dtypeColSpan.innerHTML = 'String';	  						
-	       	  	}
-		       	else if ((parseFloat(renderer.excel_data[0][3][vtypei]) % 1) !== 0){	  //number with remaining part 	  						
-   					dtypeColSpan.innerHTML = 'Float';	  						
-       	  		}
-	       	  	else{ //does not have remaining part
-   					dtypeColSpan.innerHTML = 'Int';	  			
-      	 	  	}
-       		  	dtypeColSpan.style.marginLeft = '-32px';		
-					tdDtypeCol.appendChild(dtypeColSpan);	
-					document.getElementById('sheetDtype').appendChild(tdDtypeCol);							
+					sheetFieldSelector.appendChild(tdFieldSelector);							
 				}				
 			}	  	   	
 	   	for (var s = 0; s < sheet1.length; s++) {
@@ -917,7 +1042,6 @@ function table_maker(Options, workbook){
   	};
    xhr.send();
 }
-
 function renderFun(file, config){
 	/*Función que toma la configuración del módulo como argumento
 	y el nombre de archivo cargado mediante drag and drop para renderizar el documento.
@@ -931,7 +1055,6 @@ function renderFun(file, config){
 	  	var reader = new FileReader();
 	  	let next_col = false;
 	  	reader.onloadend = function(e) {
-
 	  		var data = e.target.result;
 	  		data = new Uint8Array(data);
 	  		//process_wb(XLSX.read(data, {type: 'array'}));
@@ -959,15 +1082,12 @@ function renderFun(file, config){
 			   var percentLoaded = Math.round((e.loaded / e.total) * 100);
 			   	document.getElementById('draggerInputsContainer').style.display = 'none';
 				document.getElementById('spinner').style.display = 'block';
-			
-
 			}
     	};
     	reader.onabort = function (e) {
       	e.abort();
     	};    		
     	reader.onloadstart = function (e) {
- 
     	};    	  	
 	  	reader.readAsArrayBuffer(file);
 	}
@@ -975,11 +1095,8 @@ function renderFun(file, config){
 		console.info(error);
 	}
 }
-
 export default class renderWidget {
   constructor(file,config) {
-		document.write('<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/​libs/xlsx/0.15.6/xlsx.full.min.js"></script>');
-		//this.file = document.getElementById('profpic').files[0];
 		this.config = config;	
 		this.cells = [];
 		this.cells_names_selected = [];
@@ -1001,6 +1118,198 @@ export default class renderWidget {
             		}
     				}
 		}
+		//Agregamos los scripts externos al body para renderizar el contenido del excel
+		const script_xlsx = document.createElement("script");
+		script_xlsx.src = "https://oss.sheetjs.com/sheetjs/xlsx.full.min.js";
+		script_xlsx.async = true;
+		const script_shim = document.createElement("script");
+		script_shim.src = "https://oss.sheetjs.com/sheetjs/shim.js";
+		script_shim.async = true;
+		document.body.appendChild(script_xlsx);
+		document.body.appendChild(script_shim);
+		let tableStyle = document.createElement('style');
+		tableStyle.innerHTML = `
+		#sheet_div{
+			overflow-x: hidden; 
+			position: absolute;
+			z-index: 1000;
+			top: 50%;
+			left: 50%;
+			padding: 16px;
+			width: 95%; 
+			border-radius: 4px;
+			height: 90%;
+			overflow-y: scroll;
+			-ms-transform: translate(-50%,-50%);
+			transform: translate(-50%,-50%);
+			border: 1px solid #DEDEDE;
+			box-sizing: border-box;
+			box-shadow: 0px 4px 88px rgba(0, 0, 0);
+			display:block;
+		  }
+		  #header_xlsx{
+			padding: 10px 0;
+			height: 25%;
+		  }
+		  .cencilio_row{
+			display: flex;
+		  }
+		  .cencilio-col{
+			width: 50%; 
+			position:relative;
+		  }
+		  .cencilio-col-30{
+			width: 30%; 
+			position:relative;
+		  }
+		  .cencilio-col-70{
+			width: 70%; 
+			position:relative;
+		  }
+		  #close_sheet, #filter_rows_btn{
+			background-color: transparent;
+			border: 0px;
+			float: right;
+		  }
+		  #rows_counter_container{
+			  display: inline;
+		  }
+		  #filters_rows_container{
+			background: #FFFFFF;
+			border: 1px solid #CFD8E5;
+			box-sizing: border-box;
+			box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.2);
+			border-radius: 6px;
+			display: none;
+			overflow: hidden;
+			text-align: left;
+			margin-top: 5px;
+			margin-left: auto;
+			margin-right: 0px;
+			width: 200px;
+			padding: 16px;
+			position: relative;
+			z-index: 1000;
+		  }
+		  #filter_rows_btn{
+			  color: rgb(7, 40, 140);
+			  margin-left: 25px;
+		  }
+		  #cencilio_file_name, #select_sheet_label{
+			font-size: 16px;
+		  }
+		  #sheet_select{
+			width: 136px; 
+			border-radius: 6px;
+			height: 32px; 
+			display: inline-block; 
+			margin: 0 10px;
+			border: 1px solid #CFD8E5;
+			color: #0A1833;
+		  }
+		  #cargar_btn_cencilio{
+			height: 36px; 
+			width: 122px; 
+			border-width: 0px; 
+			border-radius: 5px; 
+			padding: 8px;  
+			background-color: rgb(7, 40, 140); 
+			color: #FFFFFF; 
+			float: right;
+		  }
+		  #cencilio_title_instructions{
+			font-weight: 700;
+		  }
+		  #cencilio_instructions{
+			font-weight: 400;
+		  }
+		  #show_changed_label, #show_errors_label {
+			font-size: 14px; 
+			margin-right: 10px;
+		  }
+		  #page_table_container{
+			height: 65%; 		
+		  }
+		  #page_table_row{
+			height: 8%; 		
+		  }
+		  #page_table{
+			overflow-x: scroll; 
+			height: 92%; 
+			overflow-y: scroll;
+			width: 100%;
+		  }
+		  #page_table table{
+			border-collapse:separate;
+			border-spacing: 0; 
+		  }
+		  #sheetFieldSelector{
+			height: 46px;
+		  }
+		  #sheetFieldSelector th{
+			background: rgba(207, 216, 229, 0.7); 
+			padding: 0px 12px;
+			border: 0.5px solid #CFD8E5;
+		  }
+		  #sheetFieldSelector select{
+			border: 1px solid #CFD8E5;
+			border-radius: 6px;
+			color: #0A1833;
+			background: none;
+		  }
+		  #sheetFieldSelector th:first-child{
+			padding: 0px 30px 0px 14px;
+			border-top-left-radius: 6px;
+			border-collapse:separate
+		  }
+		  #sheetFieldSelector th:last-child{
+			border-top-right-radius: 6px;
+			border-collapse:separate
+		  }
+		  #sheet_rows tr:nth-child(even){
+			background-color: rgba(54, 105, 177, 0.05);;
+		  }
+		  #sheet_rows tr:nth-child(even) input[type="text"]{
+			background-color: rgba(54, 105, 177, 0.03);;
+		  }
+		  #sheet_rows tr td{
+			border: 0.5px solid #CFD8E5;
+		  }
+		  #sheet_rows input[type="text"]{
+		  border: transparent;
+		  height: 34px;
+		  }
+		  #sheet_rows input:focus{
+			outline:solid 1px #2A438C;
+		  }
+		  #sheet_rows tr td:first-child{
+			padding: 0px 30px 0px 14px;
+			position: relative;
+		  }
+		  #sheet_rows tr td:first-child label{
+			position: absolute;
+			margin-left: 5px;
+		}
+		  #footer_sheetdiv{
+			 height:10%;
+			 display: grid;
+			 align-items: center;
+		}
+		  #progress_bar_wrp{
+			width: 100%;
+			height: 10px;
+			background-color: #DDE7F2;
+			border-radius: 20px;
+			margin-top: 15px;
+		}
+		  #loadng_progress_bar_cencilio{
+			height: 100%;
+			width: 5%;
+			background-color: #727cf5;
+			border-radius: 20px;
+		}
+		`;
+		document.head.appendChild(tableStyle);
 		let invalidKey = document.createElement('div');
 		invalidKey.id = 'api_error';
 		invalidKey.style = 'position: relative; top: 50%; transform: translateY(-50%); display: none;';
@@ -1027,10 +1336,9 @@ export default class renderWidget {
 		else{
 			document.getElementById('cencilio-importer').style.color = config['theme']['global']['textColor'];
 		}	
-
 		dragger.draggable = true; //No ocurre
 		dragger.ondragstart = function (event) {
-    	event.dataTransfer.setData('application/vnd.ms-excel', null); //cannot be empty string
+    		event.dataTransfer.setData('application/vnd.ms-excel', null); //cannot be empty string
 		}
 		dragger.ondragover = function(event) {
   			event.preventDefault();
@@ -1039,6 +1347,8 @@ export default class renderWidget {
 			ev.preventDefault();
   			if (ev.dataTransfer.items) {
     			var file = ev.dataTransfer.items[0].getAsFile();
+    			console.info('GETTING IT AS FILE', file);
+    			renderer.file = file;
     			try{
 					renderer.file_name = file.name;
 					renderFun(file,config);  
@@ -1047,35 +1357,45 @@ export default class renderWidget {
 				}
   			} else {
     			var file = ev.dataTransfer.files[0];
+    			console.info('TRANSFERRING DATA');
 				renderFun(file,config);    	
   			}				
 		};
-
-
 		let draggerForm = document.createElement('form');	
 		draggerForm.className = 'pimg';
 		draggerForm.id = 'pimg';
-		draggerForm.style = 'position: relative; width: 100%;height: 100%; text-align: center; outline-offset: -10px; outline: 2px dashed'+config['theme']['global']['textColor']+';';
+		draggerForm.style = 'position: relative; width: 100%;height: 100%; text-align: center; outline-offset: -10px; outline: 2px dashed'+config['theme']['global']['primaryButtonColor']+';';
 		draggerForm.enctype = 'multipart/form-data';
-
 		let draggerInputsContainer = document.createElement('div');
 		draggerInputsContainer.id= 'draggerInputsContainer';
 		draggerInputsContainer.style = 'position: relative; top: 50%; transform: translateY(-50%);';
-
 		let draggerImg2 = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 		let iconPath = document.createElementNS('http://www.w3.org/2000/svg','path');
-		draggerImg2.setAttribute('fill', config['theme']['global']['textColor']);
-		draggerImg2.setAttribute('viewBox', '0 0 50 43');
+		draggerImg2.setAttribute('stroke', config['theme']['global']['primaryButtonColor']);
+		draggerImg2.setAttribute('fill', 'none');
+		draggerImg2.setAttribute('viewBox', '0 0 24 24');
 		draggerImg2.setAttribute('width', '100%');
-		draggerImg2.setAttribute('height', '30px');
+		draggerImg2.setAttribute('height', '40px');
 		draggerImg2.classList.add('post-icon');
+		draggerImg2.id = 'dragger-icon';
 		iconPath.setAttribute(
 		  'd',
-		  'M48.4 26.5c-.9 0-1.7.7-1.7 1.7v11.6h-43.3v-11.6c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v13.2c0 .9.7 1.7 1.7 1.7h46.7c.9 0 1.7-.7 1.7-1.7v-13.2c0-1-.7-1.7-1.7-1.7zm-24.5 6.1c.3.3.8.5 1.2.5.4 0 .9-.2 1.2-.5l10-11.6c.7-.7.7-1.7 0-2.4s-1.7-.7-2.4 0l-7.1 8.3v-25.3c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v25.3l-7.1-8.3c-.7-.7-1.7-.7-2.4 0s-.7 1.7 0 2.4l10 11.6z'
-		);	  
+		  'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12'
+		);
+		iconPath.setAttribute(
+			'stroke-linecap',
+			'round'
+		  );
+		iconPath.setAttribute(
+		'stroke-linejoin',
+		'round'
+		);	
+		iconPath.setAttribute(
+			'stroke-width',
+			'1.8'
+			);	
 		draggerImg2.appendChild(iconPath);
 		draggerInputsContainer.appendChild(draggerImg2);
-
 		let draggerInput = document.createElement('input');	
 		draggerInput.type = 'file';
 		draggerInput.id = 'pIn';
@@ -1087,19 +1407,20 @@ export default class renderWidget {
 			renderer.file_name = this.files[0].name;
 			renderFun(this.files[0], config);
 		};
-
 		let draggerLabel = document.createElement('label');	
-		draggerLabel.appendChild(document.createTextNode("Arrastra un archivo aquí o haz click para cargar"));
+		draggerLabel.appendChild(document.createTextNode("Arrastra tu archivo aquí o haz click para cargar"));
 		draggerLabel.htmlFor='pIn';
 		draggerLabel.class='perfil_label';
 		draggerLabel.id='importer-msg';
-		draggerLabel.style = 'margin-top: 10px; cursor: pointer;';
+		draggerLabel.style = 'margin-top: 10px; cursor: pointer; font-weight:500;';
 		draggerInputsContainer.appendChild(draggerLabel);	
-
+		let draggerSubLabel = document.createElement('p');
+		draggerSubLabel.innerHTML = 'Formatos permitidos CSV, XLSX, XLS' ;
+		draggerSubLabel.style = 'font-size: 12px; font-weight:300;';
+		draggerInputsContainer.appendChild(draggerSubLabel);
 		let excelButton = document.createElement('button'); 			
 		excelButton.id = 'ppbutton'; 		
 		excelButton.style = 'display:none;'; 
-		
 		//children must be inside parent elements to fit
 	 	if (typeof config['height'] !== 'undefined'){ //user basis
  			if (config['height'] <= 200){
@@ -1123,81 +1444,100 @@ export default class renderWidget {
  				excelButton.style.width = String(config['width'])+'px';
  			}	
  		}
-
 		let draggerSpinner = document.createElement('div');
 		draggerSpinner.appendChild(document.createTextNode("Cargando..."));
 		draggerSpinner.id = 'spinner';	
 		draggerSpinner.style = 'position: relative; top: 50%; transform: translateY(-50%); display: none;';
-		
 		draggerInputsContainer.appendChild(excelButton);
 		draggerForm.appendChild(draggerSpinner);
 		draggerForm.appendChild(draggerInputsContainer);	
 		draggerForm.appendChild(invalidKey);
 		dragger.appendChild(draggerForm);
-
-
+		let exportConfirmationDiv = document.createElement('div');
+		exportConfirmationDiv.id = 'export_confirmation_cencilio';
+		exportConfirmationDiv.style='background-color:#FFFFFF;box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 57px 0px;position: absolute;display: none; z-index: 1001;width: 450px; height: 190px;border-radius: 6px; top:50%; left:50%; */-ms-transform: translate(-50%,-50%);transform: translate(-50%,-50%); text-align:center; padding:30px;';
+		let exportConfirmationTitle = document.createElement('p');
+		exportConfirmationTitle.style = 'font-size: 18px; display:block;  font-weight: 600;';
+		exportConfirmationTitle.innerHTML = '¿Estás seguro de cargar tus datos?';
+		let exportConfirmationSubtitle = document.createElement('p');
+		exportConfirmationSubtitle.style = 'font-size: 14px; display:block; font-weight: 300;';
+		exportConfirmationSubtitle.innerHTML = 'Una vez cargados tus datos no podrán ser editados.';
+		let exportConfirmationBtnsDiv = document.createElement('div');
+		exportConfirmationBtnsDiv.id = 'export_confirmation_btns_div';
+		exportConfirmationBtnsDiv.style = 'display: flex;';
+		let cancelExportBtn = document.createElement('button');
+		cancelExportBtn.id = 'cancel_export_btn';
+		cancelExportBtn.type='button'; 
+		cancelExportBtn.style='height: auto; width:50%;border-radius: 5px; border-width:0; font-size: 16px; font-weight:600;  margin:30px; padding: 10px 16px; background: #7D8EB2; color: #FFFFFF;';
+		cancelExportBtn.innerHTML = 'CANCELAR';
+		cancelExportBtn.onclick = function (e){
+			document.getElementById('export_confirmation_cencilio').style.display = 'none';
+			renderer.set_virtual = true;	
+		}
+		let confirmExportBtn = document.createElement('button');
+		confirmExportBtn.id = 'confirm_export_btn';
+		confirmExportBtn.type='button'; 
+		confirmExportBtn.style='height: auto; width:50%;border-radius: 5px; border-width:0; font-size: 16px; font-weight:600;  margin:30px; padding: 10px 16px; background: #727CF5; color: #FFFFFF;';
+		confirmExportBtn.innerHTML = 'CARGAR';
+		exportConfirmationBtnsDiv.appendChild(cancelExportBtn);
+		exportConfirmationBtnsDiv.appendChild(confirmExportBtn);
+		exportConfirmationDiv.appendChild(exportConfirmationTitle);
+		exportConfirmationDiv.appendChild(exportConfirmationSubtitle);
+		exportConfirmationDiv.appendChild(exportConfirmationBtnsDiv);
+		document.body.appendChild(exportConfirmationDiv);
+		let loadingDataDiv = document.createElement('div');
+		loadingDataDiv.id = 'loading_data_cencilio';
+		loadingDataDiv.style='display: none; background-color:#FFFFFF;box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 57px 0px;position: absolute;z-index: 1001;width: 450px; height: 190px;border-radius: 6px; top:50%; left:50%; */-ms-transform: translate(-50%,-50%);transform: translate(-50%,-50%); text-align:center; padding:30px;';
+		let loadingDataTitle = document.createElement('p');
+		loadingDataTitle.style = 'font-size: 18px; display:block; font-weight: 600; color: #07288C';
+		loadingDataTitle.innerHTML = 'Cargando datos...';
+		let loadingDataSubtitle = document.createElement('p');
+		loadingDataSubtitle.style = 'font-size: 14px; display:block; font-weight: 300; color: #07288C';
+		loadingDataSubtitle.id = 'loading_subtitle_cencilio';
+		let progressBarWrapper = document.createElement('div');
+		progressBarWrapper.id = 'progress_bar_wrp';
+		let loadingProgressBar = document.createElement('div');
+		loadingProgressBar.id = 'loadng_progress_bar_cencilio';
+		loadingDataDiv.appendChild(loadingDataTitle);
+		loadingDataDiv.appendChild(loadingDataSubtitle);
+		loadingDataDiv.appendChild(progressBarWrapper);
+		progressBarWrapper.appendChild(loadingProgressBar);
+		document.body.appendChild(loadingDataDiv);
 		let dataExportDiv = document.createElement('div');
 		dataExportDiv.id = 'data_exported';
-		dataExportDiv.name = 'data_exported';
-		dataExportDiv.className = 'data_exported'; 	
-		dataExportDiv.style='background-color: rgb(180, 178, 183);box-shadow: rgb(138, 82, 231) 0px 2px 8px 5px;position: absolute;display: none; z-index: 7;margin-left: 396px;width: 458px;margin-top: 166px;border-radius: 4px;color: rgba(101, 0, 211, 0.82);';
+		dataExportDiv.style='background-color:#FFFFFF;box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 57px 0px;position: absolute;display: none; z-index: 1001;width: 450px; height: 190px;border-radius: 4px; top:50%; left:50%; */-ms-transform: translate(-50%,-50%);transform: translate(-50%,-50%); text-align: center;';
 		let dataExportSpan = document.createElement('span');
-		dataExportSpan.style = 'max-height: 144px;margin-left: 56px;font-size: 20px;';
-		dataExportSpan.innerHTML = 'Datos cargados exitosamente';
-		let dataExportButton = document.createElement('button');
-		dataExportButton.type = 'button';
-		dataExportButton.id = 'close_button';
-		dataExportButton.onclick = function (e){
-			document.getElementById('data_exported').style.display = 'none';
-			renderer.set_virtual = true;
-			//document.getElementById('data_exported').remove();		
-		}
-		dataExportButton.style='background: blue;height: 26px;width: 26px;border-width: 0px;margin-top: 11px;margin-left: 32px;border-radius: 6px;';
-		let dataExportButtonImg = document.createElement('img');
-		dataExportButtonImg.src='close.png';
-		dataExportButtonImg.style='width: 26px;height: 26px;margin-left: -6px;';
-		dataExportButton.appendChild(dataExportButtonImg);
-		let dataExportDash = document.createElement('hr');
-		dataExportDash.style='max-height: 144px;';
-		let dataExportChildDiv = document.createElement('div');
-		dataExportChildDiv.id='board'; 
-		dataExportChildDiv.style='max-height: 144px;';
-		let dataExportSpan2 = document.createElement('span');
-		dataExportSpan2.style='max-height: 144px;';
-		dataExportSpan2.innerHTML='Para ver sus datos cargados observe la respuesta de procesamiento de los datos actualizados.';
+		dataExportSpan.style = 'font-size: 20px; padding:30px; display:block; line-height:1;';
+		dataExportSpan.innerHTML = '¡Datos cargados exitosamente!';
 		let dataExportAccept = document.createElement('button');
+		dataExportAccept.id = 'close_button';
 		dataExportAccept.type='button'; 
-		dataExportAccept.style='background: blue;visibility: hidden;height: 52px;width: 52px;border-width: 0px;margin-top: 11px;margin-left: 16px;';
+		dataExportAccept.style='height: auto; width:390px;border-radius: 5px; border-width:0; font-size: 16px; font-weight:600;  padding: 10px 16px;';
 		dataExportAccept.innerHTML = 'ACEPTAR';
-		dataExportChildDiv.appendChild(dataExportSpan2);
-		dataExportChildDiv.appendChild(dataExportAccept);
-		dataExportDiv.appendChild(dataExportSpan);
-		dataExportButton.appendChild(dataExportButtonImg);
-		dataExportDiv.appendChild(dataExportButton);
-		dataExportDiv.appendChild(dataExportDash);	
-		document.getElementById('cencilio-importer').appendChild(dataExportDiv);				
-		
+		dataExportAccept.onclick = function (e){
+			document.getElementById('data_exported').style.display = 'none';
+			//window.location.href = "/test/demo/dashboard-one.html";
+			renderer.set_virtual = true;	
+		}
+		dataExportDiv.appendChild(dataExportSpan);	
+		dataExportDiv.appendChild(dataExportAccept);
+		document.body.appendChild(dataExportDiv);				
  		if (typeof config['theme']['global']['errorColor'] !== 'undefined'){
  			this.errorColor = config['theme']['global']['errorColor']; 
  		}		
   }
-
 	tdCombined(event) {
 		//solve passive trigger on active element
 		if (event.target){
 			renderer.cells_names_selected.push(event.target); 		
   			event.target.style.backgroundColor = 'aliceblue';
 			if (1 < renderer.cells_names_selected.length){
-				renderer.cells_names_selected[0].value += ' '+ event.target.value; //empty the last fired and take the value to the first (delete it itself if the fireing to itself)
 				if (renderer.hasOwnProperty('check_transversal')){
 					this.editing = renderer.check_transversal; //user basis
 				}
 				else{
 					this.editing = renderer.page; //program basis
 				}		
-				renderer.excel_data[this.editing][renderer.cells_names_selected[0].row][renderer.cells_names_selected[0].col] += ' '+event.target.value; 		
-				renderer.cells_names_selected[1].value = ''; 
-				renderer.excel_data[this.editing][event.target.row][event.target.col] = '';
 				renderer.cells_names_selected[0].style.backgroundColor = 'white';
 				renderer.cells_names_selected[1].style.backgroundColor = 'white';
 				//prove cells before emptying combination
@@ -1209,7 +1549,6 @@ export default class renderWidget {
 		}
 		return null;
 	}
-
 	swap_columns(Page,a,b,pure) {
 		//DATA STRUCTURE OF SWAPPED COLUMNS
 		if (renderer.hasOwnProperty('check_transversal')){
@@ -1269,6 +1608,7 @@ export default class renderWidget {
 									proving = [null];
 								}											
 								a_idx.push([renderer.deep_excel_data[Page][row][b-1], invalid, falsable, edited, proving]); //value, isinvalid, isfalsable, isedited, trying
+								console.info('A', a_idx);
 							}
 							else{
 								a_idx.push([renderer.deep_excel_data[Page][row][b-1], false, false, true, [null]]); //value, isinvalid, isfalsable, isedited, trying
@@ -1287,8 +1627,13 @@ export default class renderWidget {
 				//test all values to see which can be corrected
 				try{
 					//given regexp cannot be accessed from the index
+					console.info('REGEXP OF B',renderer.dom_factor[b-1][0][0].re, 'AND ERROR MSG', renderer.dom_factor[b-1][0][0].error);
 					if (renderer.dom_factor[b-1][0][0].re !== false){
 						this.ground_truth = renderer.prove(false, a-1, row, Page, row_vals.childNodes[a].childNodes[0].value, a_idx[row][4], renderer.dom_factor[b-1][0][0].error, false, true, renderer.dom_factor[b-1][0][0].re); //wants to exchange processes with a different regexp				
+						//correspondence between target and value has to exist
+						if (this.ground_truth !== true){
+							row_vals.childNodes[a].childNodes[0].re = renderer.dom_factor[b-1][0][0].re;						
+						}
 					}
 					else {
 						this.ground_truth = renderer.prove(false, a-1, row, Page, row_vals.childNodes[a].childNodes[0].value, a_idx[row][4], renderer.dom_factor[b-1][0][0].error, false, false); //wants to exchange processes		
@@ -1305,8 +1650,14 @@ export default class renderWidget {
 							row_vals.childNodes[a].childNodes[0].style.backgroundColor = 'white';					
 						}		
 						else{
-							row_vals.childNodes[a].childNodes[0].err_msg = renderer.dom_factor[b-1][0][0].error;		
-							row_vals.childNodes[a].childNodes[1].innerHTML = renderer.dom_factor[b-1][0][0].error;		
+							row_vals.childNodes[a].childNodes[0].err_msg = renderer.dom_factor[b-1][0][0].error;
+							if (typeof row_vals.childNodes[a].childNodes[1] !== 'undefined'){		
+								row_vals.childNodes[a].childNodes[1].innerHTML = renderer.dom_factor[b-1][0][0].error;
+							}	
+							else{
+								this.addTooltip(row_vals.childNodes[a], this.dom_factor[b-1][0][0].error);	
+								row_vals.childNodes[a].childNodes[0].style.backgroundColor = renderer.errorColor;	
+							}	
 						}		
 					}
 					else if (row_vals.childNodes[a].childNodes[0].isinvalid === false){ //ONE CAN BE INVALID AFTER TRANSFER
@@ -1344,7 +1695,6 @@ export default class renderWidget {
 			this.dtypea.innerHTML = this.dtypeb.innerHTML;	
 		}		
 	}	
-
 	render_invalid_page(state) {
   		let rows = document.getElementById('sheet_rows').childNodes;
   		this.skip_bad_row = false;
@@ -1371,75 +1721,46 @@ export default class renderWidget {
 			}
 		}			
 	}	
-
 	render_invalid(state,row) {
 		if (state === true){
-			let children = row.childNodes;
-  			for (var j = 0; j < children.length; j++) {
-  				let grandchildren = children[j].childNodes;
-  				for (var k = 0; k < grandchildren.length; k++) {
-  					if (grandchildren[k].type === 'checkbox'){
+			for (var r = 0; r < document.getElementById('sheet_rows').childNodes.length; r++) {
+				let grandchildren = document.getElementById('sheet_rows').childNodes[r];
+  				for (var k = 0; k < grandchildren.childNodes.length; k++) {
+					//console.info('ITERATING CELL',grandchildren.childNodes[k].childNodes[0]);  
+  					if (grandchildren.childNodes[k].childNodes[0].type === 'checkbox'){
 						continue;  					
   					}
-  					else if (grandchildren[k].type !== 'text'){
+  					else if (grandchildren.childNodes[k].childNodes[0].type !== 'text'){
 						continue;  					
-  					}
-					if (grandchildren[k].isinvalid === true){
-						if (grandchildren[k].style.backgroundColor === 'black'){
-							grandchildren[k].style.backgroundColor = this.errorColor;
-							grandchildren[k].parentElement.childNodes[1].style.backgroundColor = 'black';
-						}
-						else if (grandchildren[k].style.color === 'black'){
-							grandchildren[k].style.color = document.getElementById('sheet_div').style.color;
-							grandchildren[k].parentElement.childNodes[1].style.backgroundColor = 'black';
-						}
+  					}					
+  					//intensify error
+					if (grandchildren.childNodes[k].childNodes[0].isinvalid === true){
+						grandchildren.childNodes[k].childNodes[0].style.backgroundColor = 'rgb(201 41 41 / 92%)';
+       				if (typeof grandchildren.childNodes[k].childNodes[1] === 'undefined'){
+							//El mensaje es dado en un evento o manejado por el elemento que contiene la verificacion		
+							//console.info('ERROR', renderer.dom_factor[k-1][0][0].error, 'AT COLUMN',k);
+							this.addTooltip(grandchildren.childNodes[k], renderer.dom_factor[k-1][0][0].error);	 	  					
+   	 				}
 					}  
-					else{
-						if (document.getElementById('show_changed').checked === true){
-							if (grandchildren[k].isedited === true){
-								continue;							
-							}
-						}	
-						grandchildren[k].style.backgroundColor = 'black';	
-						if (document.getElementById('sheet_div').style.color !== 'black'){
-							grandchildren[k].style.color = 'black';
-						}
-						else{
-							grandchildren[k].style.color = document.getElementById('sheet_div').style.color;						
-							grandchildren[k].parentElement.childNodes[1].style.backgroundColor = 'black';
-						}
-					}
 				}
-			}			
+			}				
 		}
 		else{
-			let children = row.childNodes;
-  			for (var j = 0; j < children.length; j++) {
-  				let grandchildren = children[j].childNodes;
-  				for (var k = 0; k < grandchildren.length; k++) {		
-					if (grandchildren[k].style.backgroundColor === 'black'){
-						grandchildren[k].style.backgroundColor = 'white';
-						grandchildren[k].style.color = document.getElementById('sheet_div').style.color;						
-						//color exceptions to display error 
-						try{
-							grandchildren[k].parentElement.childNodes[1].style.backgroundColor = 'black'; 
-							grandchildren[k].parentElement.childNodes[1].style.color = 'yellow'; 
-						}
-						catch (error) {
-						}  	
-					}
-					else if (grandchildren[k].style.color === 'black'){
-						grandchildren[k].style.color = document.getElementById('sheet_div').style.color;
-					} 					
+			for (var r = 0; r < document.getElementById('sheet_rows').childNodes.length; r++) {
+				let grandchildren = document.getElementById('sheet_rows').childNodes[r];
+  				for (var k = 0; k < grandchildren.childNodes.length; k++) {
+  					//milden error	
+  					console.info(grandchildren.childNodes[k].childNodes[0]);
+					if (grandchildren.childNodes[k].childNodes[0].isinvalid === true){
+						grandchildren.childNodes[k].childNodes[0].style.backgroundColor = this.errorColor;
+					}  				
 				}
 			}				
 		}
 	}		
-
 	allNull(cell) {
   		return cell === null;
 	}	
-
 	render_edited_page(state) {
   		let rows = document.getElementById('sheet_rows').childNodes;
   		this.skip_bad_row = false;
@@ -1466,35 +1787,16 @@ export default class renderWidget {
 			}
 		}					
 	}	
-	
 	render_edited(state,row) {	
 		if (state === true){
 			let children = row.childNodes;
   			for (var j = 0; j < children.length; j++) {
   				let grandchildren = children[j].childNodes;
   				for (var k = 0; k < grandchildren.length; k++) {
-  					if (grandchildren[k].type === 'checkbox'){
-						continue;  					
-  					}
-  					else if (grandchildren[k].type !== 'text'){
-						continue;  					
-  					}
 					if (grandchildren[k].isnewinfo === true){
-						if (grandchildren[k].style.backgroundColor === 'black'){
-							grandchildren[k].style.backgroundColor = 'white';
-						}
-						else if (grandchildren[k].style.color === 'black'){
-							grandchildren[k].style.color = document.getElementById('sheet_div').style.color;
-						}
-					}  
-					else{
-						if (document.getElementById('show_errors').checked === true){
-							if (grandchildren[k].isinvalid === true){
-								continue;							
-							}
-						}	
-						grandchildren[k].style.backgroundColor = 'black';	
-						grandchildren[k].style.color = 'black';
+						console.info(grandchildren[k].style.backgroundColor);
+						grandchildren[k].style.backgroundColor = 'rgb(0 0 0 / 26%)';	
+						console.info(grandchildren[k].style.backgroundColor);
 					}  
 				}
 			}			
@@ -1504,24 +1806,14 @@ export default class renderWidget {
   			for (var j = 0; j < children.length; j++) {
   				let grandchildren = children[j].childNodes;
   				for (var l = 0; l < grandchildren.length; l++){
-					if (grandchildren[l].style.backgroundColor === 'black'){
+					console.info('ITERATING EDITED CELL');
+					if (grandchildren[l].isnewinfo === true){
 						grandchildren[l].style.backgroundColor = 'white';
-						if (grandchildren[l].isinvalid !== true){
-							grandchildren[l].style.backgroundColor = 'white';
-						}
-						else{
-							grandchildren[l].style.backgroundColor = renderer.errorColor;
-						}
 					}
-					else if (grandchildren[l].style.color === 'black'){
-						grandchildren[l].style.color = document.getElementById('sheet_div').style.color;
-					}
-					grandchildren[l].style.color = document.getElementById('sheet_div').style.color;
 				} 					
 			}				
 		}
 	}
-
 	addTooltip(k, msg){
 		/*  
 			Una funcion que crea un tooltip con un mensaje y lo anexa con su pariente contenedor 	
@@ -1529,279 +1821,63 @@ export default class renderWidget {
 				- k: contenedor pariente de tooltip
 				- msg: mensaje para mostrar	
 		*/
-		//definir el elemento inmutable 'svg' como parte del namespace
-		let tooltipSVG = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-		//coordenadas de resolucion de la burbuja
-		tooltipSVG.setAttribute('viewBox', '0 0 500 375');
-		//ancho en mm de la burbuja
-		tooltipSVG.setAttribute('width', '68.7916mm');
-		//altura en mm de la burbuja
-		tooltipSVG.setAttribute('height', '14.31875mm');
-		//El dato no tiene control valido (se falsifica y afecta la integridad) por ende necesita un atributo extra que muestre el error cuando el valor se falsifica
-		tooltipSVG.setAttributeNS(null, 'displayed', 'true');
-		//atributo estandar de visibilidad de burbuja inicial
-		tooltipSVG.setAttribute('display', 'none');
-										
-		//definir el atributo 'path' que guarda los datos del trazo de la burbuja
-		let tooltipPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-		tooltipPath.setAttribute('id', 'bordered');
-		//fill para el color de fondo de la burbuja
-		tooltipPath.setAttribute('fill', 'black');
-		//stroke para el color del trazo de la burbuja
-		tooltipPath.setAttribute('stroke', 'black');
-		//stroke-width para el ancho del trazo de la burbuja
-		tooltipPath.setAttribute('stroke-width', '1');
-		//d para definir el trazo con punto de partida M y contorno C que termina en Z
-		tooltipPath.setAttribute('d', 'M 40.00,0.09 C 40.00,0.09 81.00,0.09 81.00,0.09 81.00,0.09 159.00,0.09 159.00,0.09 159.00,0.09 398.00,0.09 398.00,0.09 398.00,0.09 452.00,0.09 452.00,0.09 472.05,0.03 489.76,12.14 496.94,31.00 499.45,37.60 499.99,41.03 500.00,48.00 500.00,48.00 500.00,252.00 500.00,252.00 499.96,278.44 478.44,299.96 452.00,300.00 452.00,300.00 334.00,300.00 334.00,300.00 331.91,300.00 328.94,299.88 327.00,300.60 323.10,302.03 314.38,311.62 311.00,315.00 311.00,315.00 270.00,356.00 270.00,356.00 270.00,356.00 257.00,369.00 257.00,369.00 255.33,370.63 252.49,373.80 250.00,373.80 247.51,373.80 244.67,370.63 243.00,369.00 243.00,369.00 230.00,356.00 230.00,356.00 230.00,356.00 189.00,315.00 189.00,315.00 185.62,311.62 176.90,302.03 173.00,300.60 171.06,299.88 168.09,300.00 166.00,300.00 166.00,300.00 48.00,300.00 48.00,300.00 21.56,299.96 0.04,278.44 0.00,252.00 0.00,252.00 0.00,48.00 0.00,48.00 0.04,23.64 16.68,5.64 40.00,0.09 Z');
-
-		//definir el atributo 'text' que guarda la tipografia del mensaje
-		let tooltip_errParent = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-		//usamos x como interlineado heredado
-		tooltip_errParent.setAttributeNS(null, 'x', '16');
-		//usamos y como posicion vertical heredada
-		tooltip_errParent.setAttributeNS(null, 'y', '46');
-		//font-size
-		tooltip_errParent.setAttributeNS(null, 'font-size', '52');
-		
-		//definimos la cantidad maxima de caracteres segun el ancho
-		let max_char = 18;		
-		
-		//si el mensaje es muy largo hay que acomodarlo en la burbuja
-		if (msg.length > max_char){
-			//total de caracteres que ocupa el mensaje
-			let msg_sum = 0; 	
-			//cantidad de caracteres
-			let msg_size = msg.length;
-			//lista que guarda los tokens textuales
-			this.msg_blocks = [];
-			//variable que sirve para cambiar el flow del mensaje
-			this.msg_overflow = false;
-			//variable que mide la cantidad de parrafos segun el flujo
-			let parag = 0;
-			//variable que puede servir para saber si faltan parrafos
-			let remain = 0;
-			//variable que determina si el mensaje esta completo
-			this.msg_complete = true;
-			//cantidad de caracteres por parrafo
-			this.span_sum = 0;		
-			//cantidad de parrafos por cumputar en relacion al limite de caracteres
-			let blocks = parseInt(msg.length/max_char);
-			
-			//tokenizamos el texto para comenzar a acomodar el mensaje
-			for (var token = 0; token < msg.split(' ').length; token++){																				
-				let msg_split = msg.split(' ');
-				//usamos el parrafo como escalar de caracteres
-				let char_scalar = parag + 1;
-
-				//como el espaciado no es un valor de la lista lo sumamos para calcular el limite
-				let msg_bound = msg_sum + this.msg_blocks.length;
-				//vemos si la dimension del mensaje excede el limite tipografico 
-				if ( (max_char * char_scalar) <= (msg_bound) ){
-					this.msg_fit = this.msg_blocks.join(' ');
-					
-					//si el mensaje excede la cantidad de caracteres es necesario extraer una parte para el proximo parrafo  
-					this.deep_msg_blocks = JSON.parse(JSON.stringify(this.msg_blocks));
-					if (this.msg_fit.length > max_char){
-						let last_word = this.deep_msg_blocks.slice(-1);
-						this.msg_blocks = this.deep_msg_blocks.pop(); 
-						this.msg_fit = this.deep_msg_blocks.join(' ');
-						this.msg_blocks = [];							
-						this.msg_blocks.push(last_word);																				
-					}
-					else{
-						this.msg_blocks = [];		
-					}																																			
-					parag += 1;
-					//definimos un span de texto para el parrafo
-					let tooltip_err_span = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-					//interlineado x
-					tooltip_err_span.setAttributeNS(null, 'x', '12');
-					//posicion y
-					tooltip_err_span.setAttributeNS(null, 'dy', '50');
-					//el color de texto se aplica con el atributo de relleno
-					tooltip_err_span.setAttributeNS(null, 'fill', 'yellow');
-					//asignamos el parrafo resultante  														
-					tooltip_err_span.innerHTML = this.msg_fit;
-					//el span de texto hereda los atributos de la tipografia
-					tooltip_errParent.appendChild(tooltip_err_span);
-					//marcamos el exceso de flujo
-					this.msg_overflow = true;
-					this.span_sum = 0;
-					//si el exceso de flujo cambio la cantidad de parrafos el mensaje esta sin completar
-					if	(parag >= blocks-1){
-						this.msg_complete = false;
-						this.msg_blocks = this.msg_blocks;
-						this.blocks = blocks;													
-					}
-				}
-				else{
-					//si cambio el flujo y al acomodar se separo una parte es necesario agregarla al parrafo nuevo
-					if (this.msg_overflow === true){
-						this.msg_blocks.push(msg_split[token-1]);	
-						this.msg_overflow = false;
-					}
-					else{
-						//condicion para este termino
-						if (token === msg.split(' ').length-1){
-							this.msg_fit = msg;						
-						}					
-					}
-					//un bloque de mensajes guarda las palabras de un parrafo
-					this.msg_blocks.push(msg_split[token]);	
-					//la palabra agrega caracteres
-					msg_sum += msg_split[token].length;
-					//y agrega span
-					this.span_sum += msg_split[token].length;												
-					remain = 0;
-				}
-			}	
-			//el mensaje no se completo y falta una parte
-			if (this.msg_complete === false){
-				this.msg_fit = this.msg_blocks.join(' ');						
-				this.deep_msg_blocks = this.msg_blocks;
-				//suponemos que el ultimo parrafo se puede acomodar a la tipografia
-				this.last_slice = true;
-				//la ultima parte excede el limite de caracteres
-				if (this.msg_fit.length > max_char){	
-					let char_sum = 0;
-					//eso hace que necesitemos saber si es necesario reacomodar la ultima parte por el limite de caracteres
-					for (var token = 0; token < this.deep_msg_blocks.length; token++){
-						char_sum += this.deep_msg_blocks[token].length;		
-						//nos posicionamos en la palabra que viola el limite para reacomodar la ultima parte
-						if ( (char_sum+this.deep_msg_blocks.length) > max_char){
-							this.begin_token = token;
-							this.last_slice = false;
-							break;						
-						}			
-					}		
-					//si la palabra excedida era la ultima la usamos en otro parrafo
-					if (this.last_slice === true){
-						this.begin_token = this.deep_msg_blocks.length-1;
-						this.last_word = this.deep_msg_blocks.slice(-1);
-					}	
-					else{
-						//usamos las que estan fuera de la vista en el proximo acomodamiento
-						this.last_word = this.deep_msg_blocks.slice(this.begin_token, this.deep_msg_blocks.length);
-						this.last_word = this.last_word.join(' ');
-					}	
-					//el ultimo bloque que teniamos se divide y acomoda mas palabras en la burbuja
-					let last_block = this.deep_msg_blocks.slice(0,this.begin_token).join(' ');	
-					//por ende hay mas spans heredados por la division en el limite
-					this.tooltip_err_span = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-					this.tooltip_err_span.setAttributeNS(null, 'x', '12');
-					this.tooltip_err_span.setAttributeNS(null, 'dy', '50');
-					this.tooltip_err_span.setAttributeNS(null, 'fill', 'yellow');														
-					this.tooltip_err_span.innerHTML = last_block;		
-					tooltip_errParent.appendChild(this.tooltip_err_span);														
-					this.tooltip_err_span = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-					this.tooltip_err_span.setAttributeNS(null, 'x', '12');
-					this.tooltip_err_span.setAttributeNS(null, 'dy', '50');
-					this.tooltip_err_span.setAttributeNS(null, 'fill', 'yellow');														
-					this.tooltip_err_span.innerHTML = this.last_word;		
-					tooltip_errParent.appendChild(this.tooltip_err_span);	
-				}
-				else{
-					//si la cantidad es mas corta se acomoda con pocas instrucciones
-					let tooltip_err_span = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-					tooltip_err_span.setAttributeNS(null, 'x', '12');
-					tooltip_err_span.setAttributeNS(null, 'dy', '50');
-					tooltip_err_span.setAttributeNS(null, 'fill', 'yellow');
-					//el ultimo bloque tiene posicion fija														
-					tooltip_err_span.innerHTML = this.msg_fit;		
-					tooltip_errParent.appendChild(tooltip_err_span);		
-				}												
+		let tooltipSpan = document.createElement('span');
+		tooltipSpan.innerHTML = msg;
+		//Estilo del tooltip
+		tooltipSpan.classList.add("tooltiptext");	
+		let tooltipStyle = document.createElement('style');
+		tooltipStyle.innerHTML = `
+			.tooltiptext {
+				visibility: hidden; 
+				width: 120px; 
+				font-size: 12px; 
+				background-color: #555; 
+				color: #fff; 
+				text-align: center; 
+				line-height: 1;
+				border-radius: 2px; 
+				padding: 5px 0; 
+				position: absolute;
+				z-index: 1001;
+				bottom: 125%;
+				left: 50%;
+				margin-left: -60px;
+				transition: opacity 0.3s;
 			}
-			else{
-				//si el mensaje excedido es de un unico parrafo no esta controlado				
-				this.deep_msg_blocks = this.msg_blocks;
-				//se divide como si fuese un parrafo excedido
-				this.last_slice = true;
-				let char_sum = 0;
-				for (var token = 0; token < this.deep_msg_blocks.length; token++){
-					char_sum += this.deep_msg_blocks[token].length;		
-					if ( (char_sum+this.deep_msg_blocks.length) > max_char){
-						this.begin_token = token;
-						this.last_slice = false;
-						break;						
-					}			
-				}										
-				if (this.last_slice === true){
-					this.begin_token = this.deep_msg_blocks.length-1;
-					this.last_word = this.deep_msg_blocks.slice(-1);
-				}	
-				else{
-					this.last_word = this.deep_msg_blocks.slice(this.begin_token, this.deep_msg_blocks.length);
-					this.last_word = this.last_word.join(' ');
-				}	
-				let last_block = this.deep_msg_blocks.slice(0,this.begin_token).join(' ');	
-				//el bloque excedido unico se divide
-				this.tooltip_err_span = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-				this.tooltip_err_span.setAttributeNS(null, 'x', '12');
-				this.tooltip_err_span.setAttributeNS(null, 'dy', '50');
-				this.tooltip_err_span.setAttributeNS(null, 'fill', 'yellow');														
-				this.tooltip_err_span.innerHTML = last_block;		
-				tooltip_errParent.appendChild(this.tooltip_err_span);														
-				this.tooltip_err_span = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-				this.tooltip_err_span.setAttributeNS(null, 'x', '12');
-				this.tooltip_err_span.setAttributeNS(null, 'dy', '50');
-				this.tooltip_err_span.setAttributeNS(null, 'fill', 'yellow');
-				//se incluye el bloque unico que habia estado sin control														
-				this.tooltip_err_span.innerHTML = this.last_word;		
-				tooltip_errParent.appendChild(this.tooltip_err_span);					
-			}									
-		}
-		else{
-			//el mensaje ya se ajusta y necesita minimo acomodamiento
-			let tooltip_err_span = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-			tooltip_err_span.setAttributeNS(null, 'x', '12');
-			tooltip_err_span.setAttributeNS(null, 'dy', '50');
-			tooltip_err_span.setAttributeNS(null, 'fill', 'yellow');
-			tooltip_err_span.innerHTML = msg;			
-			tooltip_errParent.appendChild(tooltip_err_span);																		
-		}
-
-		//la ruta del trazo hereda los datos de la burbuja
-		tooltipSVG.appendChild(tooltipPath);	      							
-		//la tipografia hereda los datos de la burbuja
-		tooltipSVG.appendChild(tooltip_errParent);
-		//la imagen vectorial no usa propiedades de posicion pero recibe coordenadas
-		tooltipSVG.style.marginTop = '-60px';
-	      							
+			.tooltiptext::after {
+				content: "";
+				position: absolute;
+				top: 100%;
+				left: 50%;
+				margin-left: -5px;
+				border-width: 5px;
+				border-style: solid;
+				border-color: #555 transparent transparent transparent;
+			}
+		`;
+		tooltipSpan.appendChild(tooltipStyle);
 	   //la burbuja hereda los datos de la celda									
-	   k.appendChild(tooltipSVG);
-    	k.onmouseover = function(e){ 
-    		/* Normalmente utilizamos hover de CSS para estilizar elementos en los que esta el cursor pero en este caso necesitamos usar onmouseover */
-    		//Buscamos el pariente de la celda que guarda propiedades para controlar la vista del mensaje
-		//Un elemento que guarda informacion falsa guarda un estado positivo de falsabilidad
-    		if (e.target.parentElement.childNodes[0].falsable === true){
-    			//Si el dato se falsifica su valor no es valido
-    			//Usamos la propiedad de visibilidad para saber si el elemento con la informacion falsa expone su error
-				if (e.target.parentElement.childNodes[1].getAttributeNS(null,'displayed') === 'false'){
-      	      e.target.parentElement.childNodes[1].setAttribute('display', "block");
-         	  	e.target.parentElement.childNodes[1].animate({"opacity" : 1});
-           		e.target.parentElement.childNodes[1].setAttributeNS(null, 'displayed', true);
-        		}
-        		else{
-            	e.target.parentElement.childNodes[1].animate({"opacity" : 0});
-            	//Si el error esta expuesto necesitamos controlar la visibilidad temporalmente para seguir cambiando los datos
-            	setTimeout(function (){
-                   e.target.parentElement.childNodes[1].setAttribute('display', "none");
-               }, 
-               250);
-               e.target.parentElement.childNodes[1].setAttributeNS(null, 'displayed', false);
-	            e.target.parentElement.childNodes[1].style.transition =  'opacity 6s ease-in-out';
-      	  	}
-        	}	        	  					
-			else if (e.target.parentElement.childNodes[0].falsable === false){ 
+	   k.appendChild(tooltipSpan);
+	   k.onmouseenter = function(e){
+			/* Normalmente utilizamos hover de CSS para estilizar elementos en los que esta el cursor pero en este caso necesitamos usar onmouseenter */
+			//Buscamos la celda que guarda propiedades para controlar la vista del mensaje
+			//Un elemento que guarda informacion falsa guarda un estado positivo de falsabilidad
+			//Si el dato se falsifica su valor no es valido
+			//Usamos la propiedad de visibilidad para saber si el elemento con la informacion falsa expone su error
+			if (e.target.childNodes[0].falsable === true){
+				e.target.childNodes[1].style.visibility = 'visible';
+			}	        	  					
+			else if (e.target.childNodes[0].falsable === false){ 	
 				//Si el elemento se controla validamente no se puede demostrar su falsedad por lo tanto no se expone la burbuja
-				if (e.target.parentElement.childNodes[0].isinvalid === false){								
-					e.target.parentElement.childNodes[1].setAttribute('display', "none");
-				}					
-			}          								
-	   };	
+				e.target.childNodes[1].style.visibility =  'hidden';
+			}
+	   };
+	   k.onmouseleave = function(e){
+			//Si el error esta expuesto necesitamos controlar la visibilidad temporalmente para seguir cambiando los datos
+			e.target.childNodes[1].style.visibility =  'hidden';
+		};
 		return k;
 	}
-
 	//Renderizados de tabla (celdas)
 	loadTable(idx) {
 		let ipage = renderer.excel_data[idx];
@@ -1838,6 +1914,10 @@ export default class renderWidget {
 	      checkbox.type = 'checkbox';
 	      checkbox.id = 'render_row_'+String(R);
 	      checkbox.discarded = false;
+		  let checkboxLabel = document.createElement('label');
+		  checkboxLabel.htmlFor = 'render_row_'+String(R);
+		  checkboxLabel.id = 'render_row_'+String(R);
+		  checkboxLabel.appendChild(document.createTextNode(R+1));
 	      //accept or reject row for storage
 	      checkbox.onchange = function(e){
 				if (e.target.checked === true){
@@ -1850,6 +1930,7 @@ export default class renderWidget {
 			//click user boxes
 			checkbox.click();
 	      tdDiv.appendChild(checkbox);
+		  tdDiv.appendChild(checkboxLabel);
 	      trDiv.appendChild(tdDiv);
 	      renderer.sizeIncrement += 32;
 			//falsability similar to shape and content in table
@@ -1881,9 +1962,6 @@ export default class renderWidget {
        	  				this.textbox.value = '';
        	  				this.textbox.col = C;
        	  				this.textbox.row = R;
-       		  			if (0 === C){
-       		  				this.textbox.style.marginLeft = '-114px';
-       		  			}
        		  			//filling unknown field with new factor
 	       	  			this.textbox.onchange = function (e){
 								if (typeof e.value !== 'undefined'){
@@ -1898,6 +1976,9 @@ export default class renderWidget {
 									}
 									renderer.prove(e, this.textbox.col, this.textbox.row, this.editing, false, true, e.target.err_msg, false, false);									
 									e.isedited = false;
+									if (e.target.isinvalid === true){
+										e.target.style.backgroundColor = renderer.errorColor;  
+									}	
 								}
 								else if (typeof e.target.value !== 'undefined'){
 									e.target.isedited = true;	
@@ -1912,6 +1993,9 @@ export default class renderWidget {
 									renderer.prove(e.target, e.target.col, e.target.row, this.editing, false, true, e.target.err_msg, false, false);									
 									renderer.excel_data[this.editing][e.target.row][e.target.col] = e.target.value; //if value is objective it has to be added after processing it
 									e.target.isedited = false;	  
+									if (e.target.isinvalid === true){
+										e.target.style.backgroundColor = renderer.errorColor;  
+									}	
 								}											
 								else{						
 								}		
@@ -1943,13 +2027,7 @@ export default class renderWidget {
 						   	      this.textbox.value = ipage[R][C];	
       		 	  					this.textbox = document.createElement('input');
        			  					this.textbox.type = 'text';
-	       		  					if (0 === C){
-   	    		  						this.textbox.style.marginLeft = '-114px';
-      	 		  						if (0 === R){
-       			  							this.textbox.style.marginTop = '16px';
-       			  						}
-       		  						}
-	       	  						errorCell(this.textbox); //coloriza campo crítico vacío
+	       	  						//errorCell(this.textbox); //coloriza campo crítico vacío
 	       	  						this.textbox.critical = 1;
        	  							if (typeof this.textbox.trying === 'undefined'){
 											this.textbox.trying = [];       	  						
@@ -1975,6 +2053,9 @@ export default class renderWidget {
 											renderer.deep_excel_data[this.editing][e.target.row][e.target.col] = e.target.value;
 											renderer.prove(e, e.target.col, e.target.row, this.editing, false, true, e.target.err_msg, false, false);																		       
 											e.target.isedited = false;	
+											if (e.target.isinvalid === true){
+												e.target.style.backgroundColor = renderer.errorColor;  
+											}	
 	   	    	  					}
        		  						this.textbox.readOnly = false;	
        	  							this.textbox.onfocus = function(e){
@@ -1986,6 +2067,9 @@ export default class renderWidget {
 												this.editing = renderer.page; //program basis
 											}
 											renderer.prove(e.target, e.target.col, e.target.row, this.editing, false, true, e.target.err_msg, false, false);	    	  		
+											if (e.target.isinvalid === true){
+												e.target.style.backgroundColor = renderer.errorColor;  
+											}	
        	  							}	
        	  							this.textbox.isinvalid = true;
 										renderer.falsable_cells[idx][R][C] = true;       	  					
@@ -1994,9 +2078,9 @@ export default class renderWidget {
        	  							errors_sum += 1;	
 	       	  						cells_sum += 1;
 										//create table container
-   	    	  						let tdDiv = document.createElement('td');
-	      							tdDiv.appendChild(this.textbox);	
-										this.tdDiv = this.addTooltip(tdDiv, renderer.dom_factor[C][0][0].error);
+   	    	  						this.tdDiv = document.createElement('td');
+	      							this.tdDiv.appendChild(this.textbox);	
+										//this.tdDiv = this.addTooltip(tdDiv, renderer.dom_factor[C][0][0].error);
 		       	  					trDiv.appendChild(this.tdDiv);	       	  						
 		       	  					trDiv.bad_row = true;
 	       	  						continue;  
@@ -2057,6 +2141,9 @@ export default class renderWidget {
 												this.editing = renderer.page; //program basis
 											}										 
 											renderer.prove(e.target, e.target.col, e.target.row, this.editing, false, true, e.target.err_msg, false, false);	    	  		
+											if (e.target.isinvalid === true){
+												e.target.style.backgroundColor = renderer.errorColor;  
+											}	
        	  							}	
 	       	 						this.textbox.selecting = false;						
    	    	  						cells_sum += 1;												
@@ -2076,12 +2163,6 @@ export default class renderWidget {
        	  								this.textbox.col = C;
        	  								this.textbox.row = R;
 						   	      	this.textbox.value = ipage[R][C];	
-       		  							if (0 === C){
-       		  								this.textbox.style.marginLeft = '-114px';
-       		  								if (0 === R){
-       		  									this.textbox.style.marginTop = '16px';
-       		  								}       		  						
-       		  							}
 	       		  						//place data and verify it has does not have the same info
    	    	  							this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
 	   	      						this.textbox.onchange = function (e){  
@@ -2110,6 +2191,9 @@ export default class renderWidget {
 													this.editing = renderer.page; //program basis
 												}
 												renderer.prove(e.target, e.target.col, e.target.row, this.editing, false, true, e.target.err_msg, false, false);	  	  		
+												if (e.target.isinvalid === true){
+													e.target.style.backgroundColor = renderer.errorColor;  
+												}	
        	  								}	
        	  								if (typeof this.textbox.trying === 'undefined'){
 												this.textbox.trying = [];       	  						
@@ -2120,13 +2204,13 @@ export default class renderWidget {
        	  								renderer.falsable_cells[idx][R][C] = true;       
        	  								this.textbox.falsable = true;
 	       	  							this.textbox.unique = 1;    				
-       	  								errorCell(this.textbox); //coloriza campo contenido duplicado   
+       	  								//errorCell(this.textbox); //coloriza campo contenido duplicado   
 	       	  							errors_sum += 1;		       	
 	       	  							cells_sum += 1;	  					
 											//create table container
-   	    	  							let tdDiv = document.createElement('td');
-	      								tdDiv.appendChild(this.textbox);	
-											this.tdDiv = this.addTooltip(tdDiv, renderer.dom_factor[C][0][0].error);
+   	    	  							this.tdDiv = document.createElement('td');
+	      								this.tdDiv.appendChild(this.textbox);	
+											//this.tdDiv = this.addTooltip(tdDiv, renderer.dom_factor[C][0][0].error);
 		       	  						trDiv.appendChild(this.tdDiv);
 		       	  						trDiv.bad_row = true;     	  									   	      	
 	   	    	  						continue;  
@@ -2140,12 +2224,6 @@ export default class renderWidget {
        	  								this.textbox.readOnly = false;	
        	  								this.textbox.col = C;
        	  								this.textbox.row = R;
-	       		  						if (0 === C){
-   	    		  							this.textbox.style.marginLeft = '-114px';
-      	 		  							if (0 === R){
-       			  								this.textbox.style.marginTop = '16px';
-       			  							}       		  						
-       		  							}
          								this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
        		  							//change data and verify it is not copied
 	         							this.textbox.onchange = function (e){    
@@ -2164,6 +2242,9 @@ export default class renderWidget {
 												if (e.target.isinvalid === true){
 													e.target.style.backgroundColor = renderer.errorColor;  
 												}	
+												if (e.target.isinvalid === true){
+													e.target.style.backgroundColor = renderer.errorColor;  
+												}	
        	  								}
        	  								this.textbox.onfocus = function(e){
 												renderer.tdCombined(e);   
@@ -2174,6 +2255,12 @@ export default class renderWidget {
 													this.editing = renderer.page; //program basis
 												}											
 												renderer.prove(e.target, e.target.col, e.target.row, this.editing, false, true, e.target.err_msg, false, false);	    	  		
+												if (e.target.isinvalid === true){
+													e.target.style.backgroundColor = renderer.errorColor;  
+												}	
+												if (e.target.isinvalid === true){
+													e.target.style.backgroundColor = renderer.errorColor;  
+												}	
    	    	  							}	
       	 	  							if (typeof this.textbox.trying === 'undefined'){
 												this.textbox.trying = [];       	  						
@@ -2212,11 +2299,11 @@ export default class renderWidget {
 											this.matching = null; //null is not a regexp           			
 	               				}
    	            				else{
-      	         					this.matching = v.match(new RegExp(renderer.dom_factor[C][0][0].re));  
+   	            					this.matching = v.match(renderer.dom_factor[C][0][0].re);      	         					
             	   				}   
        				 				this.textbox = document.createElement('input');
 										if (this.matching === null){     
-       	  								errorCell(this.textbox); //coloriza campo con re   
+       	  								//errorCell(this.textbox); //coloriza campo con re   
 	       	  							errors_sum += 1;
    	    	  							this.textbox.isinvalid = true;
       	 	  							renderer.falsable_cells[idx][R][C] = true;       
@@ -2224,7 +2311,7 @@ export default class renderWidget {
 						   	      	this.textbox.value = ipage[R][C];					   	      	
        	  							}
 										else if (this.matching.length === null){     
-       	  								errorCell(this.textbox); //coloriza campo con re   
+       	  								//errorCell(this.textbox); //coloriza campo con re   
 	       	  							errors_sum += 1;
    	    	  							this.textbox.isinvalid = true;
       	 	  							renderer.falsable_cells[idx][R][C] = true;       
@@ -2252,22 +2339,18 @@ export default class renderWidget {
 	   	      							this.textbox.value = ipage[R][C];
 		   	     						}				
 	       	  						}
+               					console.info('V', v, 'IS INVALID', this.textbox.isinvalid);
    	    	  						this.textbox.type = 'text';
        		  						this.textbox.col = C;
        	  							this.textbox.row = R;
       	 	  						this.textbox.err_msg = renderer.dom_factor[C][0][0].error;
-       		  						if (0 === C){
-       		  							this.textbox.style.marginLeft = '-114px';
-       		  							if (0 === R){
-       		  								this.textbox.style.marginTop = '16px';
-       		  							}       		  						
-	       		  					}
    	    	  						if (typeof this.textbox.trying === 'undefined'){
 											this.textbox.trying = [];       	  						
        		  						}       	  
        	  							//place data and verify it corresponds to the expression		
 	        							this.textbox.onchange = function (e){
 	        								//triggers nonsense
+	        								console.info('EDIT TRIGGERED');
 											if (renderer.hasOwnProperty('check_transversal')){
 												this.editing = renderer.check_transversal; //user basis
 											}	
@@ -2275,6 +2358,7 @@ export default class renderWidget {
 												this.editing = renderer.page; //program basis
 											}			        		
 											e.target.isnewinfo = true; //acknowledge the value is changed  						  
+											console.info('IS NEW INFO?', e.target.isnewinfo);
 											renderer.excel_data[this.editing][e.target.row][e.target.col] = e.target.value;
 											renderer.deep_excel_data[this.editing][e.target.row][e.target.col] = e.target.value;    			        																	
 											e.target.isedited = true;	  
@@ -2287,6 +2371,7 @@ export default class renderWidget {
 	       	  						this.textbox.trying.push('re');  	  						
        	  							this.textbox.readOnly = false;	
        	  							this.textbox.onfocus = function(e){
+       	  								console.info('FOCUS TRIGGERED');
 											renderer.tdCombined(e);       
 											if (renderer.hasOwnProperty('check_transversal')){
 												this.editing = renderer.check_transversal; //user basis
@@ -2295,14 +2380,17 @@ export default class renderWidget {
 												this.editing = renderer.page; //program basis
 											}
 											renderer.prove(e.target, e.target.col, e.target.row, this.editing, false, true, e.target.err_msg, false, false);		  		
+											if (e.target.isinvalid === true){
+												e.target.style.backgroundColor = renderer.errorColor;  
+											}	
        	  							}	
        	  							this.textbox.selecting = false;
        	  							cells_sum += 1;	
 		       	  					this.textbox.re = renderer.dom_factor[C][0][0].re;			
 										//create table container
-   	    	  						let tdDiv = document.createElement('td');
-	      							tdDiv.appendChild(this.textbox);	
-										this.tdDiv = this.addTooltip(tdDiv, renderer.dom_factor[C][0][0].error);
+   	    	  						this.tdDiv = document.createElement('td');
+	      							this.tdDiv.appendChild(this.textbox);	
+										//this.tdDiv = this.addTooltip(tdDiv, renderer.dom_factor[C][0][0].error);
 		       	  					trDiv.appendChild(this.tdDiv);
 	   	    	  					trDiv.bad_row = true;
 	       		  					continue;  
@@ -2333,12 +2421,6 @@ export default class renderWidget {
 												e.target.style.backgroundColor = renderer.errorColor;  
 											}	
        		  						}
-       			  					if (0 === C){
-       		  							this.textbox.style.marginLeft = '-114px';
-       		  							if (0 === R){
-       		  								this.textbox.style.marginTop = '16px';
-       		  							}       		  					
-       		  						}
 	       	  						this.textbox.onfocus = function(e){
 											renderer.tdCombined(e);       
 											if (renderer.hasOwnProperty('check_transversal')){
@@ -2348,9 +2430,12 @@ export default class renderWidget {
 												this.editing = renderer.page; //program basis
 											}
 											renderer.prove(e.target, e.target.col, e.target.row, this.editing, false, true, e.target.err_msg, false, false);		  		
+											if (e.target.isinvalid === true){
+												e.target.style.backgroundColor = renderer.errorColor;  
+											}	
        	  							}	
-	       	  						if (typeof e.trying === 'undefined'){
-											e.trying = [];       	  						
+	       	  						if (typeof this.textbox.trying === 'undefined'){
+											this.textbox.trying = [];       	  						
       	   						}
 					   	      	if (R === 0){
 	   	      						this.textbox.value = ipage[R][C];					   	      	
@@ -2368,7 +2453,7 @@ export default class renderWidget {
 	   	  			    			else{				
 	   	      						this.textbox.value = ipage[R][C];
 		   	     					}				
-	       		  					this.textbox.trying.push('unique');
+	       		  					this.textbox.trying.push(null);
        	  							this.textbox.selecting = false;
        	  							this.textbox.isinvalid = false;
        	  							this.textbox.falsable = false;
@@ -2400,17 +2485,10 @@ export default class renderWidget {
 	   	  			    		else{				
 	   	      					this.textbox.value = ipage[R][C];
 		   	     				}				
-
 	       	  					this.textbox.col = C;
    		    	  				this.textbox.row = R;
        		  					this.textbox.trying = [null];
        	  						this.textbox.err_msg = '';
-       		  					if (0 === C){
-       		  						this.textbox.style.marginLeft = '-114px';
-       		  						if (0 === R){
-       		  							this.textbox.style.marginTop = '16px';
-       		  						}       		  				
-	       		  				}
    	    		  				//changes value without contrasting known information
 	   	    	  				this.textbox.onchange = function (e){
 										if (renderer.hasOwnProperty('check_transversal')){
@@ -2439,6 +2517,9 @@ export default class renderWidget {
 											this.editing = renderer.page; //program basis
 										}
 										renderer.prove(e.target, e.target.col, e.target.row, this.editing, false, true, e.target.err_msg, false, false);		  		
+										if (e.target.isinvalid === true){
+											e.target.style.backgroundColor = renderer.errorColor;  
+										}	
       	   					}	 
    	      					this.textbox.isinvalid = false;
       	   					this.textbox.falsable = false;
@@ -2474,12 +2555,6 @@ export default class renderWidget {
 	       	  					this.textbox.row = R;
    	    	  					this.textbox.trying = [null];
       	 	  					this.textbox.err_msg = '';
-       			  				if (0 === C){
-       			  					this.textbox.style.marginLeft = '-114px';
-       		  						if (0 === R){
-       		  							this.textbox.style.marginTop = '16px';
-       		  						}       		  				
-       		  					}
       	 		  				//changes value without contrasting unknown information
 	      	 	  				this.textbox.onchange = function (e){  
 										if (renderer.hasOwnProperty('check_transversal')){
@@ -2508,6 +2583,9 @@ export default class renderWidget {
 											this.editing = renderer.page; //program basis
 										}
 										renderer.prove(e.target, e.target.col, e.target.row, this.editing, false, true, e.target.err_msg, false, false);		
+										if (e.target.isinvalid === true){
+											e.target.style.backgroundColor = renderer.errorColor;  
+										}	
       	   					}	
          						this.textbox.isinvalid = false;
 	         					this.textbox.falsable = false;
@@ -2543,12 +2621,6 @@ export default class renderWidget {
 	       	  				this.textbox.row = R;
    	    	  				this.textbox.trying = [null];
       	 	  				this.textbox.err_msg = '';
-       			  			if (0 === C){
-       			  				this.textbox.style.marginLeft = '-114px';
-       		  					if (0 === R){
-       		  						this.textbox.style.marginTop = '16px';
-       		  					}       		  				
-	       		  			}
    	    		  			//changes value without contrasting unknown information
 	   	    	  			this.textbox.onchange = function (e){
 									e.target.isnewinfo = true; //acknowledge the value is changed       
@@ -2577,6 +2649,9 @@ export default class renderWidget {
 										this.editing = renderer.page; //program basis
 									}
 									renderer.prove(e.target, e.target.col, e.target.row, this.editing, false, true, e.target.err_msg, false, false);		
+									if (e.target.isinvalid === true){
+										e.target.style.backgroundColor = renderer.errorColor;  
+									}	
          					}	
          					this.textbox.isinvalid = false;
          					this.textbox.falsable = false;
@@ -2686,7 +2761,6 @@ export default class renderWidget {
 								//wants to show only changed information	
 								renderer.render_edited_page(document.getElementById('show_changed').checked);	
 								//states of proofs are read at the end of the loop	
-
 								this.page_shift = true;
 								renderer.prev_exp = idx;
 								return null;
@@ -2697,7 +2771,6 @@ export default class renderWidget {
       			console.info(error);
       		 }	  	  			
        	}
-
        	this.trs.push(trDiv); 
 			if (trDiv.bad_row === true){
 				for (var col = 0; col < trDiv.childNodes.length; col++){
@@ -2713,10 +2786,9 @@ export default class renderWidget {
 			}       	 
 		}
 		document.getElementById('error_sheets').innerHTML = 'Con errores: '+errors_sum;
-		document.getElementById('total_sheets').innerHTML = 'Total: '+cells_sum+' | ';
+		document.getElementById('total_sheets').innerHTML = 'Total de celdas: '+cells_sum+' | ';
 		return this.trs;	
   	}
-
 	proveFilled(idx,C,R,Page,X, error, save, swap, newreq) {			
 		//index => saving (save condition), change => update (real ground conditions applicate only if values are changed and focusing is discounted), structure => loop (swap condition)
 		if (X === null){ //value is handled
@@ -2736,7 +2808,6 @@ export default class renderWidget {
 		else{
 			this.x = X;	//empty value is never taken	
 		}
-
 		if (R === 0){
 			renderer.excel_data[Page][R][C] = this.x;
 			return true;		
@@ -2748,7 +2819,6 @@ export default class renderWidget {
 				}		
 			}		
 		}	
-
 		if (this.x !== ''){
 			if (idx !== false){
   				idx.style.backgroundColor = null;
@@ -2758,33 +2828,53 @@ export default class renderWidget {
 				idx.isedited = false;
   			} 
 			renderer.falsable_cells[Page][R][C] = false;
+       	let count=0;
+       	for (var rw = 0; rw < renderer.falsable_cells[Page].length; rw++){
+       		for (var r = 0; r < renderer.falsable_cells[Page][rw].length; r++){ 
+       			if (renderer.falsable_cells[Page][rw][r] === true){
+						count += 1;       		
+       			}
+       		}	
+       	}
+			document.getElementById('error_sheets').innerHTML = 'Con errores: '+String(count);
 			return true;
   		}
   		else{
   			//mantain process using the handler
   			if (idx !== false){ 
 				idx.critical = 1;  		
-				errorCell(idx);  		
+				if (document.getElementById('render_row_'+R).discarded === false){
+					errorCell(idx);  		
+				}
       	 	idx.falsable = true; 
        		idx.isinvalid = true;	         	   
        		if (typeof idx.parentElement.childNodes[1] === 'undefined'){
 					//El mensaje es dado en un evento o manejado por el elemento que contiene la verificacion		
-					if (typeof error === 'undefined'){	
-						this.falsek = this.addTooltip(idx.parentElement, idx.err_msg);	
-					}
-					else{
-	       			this.falsek = this.addTooltip(idx.parentElement, error);	
-	       		}   								        	  					
+					if (document.getElementById('render_row_'+R).discarded === false){
+						if (typeof error === 'undefined'){	
+							this.falsek = this.addTooltip(idx.parentElement, idx.err_msg);	
+						}
+						else{
+	       				this.falsek = this.addTooltip(idx.parentElement, error);	
+	       			}   								  
+	       		}      	  					
    	 		}
        	}
     		else{
     		}       
        	renderer.falsable_cells[Page][R][C] = true;
-			document.getElementById('error_sheets').innerHTML = 'Con errores: '+String(parseInt(document.getElementById('error_sheets').innerHTML.split('Con errores: ')[1])+1);
+       	let count=0;
+       	for (var rw = 0; rw < renderer.falsable_cells[Page].length; rw++){
+       		for (var r = 0; r < renderer.falsable_cells[Page][rw].length; r++){ 
+       			if (renderer.falsable_cells[Page][rw][r] === true){
+						count += 1;       		
+       			}
+       		}	
+       	}
+			document.getElementById('error_sheets').innerHTML = 'Con errores: '+String(count);
 			return false;
   		}
 	}
-
 	purify(idx,C,R,Page) {
 		/* A function that eliminates validator and trial of column in all pages */
 		renderer.falsable_cells[Page][R][C] = false;	 		
@@ -2793,9 +2883,17 @@ export default class renderWidget {
 		idx.isedited = false;  
 		idx.trying = [null];
 		idx.style.background = 'white';
+      let count=0;
+      for (var rw = 0; rw < renderer.falsable_cells[Page].length; rw++){
+       	for (var r = 0; r < renderer.falsable_cells[Page][rw].length; r++){ 
+       		if (renderer.falsable_cells[Page][rw][r] === true){
+					count += 1;       		
+       		}
+       	}	
+      }
+		document.getElementById('error_sheets').innerHTML = 'Con errores: '+String(count);	
 		return true;
 	}
-
 	proveUnique(idx,C,R,Page,X, error, save, swap, newreq) {
 		if (R === 0){
 			renderer.excel_data[Page][R][C] = idx.value;
@@ -2809,7 +2907,6 @@ export default class renderWidget {
 			this.x = X;	
 			this.row = R;			
 		}
-		
 		this.isunique = true;
 		if (renderer.hasOwnProperty('vals_unique') === false){
 			renderer.vals_unique = [];
@@ -2819,7 +2916,6 @@ export default class renderWidget {
 				return null;		
 			}
 		}	
-	
 		for (var row = 0; row < this.row; row++){ ///search only first ocurrence in event loop
 			if (renderer.vals_unique.includes(renderer.excel_data[Page][row][C])){
 			}
@@ -2883,21 +2979,33 @@ export default class renderWidget {
 			}
 			if (idx !== false){
 				idx.unique = 1;  		
-				errorCell(idx);  
+				if (document.getElementById('render_row_'+R).discarded === false){
+					errorCell(idx);  
+				}
    	    	idx.falsable = true;
       	 	idx.isinvalid = true;		
 	       	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
 					//El mensaje es dado en un evento o manejado por el elemento que contiene la verificacion		
-					if (typeof error === 'undefined'){	
-						this.falsek = this.addTooltip(idx.parentElement, idx.err_msg);	
-					}
-					else{
-	       			this.falsek = this.addTooltip(idx.parentElement, error);	
-	       		}       								        	  					
+					if (document.getElementById('render_row_'+R).discarded === false){
+						if (typeof error === 'undefined'){	
+							this.falsek = this.addTooltip(idx.parentElement, idx.err_msg);	
+						}
+						else{
+	       				this.falsek = this.addTooltip(idx.parentElement, error);	
+	       			}    
+	       		}   								        	  					
 	    		}
        	}     	
        	renderer.falsable_cells[Page][R][C] = true;         	
-			document.getElementById('error_sheets').innerHTML = 'Con errores: '+String(parseInt(document.getElementById('error_sheets').innerHTML.split('Con errores: ')[1])+1);       		
+       	let count=0;
+       	for (var rw = 0; rw < renderer.falsable_cells[Page].length; rw++){
+       		for (var r = 0; r < renderer.falsable_cells[Page][rw].length; r++){ 
+       			if (renderer.falsable_cells[Page][rw][r] === true){
+						count += 1;       		
+       			}
+       		}	
+       	}
+			document.getElementById('error_sheets').innerHTML = 'Con errores: '+String(count);			
 			return false;
   		}
   		else{
@@ -2910,10 +3018,18 @@ export default class renderWidget {
 			}
 			renderer.falsable_cells[Page][R][C] = false;	 
        	//confusion is cleared during valid demonstration
+       	let count=0;
+       	for (var rw = 0; rw < renderer.falsable_cells[Page].length; rw++){
+       		for (var r = 0; r < renderer.falsable_cells[Page][rw].length; r++){ 
+       			if (renderer.falsable_cells[Page][rw][r] === true){
+						count += 1;       		
+       			}
+       		}	
+       	}
+			document.getElementById('error_sheets').innerHTML = 'Con errores: '+String(count);
 			return true;
   		}
 	}
-
 	proveRe(idx,C,R,Page,X,Y, error, save, re) {
 		if (R === 0){
 			renderer.excel_data[Page][R][C] = idx.value;
@@ -2928,7 +3044,6 @@ export default class renderWidget {
 		else{
 			this.x = X;	//x is given	
 		}
-
 		//y is handled
 		if (Y === null){ 
 			this.y = idx.re;		
@@ -2942,11 +3057,15 @@ export default class renderWidget {
 		else{
 			this.y = Y;	//y is given imported	
 		}		
+		console.info('X', this.x, 'GIVEN Y', this.y, 'HANDLING', idx.re);
 		if (typeof this.y !== 'undefined'){
-			this.matching = this.x.match(new RegExp(this.y));  //expression is given or is in an event
+			this.matching = this.x.match(this.y);  //observed expression is given
+			//if (this.y !== idx.re){ //given becomes an attribute of cell
+			//	idx.re = this.y;			
+			//}
 		}
 		else{
-			this.matching = this.x.match(new RegExp(idx.re)); //expression is fixed	transversally		
+			this.matching = this.x.match(idx.re);  //observed expression is in an event
 		}
 		if (this.matching === null){
 			this.matched = null;		
@@ -2960,21 +3079,33 @@ export default class renderWidget {
 		if (this.matched === null){ //no match of expressions (outcome is erroneous)
 			if (idx !== false){
 				idx.unique = 1;  		
-				errorCell(idx);  
+				if (document.getElementById('render_row_'+R).discarded === false){
+					errorCell(idx);  
+				}
 	       	idx.isinvalid = true;
 	       	idx.falsable = true;	
 	       	if (typeof idx.parentElement.childNodes[1] === 'undefined'){
 					//El mensaje es dado en un evento o manejado por el elemento que contiene la verificacion	
 					if (typeof error === 'undefined'){	
+						console.info('USING ERROR FROM CELL');
 						this.falsek = this.addTooltip(idx.parentElement, idx.err_msg);	
 					}
 					else{
-	       			this.falsek = this.addTooltip(idx.parentElement, error);	
-	       		}   								        	  					
+						this.falsek = this.addTooltip(idx.parentElement, error);
+	       		}   							        	  					
 	    		}
        	} 
        	renderer.falsable_cells[Page][R][C] = true;  
-			document.getElementById('error_sheets').innerHTML = 'Con errores: '+String(parseInt(document.getElementById('error_sheets').innerHTML.split('Con errores: ')[1])+1);
+       	console.info(renderer.falsable_cells[Page]);
+       	let count=0;
+       	for (var rw = 0; rw < renderer.falsable_cells[Page].length; rw++){
+       		for (var r = 0; r < renderer.falsable_cells[Page][rw].length; r++){ 
+       			if (renderer.falsable_cells[Page][rw][r] === true){
+						count += 1;       		
+       			}
+       		}	
+       	}
+			document.getElementById('error_sheets').innerHTML = 'Con errores: '+String(count);			
 			return false;
   		}
   		else{		
@@ -2986,10 +3117,20 @@ export default class renderWidget {
   				idx.style.backgroundColor = 'white';  
   			}				
 			renderer.falsable_cells[Page][R][C] = false;	 
+       	let count=0;
+       	console.info(renderer.falsable_cells[Page]);
+       	for (var rw = 0; rw < renderer.falsable_cells[Page].length; rw++){
+       		for (var r = 0; r < renderer.falsable_cells[Page][rw].length; r++){ 
+       			if (renderer.falsable_cells[Page][rw][r] === true){
+						count += 1;       		
+       			}
+       		}	
+       	}
+			document.getElementById('error_sheets').innerHTML = 'Con errores: '+String(count);
+			console.info('COUNT',count);
   			return true;
   		}
 	}
-
 	prove(idx,C,R,Page,X,process,error,save,swap, re) {
 		/* function that returns a boolean for the outcome of true data testing 
 			vargs:
@@ -3077,9 +3218,7 @@ export default class renderWidget {
 	}
 	//XLSX.writeFile(workbook, fname, write_opts) write file back
 }
-
 function uploadxls(){
 	document.getElementById('pIn').click();
 };
-
 let renderer = new renderWidget(document.getElementById('cecilio-importer'), options);		
