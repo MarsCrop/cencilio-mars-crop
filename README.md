@@ -1,4 +1,4 @@
-# Cencilio  (Mars Crop branch)
+# (Mars Crop branch)
 
 ## Interfaz para renderizar archivos Excel 
 
@@ -8,7 +8,7 @@
 
 ### Dependencias
 
-  * El módulo requiere una clave de Cencilio para su uso.
+  * El módulo requiere una clave para su uso.
   * **SheetJS**: se utiliza SheetJS para interpretar el excel con las diferentes estructuras de validez de datos
   * **Shim**: algunos navegadores no contienen funciones necesarias para usar SheetJS sin dependencias. En ese caso debe agregarse
 
@@ -56,7 +56,7 @@
 ### ¿Cómo se usa?
 
   * Puede integrarse con otros servicios siempre y cuando tenga autorizacion desde **app.cencilio.com**
-  * Importar el script del modulo o instalar para usar Cencilio en el entorno particular
+  * Importar el script del modulo o instalar para usar en el entorno particular
   * Se puede editar y guardar los datos editados con o sin errores en una interfaz estilizada a gusto para una mejor visibilidad especificando los parametros de validacion de los datos y de visualizacion de la interfaz como argumento del modulo (es indispensable especificar los parametros ya que el renderizador se carga una vez que estan dadas las opciones y genera documentos nuevos solamente si la informacion es correcta).
   * Se puede utilizar el selector de etiquetas para verificar que los datos para cargar cumplan o no con los procesos de validacion
   * Se privilegian documentos con mayor cantidad de informacion asi que se puede agregar y verificar informacion nueva y vieja
